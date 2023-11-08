@@ -1,4 +1,3 @@
-import { commands as blank_page_commands, description as blank_page_description, default as BlankPagePlugin } from './blank-page'
 import { commands as barrel_roll_commands, description as barrel_roll_description, default as BarrelRollPlugin } from './barrel-roll'
 import { commands as pesticide_commands, description as pesticide_description, default as PesticidePlugin } from './pesticide'
 import { commands as construct_commands, description as construct_description, default as ConstructPlugin } from './construct'
@@ -25,7 +24,6 @@ const commandsToHash = (plugin_commands, plugin_fn) =>
     , {})
 
 export const PluginRegistry = new Map(Object.entries({
-  ...commandsToHash(blank_page_commands, BlankPagePlugin),
   ...commandsToHash(barrel_roll_commands, BarrelRollPlugin),
   ...commandsToHash(pesticide_commands, PesticidePlugin),
   ...commandsToHash(construct_commands, ConstructPlugin),
@@ -48,7 +46,6 @@ export const PluginRegistry = new Map(Object.entries({
 }))
 
 export const PluginHints = [
-  {command: blank_page_commands[0], description: blank_page_description},
   {command: barrel_roll_commands[0], description: barrel_roll_description},
   {command: pesticide_commands[0], description: pesticide_description},
   {command: construct_commands[0], description: construct_description},

@@ -18,6 +18,7 @@ import {
   isSelectorValid, findNearestChildElement, findNearestParentElement,
   getTextShadowValues, isFixed,
 } from '../utilities/'
+import history, { cssPath } from '../utilities/history'
 
 export function Selectable(visbug) {
   const page              = document.body
@@ -38,23 +39,25 @@ export function Selectable(visbug) {
 
     page.on('selectstart', on_selection)
     page.on('mousemove', on_hover)
-    document.addEventListener('copy', on_copy)
-    document.addEventListener('cut', on_cut)
-    document.addEventListener('paste', on_paste)
+    document.addEventListener('copy', on_copy) // history done
+    document.addEventListener('cut', on_cut) // history done
+    document.addEventListener('paste', on_paste) // history done
 
     watchCommandKey()
 
     hotkeys(`${metaKey}+alt+c`, on_copy_styles)
-    hotkeys(`${metaKey}+alt+v`, e => on_paste_styles())
+    hotkeys(`${metaKey}+alt+v`, e => on_paste_styles()) // TODO: add edit here
     hotkeys('esc', on_esc)
-    hotkeys(`${metaKey}+d`, on_duplicate)
-    hotkeys('backspace,del,delete', on_delete)
-    hotkeys('alt+del,alt+backspace', on_clearstyles)
+    hotkeys(`${metaKey}+d`, on_duplicate) // history done
+    hotkeys('backspace,del,delete', on_delete) // history done
+    hotkeys('alt+del,alt+backspace', on_clearstyles) // history done
     hotkeys(`${metaKey}+e,${metaKey}+shift+e`, on_expand_selection)
-    hotkeys(`${metaKey}+g,${metaKey}+shift+g`, on_group)
+    hotkeys(`${metaKey}+g,${metaKey}+shift+g`, on_group) // TODO: add edit here
     hotkeys('tab,shift+tab,enter,shift+enter', on_keyboard_traversal)
     hotkeys(`${metaKey}+shift+enter`, on_select_children)
     hotkeys(`shift+'`, on_select_parent)
+    hotkeys(`${metaKey}+z`, history.actions.undo)
+    hotkeys(`${metaKey}+shift+z`, history.actions.redo)
   }
 
   const unlisten = () => {
@@ -154,15 +157,39 @@ export function Selectable(visbug) {
     const deep_clone = root_node.cloneNode(true)
     deep_clone.removeAttribute('data-selected')
     root_node.parentNode.insertBefore(deep_clone, root_node.nextSibling)
+
+    history.actions.do({
+      parentLocation: cssPath(deep_clone.parentNode),
+      location: cssPath(deep_clone),
+      element: {
+        tagName: deep_clone.tagName,
+        outerHTML: deep_clone.outerHTML,
+      },
+      action: 'add',
+    })
+
     e.preventDefault()
   }
 
   const on_delete = e =>
     selected.length && delete_all()
 
-  const on_clearstyles = e =>
-    selected.forEach(el =>
-      el.attr('style', null))
+  const on_clearstyles = (_e) => {
+    selected.forEach(el => {
+      const beforeEdit = el.outerHTML
+      el.attr('style', null)
+      history.actions.do({
+        parentLocation: cssPath(el.parentNode),
+        location: cssPath(el),
+        element: {
+          tagName: el.tagName,
+          outerHTML: beforeEdit,
+          finalOuterHTML: el.outerHTML,
+        },
+        action: 'edit',
+      })
+    })
+  }
 
   const on_copy = async e => {
     // if user has selected text, dont try to copy an element
@@ -177,7 +204,7 @@ export function Selectable(visbug) {
       window.copy_backup = $node.outerHTML
       e.clipboardData.setData('text/html', window.copy_backup)
 
-      const {state} = await navigator.permissions.query({name:'clipboard-write'})
+      const { state } = await navigator.permissions.query({ name: 'clipboard-write' })
 
       if (state === 'granted')
         await navigator.clipboard.writeText(window.copy_backup)
@@ -190,6 +217,19 @@ export function Selectable(visbug) {
       $node.removeAttribute('data-selected')
       window.copy_backup = $node.outerHTML
       e.clipboardData.setData('text/html', window.copy_backup)
+      const el = selected[0]
+      if(el.tagName != 'VISBUG-HANDLES' && el.tagName != 'VISBUG-LABEL' && el.tagName != 'VISBUG-HOVER' && el.tagName != 'VISBUG-DISTANCE') {
+        history.actions.do({
+          parentLocation: cssPath(el.parentNode),
+          location: cssPath(el),
+          element: {
+            tagName: el.tagName,
+            outerHTML: el.outerHTML,
+          },
+          action: 'delete',
+        })
+        // log the deleted element for undo
+      }
       selected[0].remove()
     }
   }
@@ -202,9 +242,23 @@ export function Selectable(visbug) {
     if (selected.length && potentialHTML) {
       e.preventDefault()
 
-      selected.forEach(el =>
-        el.appendChild(
-          htmlStringToDom(potentialHTML)))
+      selected.forEach(parent => {
+        const el = htmlStringToDom(potentialHTML)
+        if(!(el instanceof Element)) return
+        parent.appendChild(el)
+        if(el.tagName != 'VISBUG-HANDLES' && el.tagName != 'VISBUG-LABEL' && el.tagName != 'VISBUG-HOVER' && el.tagName != 'VISBUG-DISTANCE') {
+          history.actions.do({
+            parentLocation: cssPath(parent),
+            location: cssPath(el),
+            element: {
+              tagName: el.tagName,
+              outerHTML: el.outerHTML,
+            },
+            action: 'add',
+          })
+          // log the deleted element for undo
+        }
+      })
     }
   }
 
@@ -314,11 +368,33 @@ export function Selectable(visbug) {
     }
   }
 
-  const on_selection = e =>
-    !isOffBounds(e.target)
+  const getElementSkeleton = (el, tabLevel, hasChildrenWithoutChildren) => {
+    const tabSpace = ' '.repeat(tabLevel)
+    let skeleton = ``
+    for(const child of el.children) {
+      const tab = '_'.repeat(2)
+      if(child.children.length) {
+        const hasChildrenWithoutChildren = !(Array.from(child.children).some(innerChild => !innerChild.children.length) 
+                                              && Array.from(child.children).some(innerChild => innerChild.children.length)
+                                          )
+        skeleton += `${tabSpace}<${child.tagName.toLowerCase()}>\n${getElementSkeleton(child, tabLevel + 2, hasChildrenWithoutChildren)}`
+      } else {
+        skeleton += `${tabSpace}${hasChildrenWithoutChildren ? ` |${tab}` : ''}<${child.tagName.toLowerCase()}>\n`
+      }
+    }
+    return skeleton
+  }
+
+  const on_selection = e => !isOffBounds(e.target)
     && selected.length
     && selected[0].textContent != e.target.textContent
     && e.preventDefault()
+
+  // console.log(e)
+  // const el = e.target
+  // let skeleton = `<${el.tagName.toLowerCase()}>\n${getElementSkeleton(e.target, 2)}`
+  // console.log(skeleton)
+  // TODO: show this in the UI
 
   const on_keyboard_traversal = (e, {key}) => {
     if (!selected.length) return
@@ -483,8 +559,21 @@ export function Selectable(visbug) {
       else if (el.parentNode)   return el.parentNode
     })
 
-    Array.from([...selected, ...labels, ...handles]).forEach(el =>
-      el.remove())
+    Array.from([...selected, ...labels, ...handles]).forEach(el => {
+      if(el.tagName != 'VISBUG-HANDLES' && el.tagName != 'VISBUG-LABEL' && el.tagName != 'VISBUG-HOVER' && el.tagName != 'VISBUG-DISTANCE') {
+        history.actions.do({
+          parentLocation: cssPath(el.parentNode),
+          location: cssPath(el),
+          element: {
+            tagName: el.tagName,
+            outerHTML: el.outerHTML,
+          },
+          action: 'delete',
+        })
+        // log the deleted element for undo
+      }
+      el.remove()
+    })
 
     labels    = []
     handles   = []
