@@ -2,6 +2,8 @@ const state = {
   history: []
 }
 
+let sourceMap = {}
+
 const redoStack = []
 
 const mutations = {
@@ -79,12 +81,16 @@ const mutations = {
     }
     console.log('history', state.history.map(i => i.action))
     console.log('redoStack', redoStack.map(i => i.action))
+  },
+  saveSourceMap (map) {
+    sourceMap = map
   }
 }
 
 export const actions = {
   do (payload) {
     mutations.DO(state, payload)
+    getters.naturalHistory(state)
   },
   undo () {
     mutations.UNDO(state)
@@ -97,6 +103,31 @@ export const actions = {
 export const getters = {
   history (state) {
     return state.history
+  },
+  async naturalHistory (state) {
+    console.log({
+      history: state.history,
+      sourceMap: sourceMap
+    })
+
+    const stringToBase64 = (str) => {
+      return btoa(unescape(encodeURIComponent(str)));
+    }
+
+    fetch("http://localhost:3000/ask/history", {
+      method: 'POST',
+      headers: {
+          'Content-Type': 'application/json; charset=utf-8'
+      },
+      body: JSON.stringify({
+        data: stringToBase64(JSON.stringify({
+          history: state.history,
+          sourceMap: sourceMap
+        }))
+      })
+    }, response => {
+      console.log(response);
+    })
   }
 }
 

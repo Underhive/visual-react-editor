@@ -14,7 +14,7 @@ visbug.setAttribute('tutsBaseURL', src_path.slice(0, src_path.lastIndexOf('/')))
 
 document.body.prepend(visbug)
 
-platform.runtime.onMessage.addListener(request => {
+platform.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.action === 'COLOR_MODE')
     visbug.setAttribute('color-mode', request.params.mode)
   else if (request.action === 'COLOR_SCHEME')

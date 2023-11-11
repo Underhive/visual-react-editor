@@ -33,6 +33,32 @@ export function Selectable(visbug) {
     label:    null,
   }
 
+  const sourceList = {}
+
+  const mapSourceFromElement = (el) => {
+    let sourceMap = {}
+    if(el.children.length == 0) return 
+    for(const child of el.children) {
+      if(child.children.length) {
+        sourceMap[cssPath(child)] = mapSourceFromElement(child)
+      } else {
+        let propName
+        for(const prop in child) {
+          if(prop.includes("reactFiber")) propName = prop
+        }
+        if(propName && child[propName]) {
+          sourceMap[cssPath(child)] = child[propName]._debugSource ?? child[propName]._debugOwner._debugSource
+          sourceList[cssPath(child)] = child[propName]._debugSource ?? child[propName]._debugOwner._debugSource
+        }
+      }
+    }
+    return sourceMap
+  }
+
+  const sourceMap         = mapSourceFromElement(document.body)
+  console.log({ sourceMap, sourceList })
+  history.mutations.saveSourceMap(sourceList)
+
   const listen = () => {
     page.addEventListener('click', on_click, true)
     page.addEventListener('dblclick', on_dblclick, true)

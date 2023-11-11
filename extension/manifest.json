@@ -2,34 +2,51 @@
   "name": "VisBug",
   "version": "1.0.0",
   "description": "Open source browser design tools",
-  "manifest_version": 2,
+  "manifest_version": 3,
   "icons": { "128": "icons/visbug.png" },
   "permissions": [
     "activeTab",
     "contextMenus",
-    "storage"
+    "scripting",
+    "storage",
+    "tabs"
   ],
+  "host_permissions": ["<all_urls>"],
   "background": {
-    "persistent": true,
-    "scripts": [
-      "visbug.js",
-      "contextmenu/launcher.js",
-      "contextmenu/colormode.js",
-      "contextmenu/colorscheme.js"
-    ]
+    "service_worker": "visbug.js",
+    "type": "module"
   },
-  "browser_action": {
+  "action": {
     "default_title": "Click or press Alt+Shift+D to launch VisBug",
     "default_icon": {
       "128": "icons/visbug.png"
     }
   },
-  "web_accessible_resources": [
-    "tuts/*",
-    "toolbar/*"
-  ],
+   "web_accessible_resources": [{
+    "resources": [
+      "tuts/*.gif",
+      "toolbar/*"
+    ],
+    "matches": ["<all_urls>"]
+  }],
+  "externally_connectable": {
+    "matches": [
+      "<all_urls>"
+    ],
+    "accepts_tls_channel_id": false,
+    "ids": [
+      "*"
+    ]
+  },
   "commands": {
-    "_execute_browser_action": {
+    "run-visbug": {
+      "suggested_key": {
+        "default": "Alt+Shift+D",
+        "mac": "Alt+Shift+D"
+      },
+      "description": "Toggle VisBug"
+    },
+    "_execute_action": {
       "suggested_key": {
         "windows": "Alt+Shift+D",
         "mac": "Alt+Shift+D",
