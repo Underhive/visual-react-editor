@@ -1,6 +1,7 @@
 import resolve  from 'rollup-plugin-node-resolve'
 import postcss  from 'rollup-plugin-postcss'
 import {terser} from 'rollup-plugin-terser'
+import typescript from '@rollup/plugin-typescript';
 
 const is_prod = process.env.build === 'prod'
 
@@ -18,6 +19,7 @@ const prod_plugins = [
   terser({
     sourcemap: false,
   }),
+  typescript(),
 ]
 
 const plugins = is_prod
@@ -25,9 +27,10 @@ const plugins = is_prod
   : dev_plugins
 
 export default {
-  input: 'app/index.js',
+  input: 'src/index.ts',
   output: {
-    file:       is_prod ? 'app/bundle.min.js' : 'app/bundle.js',
+    dir: 'dist',
+    // file:       is_prod ? 'src/bundle.min.js' : 'src/bundle.js',
     format:     'es',
     sourcemap:  is_prod ? null : 'inline',
   },
