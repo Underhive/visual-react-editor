@@ -21,7 +21,7 @@ import {
 import { VisBugModel }            from './model'
 import * as Icons                 from './vis-bug.icons'
 import { provideSelectorEngine }  from '../../features/search'
-import { PluginRegistry }         from '../../plugins/_registry'
+// import { PluginRegistry }         from '../../plugins/_registry'
 import {
   metaKey,
   isPolyfilledCE,
@@ -284,3 +284,5 @@ export default class VisBug extends HTMLElement {
 }
 
 customElements.define('vis-bug', VisBug)
+
+export const VisBugElement = new (customElements.get('vis-bug'))();

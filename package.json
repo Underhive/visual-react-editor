@@ -37,8 +37,12 @@
     "@ctrl/tinycolor": "^3.0.2",
     "blingblingjs": "^2.1.1",
     "construct-style-sheets-polyfill": "^2.4.2",
+    "css-loader": "^6.8.1",
     "hotkeys-js": "^3.7.6",
-    "query-selector-shadow-dom": "^0.4.6"
+    "query-selector-shadow-dom": "^0.4.6",
+    "source-map-loader": "^4.0.1",
+    "ts-loader": "^9.5.0",
+    "webpack": "^5.89.0"
   },
   "devDependencies": {
     "ava": "^1.4.1",
@@ -57,7 +61,8 @@
     "rollup-plugin-postcss": "^3.1.0",
     "rollup-plugin-terser": "^5.3.0",
     "start-server-and-test": "^1.11.0",
-    "web-ext": "^4.0.0"
+    "web-ext": "^4.0.0",
+    "webpack-cli": "^5.1.4"
   },
   "ava": {
     "require": [

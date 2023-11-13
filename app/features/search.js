@@ -1,7 +1,7 @@
 import $ from 'blingblingjs'
 import hotkeys from 'hotkeys-js'
 import { querySelectorAllDeep } from 'query-selector-shadow-dom'
-import { PluginRegistry, PluginHints } from '../plugins/_registry'
+// import { PluginRegistry, PluginHints } from '../plugins/_registry'
 import { notList } from '../utilities'
 import { isFirefox } from '../utilities/cross-browser.js'
 
@@ -28,13 +28,15 @@ search_base.innerHTML = `
           <option value="images">alias</option>
           <option value="text">alias</option>`}
 
-    ${PluginHints.reduce((options, hint) =>
-      options += isFirefox > 0
-        ? `<option value="${hint.command}">`
-        : `<option value="${hint.command}">${hint.description}`
-    , '')}
+    
   </datalist>
 `
+
+// ${PluginHints.reduce((options, hint) =>
+//   options += isFirefox > 0
+//     ? `<option value="${hint.command}">`
+//     : `<option value="${hint.command}">${hint.description}`
+// , '')}
 
 const search        = $(search_base)
 const searchInput   = $('input', search_base)
@@ -86,29 +88,29 @@ export function provideSelectorEngine(Engine) {
 
 export function queryPage(query, fn) {
   // todo: should stash a cleanup method to be called when query doesnt match
-  if (PluginRegistry.has(query))
-    return PluginRegistry.get(query)({
-      selected: SelectorEngine.selection(),
-      query
-    })
+  // if (PluginRegistry.has(query))
+  //   return PluginRegistry.get(query)({
+  //     selected: SelectorEngine.selection(),
+  //     query
+  //   })
 
-  if (query == 'links')     query = 'a'
-  if (query == 'buttons')   query = 'button'
-  if (query == 'images')    query = 'img'
-  if (query == 'text')      query = 'p,caption,a,h1,h2,h3,h4,h5,h6,small,date,time,li,dt,dd'
+  // if (query == 'links')     query = 'a'
+  // if (query == 'buttons')   query = 'button'
+  // if (query == 'images')    query = 'img'
+  // if (query == 'text')      query = 'p,caption,a,h1,h2,h3,h4,h5,h6,small,date,time,li,dt,dd'
 
-  if (!query) return SelectorEngine.unselect_all()
-  if (query == '.' || query == '#' || query.trim().endsWith(',')) return
+  // if (!query) return SelectorEngine.unselect_all()
+  // if (query == '.' || query == '#' || query.trim().endsWith(',')) return
 
-  try {
-    let matches = querySelectorAllDeep(query + notList)
-    if (!matches.length) matches = querySelectorAllDeep(query)
-    if (matches.length) {
-      matches.forEach(el =>
-        fn
-          ? fn(el)
-          : SelectorEngine.select(el))
-    }
-  }
-  catch (err) {}
+  // try {
+  //   let matches = querySelectorAllDeep(query + notList)
+  //   if (!matches.length) matches = querySelectorAllDeep(query)
+  //   if (matches.length) {
+  //     matches.forEach(el =>
+  //       fn
+  //         ? fn(el)
+  //         : SelectorEngine.select(el))
+  //   }
+  // }
+  // catch (err) {}
 }
