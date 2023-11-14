@@ -8,7 +8,7 @@ export class Handles extends HTMLElement {
     super()
     this.$shadow = this.attachShadow({mode: 'closed'})
     this.styles = [HandlesStyles]
-    this.on_resize = this.on_window_resize.bind(this)
+    this.on_window_resize = this.on_window_resize.bind(this)
   }
 
   connectedCallback() {

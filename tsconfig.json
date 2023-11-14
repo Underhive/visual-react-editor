@@ -4,7 +4,6 @@
     "module": "commonjs",
     "sourceMap": true,
     "outDir": "dist",
-    // "strict": true,
     "esModuleInterop": true,
     "allowJs": true,
     "lib": [

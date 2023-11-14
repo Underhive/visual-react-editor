@@ -3991,7 +3991,7 @@ class Handles extends HTMLElement {
     super()
     this.$shadow = this.attachShadow({mode: 'closed'})
     this.styles = [_styles_store__WEBPACK_IMPORTED_MODULE_1__.HandlesStyles]
-    this.on_resize = this.on_window_resize.bind(this)
+    this.on_window_resize = this.on_window_resize.bind(this)
   }
 
   connectedCallback() {
@@ -5007,7 +5007,7 @@ class VisBug extends HTMLElement {
     super()
 
     this.toolbar_model  = _model__WEBPACK_IMPORTED_MODULE_5__.VisBugModel
-    this.$shadow        = this.attachShadow({mode: 'closed'})
+    this.$shadow = this.attachShadow({mode: 'closed'})
     this.applyScheme    = (0,_utilities___WEBPACK_IMPORTED_MODULE_8__.schemeRule)(
       this.$shadow,
       _styles_store__WEBPACK_IMPORTED_MODULE_4__.VisBugStyles, _styles_store__WEBPACK_IMPORTED_MODULE_4__.VisBugLightStyles, _styles_store__WEBPACK_IMPORTED_MODULE_4__.VisBugDarkStyles

@@ -1,14 +1,10 @@
 {
   "name": "VisBug",
-  "version": "0.3.60",
+  "version": "0.4.00",
   "description": "",
-  "author": "Adam Argyle",
-  "license": "Apache-2.0",
+  "author": "Underhive Inc.",
+  "license": "",
   "main": "app/components/vis-bug/vis-bug.element.js",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/GoogleChromeLabs/ProjectVisBug.git"
-  },
   "scripts": {
     "start": "npm run concurrent",
     "concurrent": "concurrently --kill-others \"npm run dev:js\" \"npm run dev:css\" \"npm run dev:server\"",

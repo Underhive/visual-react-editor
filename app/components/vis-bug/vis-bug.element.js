@@ -34,7 +34,7 @@ export default class VisBug extends HTMLElement {
     super()
 
     this.toolbar_model  = VisBugModel
-    this.$shadow        = this.attachShadow({mode: 'closed'})
+    this.$shadow = this.attachShadow({mode: 'closed'})
     this.applyScheme    = schemeRule(
       this.$shadow,
       VisBugStyles, VisBugLightStyles, VisBugDarkStyles
