@@ -23,4 +23,4 @@ export class Corners extends Handles {
   }
 }
 
-customElements.define('visbug-corners', Corners)
+customElements.define('uhWebEditor-corners', Corners)

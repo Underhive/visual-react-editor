@@ -132,7 +132,7 @@ export function createMeasurements({$anchor, $target}) {
       d: Math.round(measurement.d.toFixed(1) * 100) / 100
     }))
     .forEach(measurement => {
-      const $measurement = document.createElement('visbug-distance')
+      const $measurement = document.createElement('uhWebEditor-distance')
 
       $measurement.position = {
         line_model:     measurement,

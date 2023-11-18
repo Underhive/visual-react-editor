@@ -4,22 +4,22 @@ import hotkeys    from 'hotkeys-js'
 import {
   Handles, Handle, Label, Overlay, Gridlines, Corners,
   Hotkeys, Metatip, Ally, Distance, BoxModel, Grip
-} from '../'
+} from '..'
 
 import {
   Selectable, Moveable, Padding, Margin, EditText, Font,
   Flex, Search, ColorPicker, BoxShadow, HueShift, MetaTip,
   Guides, Screenshot, Position, Accessibility, draggable
-} from '../../features/'
+} from '../../features'
 
 import {
-  VisBugStyles,
-  VisBugLightStyles,
-  VisBugDarkStyles
+  WebEditorStyles,
+  WebEditorLightStyles,
+  WebEditorDarkStyles
 } from '../styles.store'
 
-import { VisBugModel }            from './model'
-import * as Icons                 from './vis-bug.icons'
+import { WebEditorModel }            from './model'
+import * as Icons                 from './uh-web-editor.icons'
 import { provideSelectorEngine }  from '../../features/search'
 // import { PluginRegistry }         from '../../plugins/_registry'
 import {
@@ -27,17 +27,17 @@ import {
   isPolyfilledCE,
   constructibleStylesheetSupport,
   schemeRule
-} from '../../utilities/'
+} from '../../utilities'
 
-export default class VisBug extends HTMLElement {
+export default class WebEditor extends HTMLElement {
   constructor() {
     super()
 
-    this.toolbar_model  = VisBugModel
+    this.toolbar_model  = WebEditorModel
     this.$shadow = this.attachShadow({mode: 'closed'})
     this.applyScheme    = schemeRule(
       this.$shadow,
-      VisBugStyles, VisBugLightStyles, VisBugDarkStyles
+      WebEditorStyles, WebEditorLightStyles, WebEditorDarkStyles
     )
   }
 
@@ -127,7 +127,7 @@ export default class VisBug extends HTMLElement {
 
   cleanup() {
     Array.from(document.body.children)
-      .filter(node => node.nodeName.includes('VISBUG'))
+      .filter(node => node.nodeName.includes('WEBEDITOR'))
       .forEach(el => el.remove())
 
     this.teardown();
@@ -155,7 +155,7 @@ export default class VisBug extends HTMLElement {
 
   render() {
     return `
-      <visbug-hotkeys></visbug-hotkeys>
+      <uhWebEditor-hotkeys></uhWebEditor-hotkeys>
       <ol constructible-support="${constructibleStylesheetSupport ? 'false':'true'}">
         ${Object.entries(this.toolbar_model).reduce((list, [key, tool]) => `
           ${list}
@@ -237,7 +237,7 @@ export default class VisBug extends HTMLElement {
   hueshift() {
     this.deactivate_feature = HueShift({
       Color:  this.colorPicker,
-      Visbug: this.selectorEngine,
+      WebEditor: this.selectorEngine,
     })
   }
 
@@ -283,6 +283,6 @@ export default class VisBug extends HTMLElement {
   }
 }
 
-customElements.define('vis-bug', VisBug)
+customElements.define('uh-web-editor', WebEditor)
 
-export const VisBugElement = new (customElements.get('vis-bug'))();
+export const WebEditorElement = new (customElements.get('uh-web-editor'))();

@@ -8,6 +8,6 @@
 
 // export default function () {
 //   document
-//     .querySelectorAll('body > *:not(vis-bug):not(script)')
+//     .querySelectorAll('body > *:not(uh-web-editor):not(script)')
 //     .forEach(node => node.remove())
 // }

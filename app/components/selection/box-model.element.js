@@ -176,10 +176,10 @@ export class BoxModel extends HTMLElement {
   }
 
   createMeasurement(line_model, node_label_id=0) {
-    const measurement = document.createElement('visbug-distance')
+    const measurement = document.createElement('uhWebEditor-distance')
     measurement.position = { line_model, node_label_id }
     this.$shadow.appendChild(measurement)
   }
 }
 
-customElements.define('visbug-boxmodel', BoxModel)
+customElements.define('uhWebEditor-boxmodel', BoxModel)

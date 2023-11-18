@@ -18,11 +18,11 @@ const state = {
   elements: [],
 }
 
-export function HueShift({Color, Visbug}) {
+export function HueShift({Color, WebEditor}) {
   state.active_color   = Color.getActive()
   state.elements       = []
 
-  Visbug.onSelectedUpdate(elements => {
+  WebEditor.onSelectedUpdate(elements => {
     state.elements = elements
     Color.setActive(state.active_color)
   })

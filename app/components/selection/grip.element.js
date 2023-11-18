@@ -33,4 +33,4 @@ export class Grip extends Handles {
   }
 }
 
-customElements.define('visbug-grip', Grip)
+customElements.define('uhWebEditor-grip', Grip)

@@ -13,7 +13,7 @@ test('Should have guides as default tool', async t => {
 
 test('Should have 13 tools', async t => {
   const { page } = t.context
-  const tools = await page.evaluate(`document.querySelector('vis-bug').$shadow.querySelectorAll('ol:first-of-type > li').length`)
+  const tools = await page.evaluate(`document.querySelector('uh-web-editor').$shadow.querySelectorAll('ol:first-of-type > li').length`)
 
   t.is(tools, 13)
   t.pass()
@@ -21,7 +21,7 @@ test('Should have 13 tools', async t => {
 
 test('Should have 13 key trainers', async t => {
   const { page } = t.context
-  const trainers = await page.evaluate(`document.querySelector('vis-bug').$shadow.querySelectorAll('visbug-hotkeys > *').length`)
+  const trainers = await page.evaluate(`document.querySelector('uh-web-editor').$shadow.querySelectorAll('uhWebEditor-hotkeys > *').length`)
 
   t.is(trainers, 13)
   t.pass()
@@ -29,7 +29,7 @@ test('Should have 13 key trainers', async t => {
 
 test('Should have 3 color pickers', async t => {
   const { page } = t.context
-  const pickers = await page.evaluate(`document.querySelector('vis-bug').$shadow.querySelectorAll('ol[colors] > li').length`)
+  const pickers = await page.evaluate(`document.querySelector('uh-web-editor').$shadow.querySelectorAll('ol[colors] > li').length`)
 
   t.is(pickers, 3)
   t.pass()
@@ -40,7 +40,7 @@ test('Should allow selecting 1 element', async t => {
 
   await page.click(`[intro]`)
 
-  const handles_elements = await page.evaluate(`document.querySelectorAll('visbug-handles').length`)
+  const handles_elements = await page.evaluate(`document.querySelectorAll('uhWebEditor-handles').length`)
 
   t.is(handles_elements, 1)
 
@@ -55,7 +55,7 @@ test('Should allow multi-selection', async t => {
   await page.click(`.artboard:nth-of-type(2)`)
   await page.keyboard.up('Shift')
 
-  const handles_elements = await page.evaluate(`document.querySelectorAll('visbug-handles').length`)
+  const handles_elements = await page.evaluate(`document.querySelectorAll('uhWebEditor-handles').length`)
 
   t.is(handles_elements, 2)
 
@@ -66,11 +66,11 @@ test('Should allow deselecting', async t => {
   const { page } = t.context
 
   await page.click(`.artboard:nth-of-type(1)`)
-  const handles_elements = await page.evaluate(`document.querySelectorAll('visbug-handles').length`)
+  const handles_elements = await page.evaluate(`document.querySelectorAll('uhWebEditor-handles').length`)
   t.is(handles_elements, 1)
 
   await page.keyboard.press('Escape')
-  const new_handles_elements = await page.evaluate(`document.querySelectorAll('visbug-handles').length`)
+  const new_handles_elements = await page.evaluate(`document.querySelectorAll('uhWebEditor-handles').length`)
   t.is(new_handles_elements, 0)
 
   t.pass()
@@ -85,7 +85,7 @@ test('Should be hideable', async t => {
   await page.keyboard.up(metaKey)
   await page.keyboard.up('.')
 
-  const visibility = await page.evaluate(`document.querySelector('vis-bug').$shadow.host.style.display`)
+  const visibility = await page.evaluate(`document.querySelector('uh-web-editor').$shadow.host.style.display`)
 
   t.is(visibility, 'none')
   t.pass()
@@ -93,7 +93,7 @@ test('Should be hideable', async t => {
 
 test('Should accept valid execCommand', async t => {
   const { page } = t.context
-  const execCommand = await page.evaluate(`document.querySelector('vis-bug').execCommand('pesticide')`)
+  const execCommand = await page.evaluate(`document.querySelector('uh-web-editor').execCommand('pesticide')`)
 
 
   t.is(execCommand, undefined)
@@ -102,7 +102,7 @@ test('Should accept valid execCommand', async t => {
 
 test('Should throw on invalid execCommand', async t => {
   const { page } = t.context
-  const execCommand = await page.evaluate(`document.querySelector('vis-bug').execCommand('invalid command')`)
+  const execCommand = await page.evaluate(`document.querySelector('uh-web-editor').execCommand('invalid command')`)
 
   t.deepEqual(execCommand, {})
   t.pass()

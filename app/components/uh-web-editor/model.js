@@ -1,7 +1,7 @@
-import * as Icons from './vis-bug.icons'
+import * as Icons from './uh-web-editor.icons'
 import { metaKey, altKey } from '../../utilities/'
 
-export const VisBugModel = {
+export const WebEditorModel = {
   g: {
     tool:        'guides',
     icon:        Icons.guides,

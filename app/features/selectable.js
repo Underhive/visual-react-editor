@@ -20,7 +20,7 @@ import {
 } from '../utilities/'
 import history, { cssPath } from '../utilities/history'
 
-export function Selectable(visbug) {
+export function Selectable(uhWebEditor) {
   const page              = document.body
   let selected            = []
   let selectedCallbacks   = []
@@ -148,7 +148,7 @@ export function Selectable(visbug) {
     e.preventDefault()
     e.stopPropagation()
     if (isOffBounds(e.target)) return
-    visbug.toolSelected('text')
+    uhWebEditor.toolSelected('text')
   }
 
   const watchCommandKey = e => {
@@ -156,7 +156,7 @@ export function Selectable(visbug) {
 
     document.onkeydown = function(e) {
       if (hotkeys.ctrl && selected.length) {
-        $('visbug-handles, visbug-label, visbug-hover, visbug-grip').forEach(el =>
+        $('uhWebEditor-handles, uhWebEditor-label, uhWebEditor-hover, uhWebEditor-grip').forEach(el =>
           el.style.display = 'none')
 
         did_hide = true
@@ -165,7 +165,7 @@ export function Selectable(visbug) {
 
     document.onkeyup = function(e) {
       if (did_hide) {
-        $('visbug-handles, visbug-label, visbug-hover, visbug-grip').forEach(el =>
+        $('uhWebEditor-handles, uhWebEditor-label, uhWebEditor-hover, uhWebEditor-grip').forEach(el =>
           el.style.display = null)
 
         did_hide = false
@@ -244,7 +244,7 @@ export function Selectable(visbug) {
       window.copy_backup = $node.outerHTML
       e.clipboardData.setData('text/html', window.copy_backup)
       const el = selected[0]
-      if(el.tagName != 'VISBUG-HANDLES' && el.tagName != 'VISBUG-LABEL' && el.tagName != 'VISBUG-HOVER' && el.tagName != 'VISBUG-DISTANCE') {
+      if(el.tagName != 'WEBEDITOR-HANDLES' && el.tagName != 'WEBEDITOR-LABEL' && el.tagName != 'WEBEDITOR-HOVER' && el.tagName != 'WEBEDITOR-DISTANCE') {
         history.actions.do({
           parentLocation: cssPath(el.parentNode),
           location: cssPath(el),
@@ -272,7 +272,7 @@ export function Selectable(visbug) {
         const el = htmlStringToDom(potentialHTML)
         if(!(el instanceof Element)) return
         parent.appendChild(el)
-        if(el.tagName != 'VISBUG-HANDLES' && el.tagName != 'VISBUG-LABEL' && el.tagName != 'VISBUG-HOVER' && el.tagName != 'VISBUG-DISTANCE') {
+        if(el.tagName != 'WEBEDITOR-HANDLES' && el.tagName != 'WEBEDITOR-LABEL' && el.tagName != 'WEBEDITOR-HOVER' && el.tagName != 'WEBEDITOR-DISTANCE') {
           history.actions.do({
             parentLocation: cssPath(parent),
             location: cssPath(el),
@@ -295,7 +295,7 @@ export function Selectable(visbug) {
       getStyles(el))
 
     try {
-      const colormode = $('vis-bug')[0].colorMode
+      const colormode = $('uh-web-editor')[0].colorMode
 
       const styles = window.copied_styles[0]
         .map(({prop,value}) => {
@@ -464,7 +464,7 @@ export function Selectable(visbug) {
   }
 
   const show_tip = el => {
-    const active_tool = visbug.activeTool
+    const active_tool = uhWebEditor.activeTool
     let tipFactory
 
     if (active_tool === 'accessibility') {
@@ -491,7 +491,7 @@ export function Selectable(visbug) {
 
   const on_hover = e => {
     const $target = deepElementFromPoint(e.clientX, e.clientY)
-    const tool = visbug.activeTool
+    const tool = uhWebEditor.activeTool
 
     if (isOffBounds($target) || $target.hasAttribute('data-selected') || $target.hasAttribute('draggable')) {
       clearMeasurements()
@@ -514,11 +514,11 @@ export function Selectable(visbug) {
       const [$anchor] = selected
       createMeasurements({$anchor, $target})
     }
-    else if (tool === 'margin' && !hover_state.element.$shadow.querySelector('visbug-boxmodel')) {
+    else if (tool === 'margin' && !hover_state.element.$shadow.querySelector('uhWebEditor-boxmodel')) {
       hover_state.element.$shadow.appendChild(
         createMarginVisual(hover_state.target, true))
     }
-    else if (tool === 'padding' && !hover_state.element.$shadow.querySelector('visbug-boxmodel')) {
+    else if (tool === 'padding' && !hover_state.element.$shadow.querySelector('uhWebEditor-boxmodel')) {
       hover_state.element.$shadow.appendChild(
         createPaddingVisual(hover_state.target, true))
     }
@@ -529,7 +529,7 @@ export function Selectable(visbug) {
 
   const select = el => {
     const id = handles.length
-    const tool = visbug.activeTool
+    const tool = uhWebEditor.activeTool
 
     el.setAttribute('data-selected', true)
     el.setAttribute('data-label-id', id)
@@ -564,10 +564,10 @@ export function Selectable(visbug) {
       hover.removeAttribute('data-pseudo-select'))
 
     Array.from([
-      ...$('visbug-handles'),
-      ...$('visbug-label'),
-      ...$('visbug-hover'),
-      ...$('visbug-distance'),
+      ...$('uhWebEditor-handles'),
+      ...$('uhWebEditor-label'),
+      ...$('uhWebEditor-hover'),
+      ...$('uhWebEditor-distance'),
     ]).forEach(el =>
       el.remove())
 
@@ -586,7 +586,7 @@ export function Selectable(visbug) {
     })
 
     Array.from([...selected, ...labels, ...handles]).forEach(el => {
-      if(el.tagName != 'VISBUG-HANDLES' && el.tagName != 'VISBUG-LABEL' && el.tagName != 'VISBUG-HOVER' && el.tagName != 'VISBUG-DISTANCE') {
+      if(el.tagName != 'WEBEDITOR-HANDLES' && el.tagName != 'WEBEDITOR-LABEL' && el.tagName != 'WEBEDITOR-HOVER' && el.tagName != 'WEBEDITOR-DISTANCE') {
         history.actions.do({
           parentLocation: cssPath(el.parentNode),
           location: cssPath(el),
@@ -650,7 +650,7 @@ export function Selectable(visbug) {
 
     hover_state.label   = no_label
       ? null
-      : createHoverLabel(el, handleLabelText(el, visbug.activeTool))
+      : createHoverLabel(el, handleLabelText(el, uhWebEditor.activeTool))
   }
 
   const clearHover = () => {
@@ -671,7 +671,7 @@ export function Selectable(visbug) {
       : createLabel({
           el,
           id,
-          template: handleLabelText(el, visbug.activeTool)
+          template: handleLabelText(el, uhWebEditor.activeTool)
         })
 
     let observer        = createObserver(el, {handle,label})
@@ -687,13 +687,13 @@ export function Selectable(visbug) {
   }
 
   const setLabel = (el, label) => {
-    label.text = handleLabelText(el, visbug.activeTool)
+    label.text = handleLabelText(el, uhWebEditor.activeTool)
     label.update = {boundingRect: el.getBoundingClientRect(), isFixed: isFixed(el)}
   }
 
   const createLabel = ({el, id, template}) => {
     if (!labels[id]) {
-      const label = document.createElement('visbug-label')
+      const label = document.createElement('uhWebEditor-label')
 
       label.text = template
       label.position = {
@@ -731,7 +731,7 @@ export function Selectable(visbug) {
 
   const createHandle = ({el, id}) => {
     if (!handles[id]) {
-      const handle = document.createElement('visbug-handles')
+      const handle = document.createElement('uhWebEditor-handles')
 
       handle.position = { el, node_label_id: id }
 
@@ -747,7 +747,7 @@ export function Selectable(visbug) {
       if (hover_state.element)
         hover_state.element.remove()
 
-      hover_state.element = document.createElement('visbug-hover')
+      hover_state.element = document.createElement('uhWebEditor-hover')
       document.body.appendChild(hover_state.element)
       hover_state.element.position = {el}
 
@@ -760,7 +760,7 @@ export function Selectable(visbug) {
       if (hover_state.label)
         hover_state.label.remove()
 
-      hover_state.label = document.createElement('visbug-label')
+      hover_state.label = document.createElement('uhWebEditor-label')
       document.body.appendChild(hover_state.label)
 
       hover_state.label.text = text
@@ -781,7 +781,7 @@ export function Selectable(visbug) {
       if (hover_state.element)
         hover_state.element.remove()
 
-      hover_state.element = document.createElement('visbug-corners')
+      hover_state.element = document.createElement('uhWebEditor-corners')
       document.body.appendChild(hover_state.element)
       hover_state.element.position = {el}
 

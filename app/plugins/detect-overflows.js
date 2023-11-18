@@ -19,7 +19,7 @@ export default (elements) => {
         selectedElements = [document.body]
     }
 
-    document.body.querySelectorAll('visbug-label')
+    document.body.querySelectorAll('uhWebEditor-label')
         .forEach((el) => el.remove())
 
     selectedElements.map(container => {
@@ -27,10 +27,10 @@ export default (elements) => {
         elementsToCheck.forEach(el => {
             const overflowingX = el.offsetWidth > container.offsetWidth
             const overflowingY = el.offsetHeight > container.offsetHeight
-            const isFlag = el.tagName === 'visbug-label'
-            const alreadyHasFlag = el.lastChild && el.lastChild.tagName === 'visbug-label'
+            const isFlag = el.tagName === 'uhWebEditor-label'
+            const alreadyHasFlag = el.lastChild && el.lastChild.tagName === 'uhWebEditor-label'
             if ((overflowingX || overflowingY) && !isFlag && !alreadyHasFlag) {
-                const label = document.createElement('visbug-label')
+                const label = document.createElement('uhWebEditor-label')
                 const overflowingBoth = overflowingX && overflowingY;
                 label.text = `overflowing ${overflowingBoth ? 'x and y' : overflowingX ? 'x' : 'y'}`
                 label.position = {

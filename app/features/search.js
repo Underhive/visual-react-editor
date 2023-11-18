@@ -11,8 +11,8 @@ let SelectorEngine
 const search_base = document.createElement('div')
 search_base.classList.add('search')
 search_base.innerHTML = `
-  <input list="visbug-plugins" type="search" placeholder="ex: images, .btn, button, text, ..."/>
-  <datalist id="visbug-plugins">
+  <input list="uhWebEditor-plugins" type="search" placeholder="ex: images, .btn, button, text, ..."/>
+  <datalist id="uhWebEditor-plugins">
     ${isFirefox > 0
       ?  `<option value="h1, h2, h3, .get-multiple">
           <option value="nav > a:first-child">

@@ -171,4 +171,4 @@ export class Label extends HTMLElement {
   }
 }
 
-customElements.define('visbug-label', Label)
+customElements.define('uhWebEditor-label', Label)

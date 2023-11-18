@@ -44,7 +44,7 @@ export class Ally extends Metatip {
   }
 
   render({el, ally_attributes, contrast_results}) {
-    const colormode = modemap[$('vis-bug').attr('color-mode')]
+    const colormode = modemap[$('uh-web-editor').attr('color-mode')]
 
     const foreground = el instanceof SVGElement
       ? (getStyle(el, 'fill') || getStyle(el, 'stroke'))
@@ -99,4 +99,4 @@ export class Ally extends Metatip {
   }
 }
 
-customElements.define('visbug-ally', Ally)
+customElements.define('uhWebEditor-ally', Ally)

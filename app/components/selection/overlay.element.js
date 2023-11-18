@@ -32,7 +32,7 @@ export class Overlay extends HTMLElement {
 
   render({height, width}) {
     return `
-      <svg class="visbug-overlay"
+      <svg class="uhWebEditor-overlay"
         width="${width}px" height="${height}px"
         viewBox="0 0 ${width} ${height}"
       >
@@ -42,4 +42,4 @@ export class Overlay extends HTMLElement {
   }
 }
 
-customElements.define('visbug-overlay', Overlay)
+customElements.define('uhWebEditor-overlay', Overlay)

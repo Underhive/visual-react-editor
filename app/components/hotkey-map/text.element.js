@@ -1,5 +1,5 @@
 import { HotkeyMap } from './base.element'
-import { text as icon } from '../vis-bug/vis-bug.icons'
+import { text as icon } from '../uh-web-editor/uh-web-editor.icons'
 
 export class TextHotkeys extends HotkeyMap {
   constructor() {

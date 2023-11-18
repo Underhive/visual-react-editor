@@ -1,5 +1,5 @@
 import { HotkeyMap } from './base.element'
-import { boxshadow as icon } from '../vis-bug/vis-bug.icons'
+import { boxshadow as icon } from '../uh-web-editor/uh-web-editor.icons'
 import { metaKey } from '../../utilities';
 
 export class BoxshadowHotkeys extends HotkeyMap {

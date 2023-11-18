@@ -12,6 +12,6 @@ export default function () {
   ].forEach((el) => el.remove())
 
   document
-    .querySelectorAll('[style]:not(vis-bug)')
+    .querySelectorAll('[style]:not(uh-web-editor)')
     .forEach((el) => el.removeAttribute('style'))
 }

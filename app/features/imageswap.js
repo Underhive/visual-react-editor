@@ -185,7 +185,7 @@ const showOverlay = (node, i) => {
     overlay.update = rect
   }
   else {
-    overlays[i] = document.createElement('visbug-overlay')
+    overlays[i] = document.createElement('uhWebEditor-overlay')
     overlays[i].position = rect
     document.body.appendChild(overlays[i])
   }

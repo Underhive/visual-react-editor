@@ -23,4 +23,4 @@ export class Hover extends Handles {
   }
 }
 
-customElements.define('visbug-hover', Hover)
+customElements.define('uhWebEditor-hover', Hover)

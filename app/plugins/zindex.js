@@ -15,12 +15,12 @@ export default function () {
     // Fun prior art https://gist.github.com/paulirish/211209
     Array.from(document.querySelectorAll('*'))
         .filter(el => window.getComputedStyle(el).getPropertyValue('z-index') !== 'auto')
-        .filter(el => el.nodeName !== 'VIS-BUG')
+        .filter(el => el.nodeName !== 'WEB-EDITOR')
         .forEach(el => {
             const color = colors[numberBetween(0, colors.length)];
             const zindex = window.getComputedStyle(el).getPropertyValue('z-index')
 
-            const label = document.createElement('visbug-label')
+            const label = document.createElement('uhWebEditor-label')
 
             label.text = `z-index: ${zindex}`
             label.position = {
@@ -29,7 +29,7 @@ export default function () {
             }
             label.style.setProperty(`--label-bg`, color)
 
-            const overlay = document.createElement('visbug-hover')
+            const overlay = document.createElement('uhWebEditor-hover')
             overlay.position = { el }
             overlay.style.setProperty(`--hover-stroke`, color)
             overlay.style.setProperty(`--position`, isFixed(el) ? 'fixed' : 'absolute')

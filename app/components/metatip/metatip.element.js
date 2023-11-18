@@ -19,7 +19,7 @@ export class Metatip extends HTMLElement {
   }
 
   connectedCallback() {
-    this.applyScheme(document.querySelector("vis-bug").getAttribute("color-scheme"))
+    this.applyScheme(document.querySelector("uh-web-editor").getAttribute("color-scheme"))
     $(this.$shadow.host).on('mouseenter', this.observe)
   }
 
@@ -109,4 +109,4 @@ export class Metatip extends HTMLElement {
   }
 }
 
-customElements.define('visbug-metatip', Metatip)
+customElements.define('uhWebEditor-metatip', Metatip)
