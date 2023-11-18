@@ -37,7 +37,7 @@ export class Handle extends HTMLElement {
     if (e.button !== 0) return
 
     const placement = this.placement
-    const handlesEl = e.composedPath().find(el => el.tagName === 'WEBEDITOR-HANDLES')
+    const handlesEl = e.composedPath().find(el => el?.tagName?.toLowerCase() === 'uh-web-editor-handles')
     const nodeLabelId = handlesEl.getAttribute('data-label-id')
     const [sourceEl] = $(`[data-label-id="${nodeLabelId}"]`)
 

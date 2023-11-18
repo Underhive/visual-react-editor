@@ -36,7 +36,7 @@ export function Accessibility(uhWebEditor) {
 const mouseMove = e => {
   const target = deepElementFromPoint(e.clientX, e.clientY)
 
-  if (isOffBounds(target) || target.nodeName.toUpperCase() === 'SVG' || target.nodeName === 'WEBEDITOR-ALLYTIP' || target.hasAttribute('data-allytip')) { // aka: mouse out
+  if (isOffBounds(target) || target.nodeName.toUpperCase() === 'SVG' || target.nodeName === 'uh-web-editor-ALLYTIP' || target.hasAttribute('data-allytip')) { // aka: mouse out
     if (state.active.tip) {
       wipe({
         tip: state.active.tip,

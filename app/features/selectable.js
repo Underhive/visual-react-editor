@@ -208,7 +208,7 @@ export function Selectable(uhWebEditor) {
         parentLocation: cssPath(el.parentNode),
         location: cssPath(el),
         element: {
-          tagName: el.tagName,
+          tagName: el?.tagName?.toLowerCase(),
           outerHTML: beforeEdit,
           finalOuterHTML: el.outerHTML,
         },
@@ -244,12 +244,12 @@ export function Selectable(uhWebEditor) {
       window.copy_backup = $node.outerHTML
       e.clipboardData.setData('text/html', window.copy_backup)
       const el = selected[0]
-      if(el.tagName != 'WEBEDITOR-HANDLES' && el.tagName != 'WEBEDITOR-LABEL' && el.tagName != 'WEBEDITOR-HOVER' && el.tagName != 'WEBEDITOR-DISTANCE') {
+      if(el?.tagName?.toLowerCase() != 'uh-web-editor-handles' && el?.tagName?.toLowerCase() != 'uh-web-editor-label' && el?.tagName?.toLowerCase() != 'uh-web-editor-hover' && el?.tagName?.toLowerCase() != 'uh-web-editor-distance') {
         history.actions.do({
           parentLocation: cssPath(el.parentNode),
           location: cssPath(el),
           element: {
-            tagName: el.tagName,
+            tagName: el?.tagName?.toLowerCase(),
             outerHTML: el.outerHTML,
           },
           action: 'delete',
@@ -272,12 +272,12 @@ export function Selectable(uhWebEditor) {
         const el = htmlStringToDom(potentialHTML)
         if(!(el instanceof Element)) return
         parent.appendChild(el)
-        if(el.tagName != 'WEBEDITOR-HANDLES' && el.tagName != 'WEBEDITOR-LABEL' && el.tagName != 'WEBEDITOR-HOVER' && el.tagName != 'WEBEDITOR-DISTANCE') {
+        if(el?.tagName?.toLowerCase() != 'uh-web-editor-handles' && el?.tagName?.toLowerCase() != 'uh-web-editor-label' && el?.tagName?.toLowerCase() != 'uh-web-editor-hover' && el?.tagName?.toLowerCase() != 'uh-web-editor-distance') {
           history.actions.do({
             parentLocation: cssPath(parent),
             location: cssPath(el),
             element: {
-              tagName: el.tagName,
+              tagName: el?.tagName?.toLowerCase(),
               outerHTML: el.outerHTML,
             },
             action: 'add',
@@ -418,7 +418,7 @@ export function Selectable(uhWebEditor) {
 
   // console.log(e)
   // const el = e.target
-  // let skeleton = `<${el.tagName.toLowerCase()}>\n${getElementSkeleton(e.target, 2)}`
+  // let skeleton = `<${el?.tagName?.toLowerCase().toLowerCase()}>\n${getElementSkeleton(e.target, 2)}`
   // console.log(skeleton)
   // TODO: show this in the UI
 
@@ -586,12 +586,12 @@ export function Selectable(uhWebEditor) {
     })
 
     Array.from([...selected, ...labels, ...handles]).forEach(el => {
-      if(el.tagName != 'WEBEDITOR-HANDLES' && el.tagName != 'WEBEDITOR-LABEL' && el.tagName != 'WEBEDITOR-HOVER' && el.tagName != 'WEBEDITOR-DISTANCE') {
+      if(el?.tagName?.toLowerCase() != 'uh-web-editor-handles' && el?.tagName?.toLowerCase() != 'uh-web-editor-label' && el?.tagName?.toLowerCase() != 'uh-web-editor-hover' && el?.tagName?.toLowerCase() != 'uh-web-editor-distance') {
         history.actions.do({
           parentLocation: cssPath(el.parentNode),
           location: cssPath(el),
           element: {
-            tagName: el.tagName,
+            tagName: el?.tagName?.toLowerCase(),
             outerHTML: el.outerHTML,
           },
           action: 'delete',

@@ -15,7 +15,7 @@ export default function () {
     // Fun prior art https://gist.github.com/paulirish/211209
     Array.from(document.querySelectorAll('*'))
         .filter(el => window.getComputedStyle(el).getPropertyValue('z-index') !== 'auto')
-        .filter(el => el.nodeName !== 'WEB-EDITOR')
+        .filter(el => el.nodeName !== 'uh-web-editor')
         .forEach(el => {
             const color = colors[numberBetween(0, colors.length)];
             const zindex = window.getComputedStyle(el).getPropertyValue('z-index')

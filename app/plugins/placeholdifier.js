@@ -14,8 +14,8 @@ export default async function() {
     const body = document.querySelector('body')
     const elements = Array.from(body.querySelectorAll('*'))
         .filter(el => {
-            if (!el || !el.tagName) return
-            return !ignored.includes(el.tagName.toLowerCase())
+            if (!el || !el?.tagName?.toLowerCase()) return
+            return !ignored.includes(el?.tagName?.toLowerCase().toLowerCase())
         })
     
     elements.forEach(el => {

@@ -127,7 +127,7 @@ export default class WebEditor extends HTMLElement {
 
   cleanup() {
     Array.from(document.body.children)
-      .filter(node => node.nodeName.includes('WEBEDITOR'))
+      .filter(node => node.nodeName.includes('web-editor'))
       .forEach(el => el.remove())
 
     this.teardown();

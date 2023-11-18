@@ -27,7 +27,7 @@ export default (elements) => {
         elementsToCheck.forEach(el => {
             const overflowingX = el.offsetWidth > container.offsetWidth
             const overflowingY = el.offsetHeight > container.offsetHeight
-            const isFlag = el.tagName === 'uh-web-editor-label'
+            const isFlag = el?.tagName?.toLowerCase() === 'uh-web-editor-label'
             const alreadyHasFlag = el.lastChild && el.lastChild.tagName === 'uh-web-editor-label'
             if ((overflowingX || overflowingY) && !isFlag && !alreadyHasFlag) {
                 const label = document.createElement('uh-web-editor-label')

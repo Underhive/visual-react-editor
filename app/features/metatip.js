@@ -46,7 +46,7 @@ export function MetaTip(uhWebEditor) {
 const mouseMove = e => {
   const target = deepElementFromPoint(e.clientX, e.clientY)
 
-  if (isOffBounds(target) || target.nodeName === 'WEBEDITOR-METATIP' || target.hasAttribute('data-metatip')) { // aka: mouse out
+  if (isOffBounds(target) || target.nodeName === 'uh-web-editor-metatip' || target.hasAttribute('data-metatip')) { // aka: mouse out
     if (state.active.tip) {
       wipe({
         tip: state.active.tip,

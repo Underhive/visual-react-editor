@@ -59,7 +59,7 @@ const mutations = {
         parentLocation: parentLocation,
         location: location,
         element: {
-          tagName: el.tagName,
+          tagName: el?.tagName?.toLowerCase(),
           outerHTML: el.outerHTML,
         },
         action: 'delete',
@@ -71,7 +71,7 @@ const mutations = {
         parentLocation: parentLocation,
         location: location,
         element: {
-          tagName: el.tagName,
+          tagName: el?.tagName?.toLowerCase(),
           outerHTML: el.outerHTML,
           finalOuterHTML: element.finalOuterHTML,
         },
