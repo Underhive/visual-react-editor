@@ -23,4 +23,4 @@ export class Corners extends Handles {
   }
 }
 
-customElements.define('uhWebEditor-corners', Corners)
+customElements.define('uh-web-editor-corners', Corners)

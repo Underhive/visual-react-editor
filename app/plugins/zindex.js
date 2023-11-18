@@ -20,7 +20,7 @@ export default function () {
             const color = colors[numberBetween(0, colors.length)];
             const zindex = window.getComputedStyle(el).getPropertyValue('z-index')
 
-            const label = document.createElement('uhWebEditor-label')
+            const label = document.createElement('uh-web-editor-label')
 
             label.text = `z-index: ${zindex}`
             label.position = {
@@ -29,7 +29,7 @@ export default function () {
             }
             label.style.setProperty(`--label-bg`, color)
 
-            const overlay = document.createElement('uhWebEditor-hover')
+            const overlay = document.createElement('uh-web-editor-hover')
             overlay.position = { el }
             overlay.style.setProperty(`--hover-stroke`, color)
             overlay.style.setProperty(`--position`, isFixed(el) ? 'fixed' : 'absolute')

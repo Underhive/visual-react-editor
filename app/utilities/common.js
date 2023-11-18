@@ -63,8 +63,8 @@ export const showHideNodeLabel = (el, show = false) => {
   const label_id = el.getAttribute('data-label-id')
 
   const nodes = $(`
-    uhWebEditor-label[data-label-id="${label_id}"],
-    uhWebEditor-handles[data-label-id="${label_id}"]
+    uh-web-editor-label[data-label-id="${label_id}"],
+    uh-web-editor-handles[data-label-id="${label_id}"]
   `)
 
   nodes.length && show
@@ -82,13 +82,13 @@ export const isOffBounds = node =>
   node.closest && (
        node.closest('uh-web-editor')
     || node.closest('hotkey-map')
-    || node.closest('uhWebEditor-metatip')
-    || node.closest('uhWebEditor-ally')
-    || node.closest('uhWebEditor-label')
-    || node.closest('uhWebEditor-handles')
-    || node.closest('uhWebEditor-corners')
-    || node.closest('uhWebEditor-grip')
-    || node.closest('uhWebEditor-gridlines')
+    || node.closest('uh-web-editor-metatip')
+    || node.closest('uh-web-editor-ally')
+    || node.closest('uh-web-editor-label')
+    || node.closest('uh-web-editor-handles')
+    || node.closest('uh-web-editor-corners')
+    || node.closest('uh-web-editor-grip')
+    || node.closest('uh-web-editor-gridlines')
   )
 
 export const isSelectorValid = (qs => (

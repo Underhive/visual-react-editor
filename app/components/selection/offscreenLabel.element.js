@@ -10,7 +10,7 @@ document.body.addEventListener('click', () => {
 
 function positionFlags() {
   removeOffscreenLabelIndicators()
-  document.querySelectorAll('uhWebEditor-label').forEach((el) => {
+  document.querySelectorAll('uh-web-editor-label').forEach((el) => {
     el.detectOutsideViewport()
   })
 }
@@ -79,10 +79,10 @@ export class OffscreenLabel extends HTMLElement {
   }
 }
 
-customElements.define('uhWebEditor-offscreen-label', OffscreenLabel)
+customElements.define('uh-web-editor-offscreen-label', OffscreenLabel)
 
 export function createOffscreenLabelIndicator(node_label_id, text, hoverText, left, top, color, adjustRightSideToCount) {
-  const existing = document.querySelectorAll(`uhWebEditor-offscreen-label[id=${text}]`)
+  const existing = document.querySelectorAll(`uh-web-editor-offscreen-label[id=${text}]`)
 
   if (existing.length) {
     const instance = existing[0];
@@ -104,7 +104,7 @@ export function createOffscreenLabelIndicator(node_label_id, text, hoverText, le
     return
   }
 
-  const label = document.createElement('uhWebEditor-offscreen-label')
+  const label = document.createElement('uh-web-editor-offscreen-label')
 
   label.id = text
   label.position = {
@@ -131,7 +131,7 @@ export function createOffscreenLabelIndicator(node_label_id, text, hoverText, le
 }
 
 export function removeOffscreenLabelIndicators() {
-  document.querySelectorAll('uhWebEditor-offscreen-label')
+  document.querySelectorAll('uh-web-editor-offscreen-label')
     .forEach(e => {
       e.seen = {}
       e.count = 0

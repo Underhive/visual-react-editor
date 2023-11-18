@@ -99,4 +99,4 @@ export class Ally extends Metatip {
   }
 }
 
-customElements.define('uhWebEditor-ally', Ally)
+customElements.define('uh-web-editor-ally', Ally)

@@ -70,7 +70,7 @@ function paintBackgrounds(els) {
     const label_id = el.getAttribute('data-label-id')
 
     document
-      .querySelector(`uhWebEditor-handles[data-label-id="${label_id}"]`)
+      .querySelector(`uh-web-editor-handles[data-label-id="${label_id}"]`)
       .backdrop = {
         element:  createPaddingVisual(el),
         update:   createPaddingVisual,
@@ -81,8 +81,8 @@ function paintBackgrounds(els) {
 function removeBackgrounds(els) {
   els.forEach(el => {
     const label_id = el.getAttribute('data-label-id')
-    const boxmodel = document.querySelector(`uhWebEditor-handles[data-label-id="${label_id}"]`)
-      .$shadow.querySelector('uhWebEditor-boxmodel')
+    const boxmodel = document.querySelector(`uh-web-editor-handles[data-label-id="${label_id}"]`)
+      .$shadow.querySelector('uh-web-editor-boxmodel')
 
     if (boxmodel) boxmodel.remove()
   })
@@ -91,7 +91,7 @@ function removeBackgrounds(els) {
 export function createPaddingVisual(el, hover = false) {
   const bounds            = el.getBoundingClientRect()
   const calculatedStyle   = getStyle(el, 'padding')
-  const boxdisplay        = document.createElement('uhWebEditor-boxmodel')
+  const boxdisplay        = document.createElement('uh-web-editor-boxmodel')
 
   if (calculatedStyle !== '0px') {
     const sides = {

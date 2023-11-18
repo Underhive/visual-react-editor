@@ -23,4 +23,4 @@ export class Hover extends Handles {
   }
 }
 
-customElements.define('uhWebEditor-hover', Hover)
+customElements.define('uh-web-editor-hover', Hover)

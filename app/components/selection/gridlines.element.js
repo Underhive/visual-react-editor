@@ -67,4 +67,4 @@ export class Gridlines extends HTMLElement {
   }
 }
 
-customElements.define('uhWebEditor-gridlines', Gridlines)
+customElements.define('uh-web-editor-gridlines', Gridlines)

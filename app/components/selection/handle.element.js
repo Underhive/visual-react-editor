@@ -176,4 +176,4 @@ export class Handle extends HTMLElement {
   }
 }
 
-customElements.define('uhWebEditor-handle', Handle)
+customElements.define('uh-web-editor-handle', Handle)

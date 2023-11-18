@@ -128,7 +128,7 @@ export function removeAll() {
     unobserve({tip, target})
   })
 
-  $('uhWebEditor-metatip').forEach(tip =>
+  $('uh-web-editor-metatip').forEach(tip =>
     tip.remove())
 
   $('[data-metatip]').attr('data-metatip', null)
@@ -136,7 +136,7 @@ export function removeAll() {
   state.tips.clear()
 }
 
-const render = (el, tip = document.createElement('uhWebEditor-metatip')) => {
+const render = (el, tip = document.createElement('uh-web-editor-metatip')) => {
   const { width, height } = el.getBoundingClientRect()
   const colormode = modemap[$('uh-web-editor').attr('color-mode')]
 

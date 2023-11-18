@@ -21,7 +21,7 @@ test('Should have 13 tools', async t => {
 
 test('Should have 13 key trainers', async t => {
   const { page } = t.context
-  const trainers = await page.evaluate(`document.querySelector('uh-web-editor').$shadow.querySelectorAll('uhWebEditor-hotkeys > *').length`)
+  const trainers = await page.evaluate(`document.querySelector('uh-web-editor').$shadow.querySelectorAll('uh-web-editor-hotkeys > *').length`)
 
   t.is(trainers, 13)
   t.pass()
@@ -40,7 +40,7 @@ test('Should allow selecting 1 element', async t => {
 
   await page.click(`[intro]`)
 
-  const handles_elements = await page.evaluate(`document.querySelectorAll('uhWebEditor-handles').length`)
+  const handles_elements = await page.evaluate(`document.querySelectorAll('uh-web-editor-handles').length`)
 
   t.is(handles_elements, 1)
 
@@ -55,7 +55,7 @@ test('Should allow multi-selection', async t => {
   await page.click(`.artboard:nth-of-type(2)`)
   await page.keyboard.up('Shift')
 
-  const handles_elements = await page.evaluate(`document.querySelectorAll('uhWebEditor-handles').length`)
+  const handles_elements = await page.evaluate(`document.querySelectorAll('uh-web-editor-handles').length`)
 
   t.is(handles_elements, 2)
 
@@ -66,11 +66,11 @@ test('Should allow deselecting', async t => {
   const { page } = t.context
 
   await page.click(`.artboard:nth-of-type(1)`)
-  const handles_elements = await page.evaluate(`document.querySelectorAll('uhWebEditor-handles').length`)
+  const handles_elements = await page.evaluate(`document.querySelectorAll('uh-web-editor-handles').length`)
   t.is(handles_elements, 1)
 
   await page.keyboard.press('Escape')
-  const new_handles_elements = await page.evaluate(`document.querySelectorAll('uhWebEditor-handles').length`)
+  const new_handles_elements = await page.evaluate(`document.querySelectorAll('uh-web-editor-handles').length`)
   t.is(new_handles_elements, 0)
 
   t.pass()

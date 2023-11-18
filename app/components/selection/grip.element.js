@@ -33,4 +33,4 @@ export class Grip extends Handles {
   }
 }
 
-customElements.define('uhWebEditor-grip', Grip)
+customElements.define('uh-web-editor-grip', Grip)

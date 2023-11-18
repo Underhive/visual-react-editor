@@ -64,4 +64,4 @@ export class Hotkeys extends HTMLElement {
   }
 }
 
-customElements.define('uhWebEditor-hotkeys', Hotkeys)
+customElements.define('uh-web-editor-hotkeys', Hotkeys)

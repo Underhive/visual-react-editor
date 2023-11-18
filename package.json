@@ -7,11 +7,14 @@
   "main": "app/components/uh-web-editor/uh-web-editor.element.js",
   "scripts": {
     "dev-server": "ts-node app/server.ts",
-    "build-server": "tsc app/server.ts --outDir dist",
-    "start-server": "node dist/server.js",
+    "build-server": "tsc app/server.ts --outDir bin --module commonjs --target es6 --lib es6,dom --sourceMap --esModuleInterop --resolveJsonModule --skipLibCheck --noImplicitAny",
+    "start-server": "node bin/server.js",
     "start": "npm run concurrent",
     "build": "webpack --mode production",
     "bump": "npm version patch -m 'Release %s'"
+  },
+  "bin": {
+    "uh-editor-server": "./bin/server.js"
   },
   "dependencies": {
     "@ctrl/tinycolor": "^3.0.2",

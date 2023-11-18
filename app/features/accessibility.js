@@ -122,7 +122,7 @@ export function removeAll() {
     unobserve({tip, target})
   })
 
-  $('uhWebEditor-allytip').forEach(tip =>
+  $('uh-web-editor-allytip').forEach(tip =>
     tip.remove())
 
   $('[data-allytip]').attr('data-allytip', null)
@@ -130,7 +130,7 @@ export function removeAll() {
   state.tips.clear()
 }
 
-const render = (el, tip = document.createElement('uhWebEditor-ally')) => {
+const render = (el, tip = document.createElement('uh-web-editor-ally')) => {
   const contrast_results = determineColorContrast(el)
   const ally_attributes = getA11ys(el)
 

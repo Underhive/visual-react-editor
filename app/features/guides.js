@@ -94,7 +94,7 @@ const showGridlines = node => {
     state.gridlines.update = node.getBoundingClientRect()
   }
   else {
-    state.gridlines = document.createElement('uhWebEditor-gridlines')
+    state.gridlines = document.createElement('uh-web-editor-gridlines')
     state.gridlines.position = node.getBoundingClientRect()
 
     document.body.appendChild(state.gridlines)

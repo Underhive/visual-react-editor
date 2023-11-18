@@ -19,7 +19,7 @@ export default (elements) => {
         selectedElements = [document.body]
     }
 
-    document.body.querySelectorAll('uhWebEditor-label')
+    document.body.querySelectorAll('uh-web-editor-label')
         .forEach((el) => el.remove())
 
     selectedElements.map(container => {
@@ -27,10 +27,10 @@ export default (elements) => {
         elementsToCheck.forEach(el => {
             const overflowingX = el.offsetWidth > container.offsetWidth
             const overflowingY = el.offsetHeight > container.offsetHeight
-            const isFlag = el.tagName === 'uhWebEditor-label'
-            const alreadyHasFlag = el.lastChild && el.lastChild.tagName === 'uhWebEditor-label'
+            const isFlag = el.tagName === 'uh-web-editor-label'
+            const alreadyHasFlag = el.lastChild && el.lastChild.tagName === 'uh-web-editor-label'
             if ((overflowingX || overflowingY) && !isFlag && !alreadyHasFlag) {
-                const label = document.createElement('uhWebEditor-label')
+                const label = document.createElement('uh-web-editor-label')
                 const overflowingBoth = overflowingX && overflowingY;
                 label.text = `overflowing ${overflowingBoth ? 'x and y' : overflowingX ? 'x' : 'y'}`
                 label.position = {

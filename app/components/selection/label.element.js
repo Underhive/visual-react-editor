@@ -171,4 +171,4 @@ export class Label extends HTMLElement {
   }
 }
 
-customElements.define('uhWebEditor-label', Label)
+customElements.define('uh-web-editor-label', Label)

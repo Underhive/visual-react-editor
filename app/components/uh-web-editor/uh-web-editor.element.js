@@ -155,7 +155,7 @@ export default class WebEditor extends HTMLElement {
 
   render() {
     return `
-      <uhWebEditor-hotkeys></uhWebEditor-hotkeys>
+      <uh-web-editor-hotkeys></uh-web-editor-hotkeys>
       <ol constructible-support="${constructibleStylesheetSupport ? 'false':'true'}">
         ${Object.entries(this.toolbar_model).reduce((list, [key, tool]) => `
           ${list}

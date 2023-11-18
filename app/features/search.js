@@ -11,8 +11,8 @@ let SelectorEngine
 const search_base = document.createElement('div')
 search_base.classList.add('search')
 search_base.innerHTML = `
-  <input list="uhWebEditor-plugins" type="search" placeholder="ex: images, .btn, button, text, ..."/>
-  <datalist id="uhWebEditor-plugins">
+  <input list="uh-web-editor-plugins" type="search" placeholder="ex: images, .btn, button, text, ..."/>
+  <datalist id="uh-web-editor-plugins">
     ${isFirefox > 0
       ?  `<option value="h1, h2, h3, .get-multiple">
           <option value="nav > a:first-child">

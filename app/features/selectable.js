@@ -156,7 +156,7 @@ export function Selectable(uhWebEditor) {
 
     document.onkeydown = function(e) {
       if (hotkeys.ctrl && selected.length) {
-        $('uhWebEditor-handles, uhWebEditor-label, uhWebEditor-hover, uhWebEditor-grip').forEach(el =>
+        $('uh-web-editor-handles, uh-web-editor-label, uh-web-editor-hover, uh-web-editor-grip').forEach(el =>
           el.style.display = 'none')
 
         did_hide = true
@@ -165,7 +165,7 @@ export function Selectable(uhWebEditor) {
 
     document.onkeyup = function(e) {
       if (did_hide) {
-        $('uhWebEditor-handles, uhWebEditor-label, uhWebEditor-hover, uhWebEditor-grip').forEach(el =>
+        $('uh-web-editor-handles, uh-web-editor-label, uh-web-editor-hover, uh-web-editor-grip').forEach(el =>
           el.style.display = null)
 
         did_hide = false
@@ -514,11 +514,11 @@ export function Selectable(uhWebEditor) {
       const [$anchor] = selected
       createMeasurements({$anchor, $target})
     }
-    else if (tool === 'margin' && !hover_state.element.$shadow.querySelector('uhWebEditor-boxmodel')) {
+    else if (tool === 'margin' && !hover_state.element.$shadow.querySelector('uh-web-editor-boxmodel')) {
       hover_state.element.$shadow.appendChild(
         createMarginVisual(hover_state.target, true))
     }
-    else if (tool === 'padding' && !hover_state.element.$shadow.querySelector('uhWebEditor-boxmodel')) {
+    else if (tool === 'padding' && !hover_state.element.$shadow.querySelector('uh-web-editor-boxmodel')) {
       hover_state.element.$shadow.appendChild(
         createPaddingVisual(hover_state.target, true))
     }
@@ -564,10 +564,10 @@ export function Selectable(uhWebEditor) {
       hover.removeAttribute('data-pseudo-select'))
 
     Array.from([
-      ...$('uhWebEditor-handles'),
-      ...$('uhWebEditor-label'),
-      ...$('uhWebEditor-hover'),
-      ...$('uhWebEditor-distance'),
+      ...$('uh-web-editor-handles'),
+      ...$('uh-web-editor-label'),
+      ...$('uh-web-editor-hover'),
+      ...$('uh-web-editor-distance'),
     ]).forEach(el =>
       el.remove())
 
@@ -693,7 +693,7 @@ export function Selectable(uhWebEditor) {
 
   const createLabel = ({el, id, template}) => {
     if (!labels[id]) {
-      const label = document.createElement('uhWebEditor-label')
+      const label = document.createElement('uh-web-editor-label')
 
       label.text = template
       label.position = {
@@ -731,7 +731,7 @@ export function Selectable(uhWebEditor) {
 
   const createHandle = ({el, id}) => {
     if (!handles[id]) {
-      const handle = document.createElement('uhWebEditor-handles')
+      const handle = document.createElement('uh-web-editor-handles')
 
       handle.position = { el, node_label_id: id }
 
@@ -747,7 +747,7 @@ export function Selectable(uhWebEditor) {
       if (hover_state.element)
         hover_state.element.remove()
 
-      hover_state.element = document.createElement('uhWebEditor-hover')
+      hover_state.element = document.createElement('uh-web-editor-hover')
       document.body.appendChild(hover_state.element)
       hover_state.element.position = {el}
 
@@ -760,7 +760,7 @@ export function Selectable(uhWebEditor) {
       if (hover_state.label)
         hover_state.label.remove()
 
-      hover_state.label = document.createElement('uhWebEditor-label')
+      hover_state.label = document.createElement('uh-web-editor-label')
       document.body.appendChild(hover_state.label)
 
       hover_state.label.text = text
@@ -781,7 +781,7 @@ export function Selectable(uhWebEditor) {
       if (hover_state.element)
         hover_state.element.remove()
 
-      hover_state.element = document.createElement('uhWebEditor-corners')
+      hover_state.element = document.createElement('uh-web-editor-corners')
       document.body.appendChild(hover_state.element)
       hover_state.element.position = {el}
 

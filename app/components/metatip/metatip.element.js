@@ -109,4 +109,4 @@ export class Metatip extends HTMLElement {
   }
 }
 
-customElements.define('uhWebEditor-metatip', Metatip)
+customElements.define('uh-web-editor-metatip', Metatip)

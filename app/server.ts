@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 import express, { Request, Response, json } from 'express';
 
 import axios from 'axios';

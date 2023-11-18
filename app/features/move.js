@@ -155,18 +155,18 @@ const dragStart = ({target}) => {
   state.hover.dropzones.push(createDropzoneUI(target))
   state.drag.siblings.get(target).style.opacity = 0.01
 
-  target.setAttribute('uhWebEditor-drag-src', true)
+  target.setAttribute('uh-web-editor-drag-src', true)
   ghostNode(target)
 
-  $('uhWebEditor-hover').forEach(el =>
-    !el.hasAttribute('uhWebEditor-drag-container') && el.remove())
+  $('uh-web-editor-hover').forEach(el =>
+    !el.hasAttribute('uh-web-editor-drag-container') && el.remove())
 }
 
 const dragOver = e => {
   if (
     !state.drag.src || 
     state.drag.swapping.get(e.target) || 
-    e.target.hasAttribute('uhWebEditor-drag-src') || 
+    e.target.hasAttribute('uh-web-editor-drag-src') || 
     !state.drag.siblings.has(e.currentTarget) ||
     e.currentTarget !== e.target
   ) return
@@ -182,7 +182,7 @@ const dragOver = e => {
 const dragDrop = e => {
   if (!state.drag.src) return
 
-  state.drag.src.removeAttribute('uhWebEditor-drag-src')
+  state.drag.src.removeAttribute('uh-web-editor-drag-src')
   ghostBuster(state.drag.src)
 
   if (state.drag.siblings.has(state.drag.src))
@@ -221,7 +221,7 @@ const ghostBuster = ({style}) => {
 }
 
 const createDropzoneUI = el => {
-  const zone = document.createElement('uhWebEditor-corners')
+  const zone = document.createElement('uh-web-editor-corners')
 
   zone.position = {el}
   document.body.appendChild(zone)
@@ -240,7 +240,7 @@ const createDropzoneUI = el => {
 }
 
 const createGripUI = el => {
-  const grip = document.createElement('uhWebEditor-grip')
+  const grip = document.createElement('uh-web-editor-grip')
 
   grip.position = {el}
   document.body.appendChild(grip)
@@ -259,11 +259,11 @@ const createGripUI = el => {
 }
 
 const createParentUI = parent => {
-  const hover = document.createElement('uhWebEditor-hover')
-  const label = document.createElement('uhWebEditor-label')
+  const hover = document.createElement('uh-web-editor-hover')
+  const label = document.createElement('uh-web-editor-label')
 
   hover.position = {el:parent}
-  hover.setAttribute('uhWebEditor-drag-container', true)
+  hover.setAttribute('uh-web-editor-drag-container', true)
 
   label.text = 'Drag Bounds'
   label.position = {boundingRect: parent.getBoundingClientRect()}
