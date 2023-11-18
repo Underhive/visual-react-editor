@@ -186,7 +186,6 @@ export default class WebEditor extends HTMLElement {
     return `
       <aside ${tool}>
         <figure>
-          <img src="${this._tutsBaseURL}/${tool}.gif" alt="${description}" />
           <figcaption>
             <h2>
               ${label}
