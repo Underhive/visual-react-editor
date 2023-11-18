@@ -12,4 +12,5 @@ if (metaKey === 'ctrl')
     })
 
 document.body.prepend(WebEditorElement)
+
 export default WebEditorElement

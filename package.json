@@ -7,7 +7,7 @@
   "main": "app/components/uh-web-editor/uh-web-editor.element.js",
   "scripts": {
     "dev-server": "ts-node app/server.ts",
-    "build-server": "tsc app/server.ts --outDir bin --module commonjs --target es6 --lib es6,dom --sourceMap --esModuleInterop --resolveJsonModule --skipLibCheck --noImplicitAny",
+    "build-server": "tsc app/server.ts --outDir bin --module commonjs --target es6 --lib es6,dom --sourceMap --esModuleInterop --resolveJsonModule --skipLibCheck",
     "start-server": "node bin/server.js",
     "start": "npm run concurrent",
     "build": "webpack --mode production",

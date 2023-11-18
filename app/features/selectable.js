@@ -54,7 +54,7 @@ export function Selectable(uhWebEditor) {
     }
     return sourceMap
   }
-
+  
   const sourceMap         = mapSourceFromElement(document.body)
   console.log({ sourceMap, sourceList })
   history.mutations.saveSourceMap(sourceList)

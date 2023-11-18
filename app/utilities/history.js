@@ -1,3 +1,5 @@
+import axios from "axios"
+
 const state = {
   history: []
 }
@@ -114,20 +116,20 @@ export const getters = {
       return btoa(unescape(encodeURIComponent(str)));
     }
 
-    fetch("http://localhost:3000/ask/history", {
-      method: 'POST',
-      headers: {
-          'Content-Type': 'application/json; charset=utf-8'
-      },
-      body: JSON.stringify({
-        data: stringToBase64(JSON.stringify({
-          history: state.history,
-          sourceMap: sourceMap
-        }))
-      })
-    }, response => {
-      console.log(response);
-    })
+    // fetch("http://localhost:3000/ask/history", {
+    //   method: 'POST',
+    //   headers: {
+    //       'Content-Type': 'application/json; charset=utf-8'
+    //   },
+    //   body: JSON.stringify({
+    //     data: stringToBase64(JSON.stringify({
+    //       history: state.history,
+    //       sourceMap: sourceMap
+    //     }))
+    //   })
+    // }, response => {
+    //   console.log(response);
+    // })
   }
 }
 
@@ -155,6 +157,93 @@ export const cssPath = (el) => {
   }
   return path.join(" > ");
 }
+
+document.addEventListener("readystatechange", (event) => {
+  if(document.readyState === "complete") {
+    var observer = new MutationObserver(onMutation);
+    var observerSettings = {
+      subtree: true,
+      childList: true,
+      attributes: true,
+      attributeOldValue: true,
+      characterData: true,
+      characterDataOldValue: true,
+    };
+
+    function onMutation(records) {
+      for (const record of records) {
+        if (record.type === 'childList') {
+          record.addedNodes.forEach(observeShadowRoots)
+        }
+        logMutation(record);
+      }
+    }
+
+    function logMutation(r) {
+      let logOrNot = false
+      let target = r.target
+      if(target.nodeName === "#text" && r.type === 'characterData') {
+        target = target.parentElement
+      }
+      const propName = Object.keys(target).find(prop => prop.includes("__reactFiber"))
+      logOrNot = Object.keys(target).some(prop => prop.includes("__reactFiber"));
+      if(!logOrNot) return
+
+      const apiURL = `http://localhost:38388/edit/${r.type}`
+
+      let log = {
+        type: r.type,
+        target: target,
+        action: ''
+      }
+
+      if(r.type === 'childList') {
+        if(r.addedNodes.length) {
+          log.addedNodes = r.addedNodes
+          log.action = 'add'
+        }
+        if(r.removedNodes.length) {
+          log.removedNodes = r.removedNodes
+          log.action = 'delete'
+        }
+      } else if(r.type === 'attributes' && r.attributeName != 'contenteditable' && r.attributeName != 'spellcheck' && !r.attributeName.includes('data-')) {
+        log.attributeName = r.attributeName
+        log.attributeValue = r.target.getAttribute(r.attributeName)
+        log.oldValue = r.oldValue
+        log.action = 'edit'
+      } else if(r.type === 'characterData') {
+        log.characterData = r.target.textContent
+        log.oldValue = r.oldValue
+        log.action = 'edit'
+        log.target = {
+          tagName: target.localName
+        }
+        axios.post(apiURL, {
+          log,
+          source: target[propName]._debugSource,
+          timestamp: Date.now()
+        })
+      }
+    }
+
+    function observeShadowRoots(node) {
+      findShadowRoots(node).forEach((shadowRoot) => {
+        observer.observe(shadowRoot, observerSettings);
+      });
+    }
+
+    function findShadowRoots(node, list = new Set()) {
+      if (node.shadowRoot) list.add(node.shadowRoot);
+      node?.querySelectorAll && node.querySelectorAll('*').forEach((child) => {
+        if (child.shadowRoot) findShadowRoots(child, list);
+      });
+      return list;
+    }
+
+    observer.observe(document, observerSettings);
+    // observeShadowRoots(document);
+  }
+});
 
 export default {
   state,
