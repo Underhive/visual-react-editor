@@ -107,3 +107,40 @@ export const swapElements = (src, target) => {
 
   temp.parentNode.removeChild(temp)
 }
+
+export function extractSourceMappingURL(cssContent) {
+  const regex = /\/\*\#\s*sourceMappingURL\s*=\s*data:application\/json;base64,([^\s*]+)\s*\*\//;
+  const matches = regex.exec(cssContent);
+  if (matches && matches[1]) {
+      return matches[1];
+  }
+  return null;
+}
+
+export function decodeBase64(base64String) {
+  return atob(base64String);
+}
+
+export function findCssBlockRange(cssString, selector) {
+  // Escape special characters in the selector
+  const escapedSelector = selector.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+
+  // Create a regex pattern to find the selector and capture everything from opening to closing brace
+  const pattern = `${escapedSelector}\\s*{([^}]*)}`;
+
+  // Create a regex object
+  const regex = new RegExp(pattern, 'g');
+
+  // Find the block in the CSS string
+  let match;
+  while ((match = regex.exec(cssString)) !== null) {
+      // Include the matched braces in the range
+      const startIndex = match.index;
+      const endIndex = regex.lastIndex;
+      return { startIndex, endIndex, blockContent: match[0].trim() };
+  }
+
+  return null;
+}
+
+export const apiURL = 'http://localhost:38388/'

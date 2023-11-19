@@ -287,17 +287,24 @@ export const WebEditorModel = {
     description: 'Change any text on the page with a <b>double click</b>',
     instruction: '',
   },
-  // c: {
-  //   tool:        'screenshot',
-  //   icon:        Icons.camera,
-  //   label:       'Screenshot',
-  //   description: 'Screenshot selected elements or the entire page'
-  // },
+  x: {
+    tool:        'screenshot',
+    icon:        Icons.camera,
+    label:       'Screenshot',
+    description: 'Screenshot selected elements or the entire page'
+  },
   s: {
     tool:        'search',
     icon:        Icons.search,
     label:       '<span><u>S</u>earch</span>',
     description: 'Select elements programatically by searching for them or use built in plugins with special commands',
+    instruction: '',
+  },
+  c: {
+    tool:        'create',
+    icon:        Icons.creator,
+    label:       '<span><u>C</u>reate</span>',
+    description: 'Create elements with AI magic ✨',
     instruction: '',
   },
 }

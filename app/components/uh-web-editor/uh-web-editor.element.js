@@ -28,6 +28,7 @@ import {
   constructibleStylesheetSupport,
   schemeRule
 } from '../../utilities'
+import { Creator } from '../../features/creator'
 
 export default class WebEditor extends HTMLElement {
   constructor() {
@@ -227,6 +228,10 @@ export default class WebEditor extends HTMLElement {
 
   search() {
     this.deactivate_feature = Search($('[data-tool="search"]', this.$shadow))
+  }
+
+  create() {
+    this.deactivate_feature = Creator($('[data-tool="create"]', this.$shadow))
   }
 
   boxshadow() {
