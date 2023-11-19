@@ -1,11 +1,11 @@
 import { Handles } from './handles.element'
-import { HandleStyles, CornerStyles } from '../styles.store'
+import { HandlesStyles, CornerStyles } from '../styles.store'
 
 export class Corners extends Handles {
 
   constructor() {
     super()
-    this.styles = [HandleStyles, CornerStyles]
+    this.styles = [HandlesStyles, CornerStyles]
   }
 
   render({ width, height, top, left }) {
@@ -23,4 +23,4 @@ export class Corners extends Handles {
   }
 }
 
-customElements.define('visbug-corners', Corners)
+customElements.define('uh-web-editor-corners', Corners)

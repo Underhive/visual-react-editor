@@ -57,4 +57,4 @@ export class Distance extends HTMLElement {
   }
 }
 
-customElements.define('visbug-distance', Distance)
+customElements.define('uh-web-editor-distance', Distance)

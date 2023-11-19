@@ -25,10 +25,10 @@ export function toggleWatching({watch}) {
 }
 
 const initWatchers = imgs => {
-  imgs.on('dragover', onDragEnter)
+  imgs.on('dragover', onDragOver)
   imgs.on('dragleave', onDragLeave)
   imgs.on('drop', onDrop)
-  $(document.body).on('dragover', onDragEnter)
+  $(document.body).on('dragover', onDragOver)
   $(document.body).on('dragleave', onDragLeave)
   $(document.body).on('drop', onDrop)
   $(document.body).on('dragstart', onDragStart)
@@ -36,14 +36,14 @@ const initWatchers = imgs => {
 }
 
 const clearWatchers = imgs => {
-  imgs.off('dragenter', onDragEnter)
+  imgs.off('dragover', onDragOver)
   imgs.off('dragleave', onDragLeave)
   imgs.off('drop', onDrop)
-  $(document.body).off('dragenter', onDragEnter)
+  $(document.body).off('dragover', onDragOver)
   $(document.body).off('dragleave', onDragLeave)
   $(document.body).off('drop', onDrop)
-  $(document.body).on('dragstart', onDragStart)
-  $(document.body).on('dragend', onDragEnd)
+  $(document.body).off('dragstart', onDragStart)
+  $(document.body).off('dragend', onDragEnd)
   imgs = []
 }
 
@@ -62,7 +62,7 @@ const onDragStart = ({target}) =>
 const onDragEnd = e =>
   dragItem = undefined
 
-const onDragEnter = async e => {
+const onDragOver = async e => {
   e.preventDefault()
   e.stopPropagation()
 
@@ -185,7 +185,7 @@ const showOverlay = (node, i) => {
     overlay.update = rect
   }
   else {
-    overlays[i] = document.createElement('visbug-overlay')
+    overlays[i] = document.createElement('uh-web-editor-overlay')
     overlays[i].position = rect
     document.body.appendChild(overlays[i])
   }

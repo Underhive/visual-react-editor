@@ -15,6 +15,7 @@ const modemap = {
 export class Ally extends Metatip {
   constructor() {
     super()
+    this.copyColorSwatch = this.copyColorSwatch.bind(this)
   }
 
   async copyToClipboard(text) {
@@ -29,7 +30,7 @@ export class Ally extends Metatip {
   }
 
   observe() {
-    $('[color-swatch]', this.$shadow).on('click', this.copyColorSwatch.bind(this))
+    $('[color-swatch]', this.$shadow).on('click', this.copyColorSwatch)
 
     draggable({
       el: this,
@@ -39,11 +40,11 @@ export class Ally extends Metatip {
   }
 
   unobserve() {
-    $('[color-swatch]', this.$shadow).off('click', this.copyColorSwatch.bind(this))
+    $('[color-swatch]', this.$shadow).off('click', this.copyColorSwatch)
   }
 
   render({el, ally_attributes, contrast_results}) {
-    const colormode = modemap[$('vis-bug').attr('color-mode')]
+    const colormode = modemap[$('uh-web-editor').attr('color-mode')]
 
     const foreground = el instanceof SVGElement
       ? (getStyle(el, 'fill') || getStyle(el, 'stroke'))
@@ -98,4 +99,4 @@ export class Ally extends Metatip {
   }
 }
 
-customElements.define('visbug-ally', Ally)
+customElements.define('uh-web-editor-ally', Ally)

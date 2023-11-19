@@ -5,4 +5,7 @@ export * from './strings'
 export * from './window'
 export * from './cross-browser'
 export * from './isFixed'
-export * from "./scheme"
+export * from './scheme'
+export * from './colors'
+export * from './numbers'
+export * from './history'

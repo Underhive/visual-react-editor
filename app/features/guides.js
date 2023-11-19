@@ -11,19 +11,19 @@ const state = {
   },
 }
 
-export function Guides(visbug) {
+export function Guides(uhWebEditor) {
   $('body').on('mousemove', on_hover)
   $('body').on('mouseout', on_hoverout)
 
   window.addEventListener('scroll', hideGridlines)
-  visbug.onSelectedUpdate(stickGuide)
+  uhWebEditor.onSelectedUpdate(stickGuide)
 
   return () => {
     $('body').off('mousemove', on_hover)
     $('body').off('mouseout', on_hoverout)
 
     window.removeEventListener('scroll', hideGridlines)
-    visbug.removeSelectedCallback(stickGuide)
+    uhWebEditor.removeSelectedCallback(stickGuide)
 
     clearMeasurements()
     hideGridlines()
@@ -94,7 +94,7 @@ const showGridlines = node => {
     state.gridlines.update = node.getBoundingClientRect()
   }
   else {
-    state.gridlines = document.createElement('visbug-gridlines')
+    state.gridlines = document.createElement('uh-web-editor-gridlines')
     state.gridlines.position = node.getBoundingClientRect()
 
     document.body.insertAdjacentElement('afterend', state.gridlines)

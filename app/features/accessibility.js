@@ -15,11 +15,11 @@ const state = {
   tips: new Map(),
 }
 
-export function Accessibility(visbug) {
+export function Accessibility(uhWebEditor) {
   state.restoring = true
 
   $('body').on('mousemove', mouseMove)
-  visbug.onSelectedUpdate(togglePinned)
+  uhWebEditor.onSelectedUpdate(togglePinned)
 
   hotkeys('esc', _ => removeAll())
 
@@ -27,7 +27,7 @@ export function Accessibility(visbug) {
 
   return () => {
     $('body').off('mousemove', mouseMove)
-    visbug.removeSelectedCallback(togglePinned)
+    uhWebEditor.removeSelectedCallback(togglePinned)
     hotkeys.unbind('esc')
     hideAll()
   }
@@ -36,7 +36,7 @@ export function Accessibility(visbug) {
 const mouseMove = e => {
   const target = deepElementFromPoint(e.clientX, e.clientY)
 
-  if (isOffBounds(target) || target.nodeName.toUpperCase() === 'SVG' || target.nodeName === 'VISBUG-ALLYTIP' || target.hasAttribute('data-allytip')) { // aka: mouse out
+  if (isOffBounds(target) || target.nodeName.toUpperCase() === 'SVG' || target.nodeName === 'uh-web-editor-ALLYTIP' || target.hasAttribute('data-allytip')) { // aka: mouse out
     if (state.active.tip) {
       wipe({
         tip: state.active.tip,
@@ -122,7 +122,7 @@ export function removeAll() {
     unobserve({tip, target})
   })
 
-  $('visbug-allytip').forEach(tip =>
+  $('uh-web-editor-allytip').forEach(tip =>
     tip.remove())
 
   $('[data-allytip]').attr('data-allytip', null)
@@ -130,7 +130,7 @@ export function removeAll() {
   state.tips.clear()
 }
 
-const render = (el, tip = document.createElement('visbug-ally')) => {
+const render = (el, tip = document.createElement('uh-web-editor-ally')) => {
   const contrast_results = determineColorContrast(el)
   const ally_attributes = getA11ys(el)
 

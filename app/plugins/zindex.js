@@ -1,23 +1,26 @@
-import { isFixed } from '../utilities/';
+import {
+    isFixed,
+    colors,
+    numberBetween
+} from '../utilities/'
 
 export const commands = [
     'zindex',
     'z-index'
 ]
-function numberBetween(min, max) {
-    return Math.floor(min + (Math.random() * (max - min)))
-}
+
+export const description = 'show the z-index values of all elements that have z-index explicitly set (not auto)'
+
 export default function () {
     // Fun prior art https://gist.github.com/paulirish/211209
     Array.from(document.querySelectorAll('*'))
-        .filter(el => el.computedStyleMap().get('z-index').value !== 'auto')
-        .filter(el => el.nodeName !== 'VIS-BUG')
+        .filter(el => window.getComputedStyle(el).getPropertyValue('z-index') !== 'auto')
+        .filter(el => el.nodeName !== 'uh-web-editor')
         .forEach(el => {
-            const colors = ["#eb4034", "#30850f", "#116da7", "#4334eb", "#b134eb", "#df168e", "#e8172c", "#8f2e2b", "#8f692b", "#8a8f2b", "#358f2b", "#2b8f82", "#2b678f", "#2b2b8f", "#8f2b8f", "#8f2b55", "#1eff00", "#a86800", "#ff0000", "#008035", "#0026ff", "#bb00ff", "#d600b6", "#e60067", "#137878"];
             const color = colors[numberBetween(0, colors.length)];
-            const zindex = el.computedStyleMap().get('z-index').value
+            const zindex = window.getComputedStyle(el).getPropertyValue('z-index')
 
-            const label = document.createElement('visbug-label')
+            const label = document.createElement('uh-web-editor-label')
 
             label.text = `z-index: ${zindex}`
             label.position = {
@@ -26,7 +29,7 @@ export default function () {
             }
             label.style.setProperty(`--label-bg`, color)
 
-            const overlay = document.createElement('visbug-hover')
+            const overlay = document.createElement('uh-web-editor-hover')
             overlay.position = { el }
             overlay.style.setProperty(`--hover-stroke`, color)
             overlay.style.setProperty(`--position`, isFixed(el) ? 'fixed' : 'absolute')

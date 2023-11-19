@@ -1,5 +1,5 @@
 import { HotkeyMap } from './base.element'
-import { position as icon } from '../vis-bug/vis-bug.icons'
+import { position as icon } from '../uh-web-editor/uh-web-editor.icons'
 import { altKey } from '../../utilities';
 
 export class PositionHotkeys extends HotkeyMap {

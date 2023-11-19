@@ -1,5 +1,5 @@
 import { HotkeyMap } from './base.element'
-import { search as icon } from '../vis-bug/vis-bug.icons'
+import { search as icon } from '../uh-web-editor/uh-web-editor.icons'
 
 export class SearchHotkeys extends HotkeyMap {
   constructor() {

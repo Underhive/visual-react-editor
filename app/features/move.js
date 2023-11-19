@@ -19,25 +19,25 @@ const state = {
 }
 // todo: indicator for when node can descend
 // todo: have it work with shadowDOM
-export function Moveable(visbug) {
+export function Moveable(uhWebEditor) {
   hotkeys(key_events, (e, {key}) => {
     if (e.cancelBubble) return
 
     e.preventDefault()
     e.stopPropagation()
 
-    visbug.selection().forEach(el => {
+    uhWebEditor.selection().forEach(el => {
       moveElement(el, key)
       updateFeedback(el)
     })
   })
 
-  visbug.onSelectedUpdate(dragNDrop)
+  uhWebEditor.onSelectedUpdate(dragNDrop)
   toggleWatching({watch: false})
 
   return () => {
     toggleWatching({watch: true})
-    visbug.removeSelectedCallback(dragNDrop)
+    uhWebEditor.removeSelectedCallback(dragNDrop)
     clearListeners()
     hotkeys.unbind(key_events)
   }
@@ -155,18 +155,18 @@ const dragStart = ({target}) => {
   state.hover.dropzones.push(createDropzoneUI(target))
   state.drag.siblings.get(target).style.opacity = 0.01
 
-  target.setAttribute('visbug-drag-src', true)
+  target.setAttribute('uh-web-editor-drag-src', true)
   ghostNode(target)
 
-  $('visbug-hover').forEach(el =>
-    !el.hasAttribute('visbug-drag-container') && el.remove())
+  $('uh-web-editor-hover').forEach(el =>
+    !el.hasAttribute('uh-web-editor-drag-container') && el.remove())
 }
 
 const dragOver = e => {
   if (
     !state.drag.src || 
     state.drag.swapping.get(e.target) || 
-    e.target.hasAttribute('visbug-drag-src') || 
+    e.target.hasAttribute('uh-web-editor-drag-src') || 
     !state.drag.siblings.has(e.currentTarget) ||
     e.currentTarget !== e.target
   ) return
@@ -182,7 +182,7 @@ const dragOver = e => {
 const dragDrop = e => {
   if (!state.drag.src) return
 
-  state.drag.src.removeAttribute('visbug-drag-src')
+  state.drag.src.removeAttribute('uh-web-editor-drag-src')
   ghostBuster(state.drag.src)
 
   if (state.drag.siblings.has(state.drag.src))
@@ -221,7 +221,7 @@ const ghostBuster = ({style}) => {
 }
 
 const createDropzoneUI = el => {
-  const zone = document.createElement('visbug-corners')
+  const zone = document.createElement('uh-web-editor-corners')
 
   zone.position = {el}
   document.body.appendChild(zone)
@@ -240,7 +240,7 @@ const createDropzoneUI = el => {
 }
 
 const createGripUI = el => {
-  const grip = document.createElement('visbug-grip')
+  const grip = document.createElement('uh-web-editor-grip')
 
   grip.position = {el}
   document.body.appendChild(grip)
@@ -259,11 +259,11 @@ const createGripUI = el => {
 }
 
 const createParentUI = parent => {
-  const hover = document.createElement('visbug-hover')
-  const label = document.createElement('visbug-label')
+  const hover = document.createElement('uh-web-editor-hover')
+  const label = document.createElement('uh-web-editor-label')
 
   hover.position = {el:parent}
-  hover.setAttribute('visbug-drag-container', true)
+  hover.setAttribute('uh-web-editor-drag-container', true)
 
   label.text = 'Drag Bounds'
   label.position = {boundingRect: parent.getBoundingClientRect()}

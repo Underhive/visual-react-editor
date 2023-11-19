@@ -1,5 +1,5 @@
 import { HotkeyMap } from './base.element'
-import { accessibility as icon } from '../vis-bug/vis-bug.icons'
+import { accessibility as icon } from '../uh-web-editor/uh-web-editor.icons'
 import { altKey } from '../../utilities';
 
 export class AccessibilityHotkeys extends HotkeyMap {

@@ -1,3 +1,4 @@
+import { decodeBase64, extractSourceMappingURL } from './common'
 import { desiredPropMap } from './design-properties'
 
 export const getStyle = (el, name) => {
@@ -30,7 +31,7 @@ export const getStyles = el => {
 
   const { borderColor, borderWidth, borderStyle } = borders
 
-  if (parseInt(borderWidth) > 0) {
+  if (parseFloat(borderWidth) > 0) {
     vettedStyles.push({
       prop: 'borderColor',
       value: borderColor,
@@ -47,11 +48,66 @@ export const getStyles = el => {
     })
   }
 
+  // get source of style as well here
+  var sheets = document.styleSheets, influencingStyles = [];
+  var q = function(rules){
+    for (var r in rules) {
+      var rule = rules[r];
+      if(rule instanceof CSSMediaRule && window.matchMedia(rule.conditionText).matches){
+        influencingStyles.concat(q(rule.cssRules));
+      } else if(rule instanceof CSSSupportsRule){
+        try{
+          if(CSS.supports(rule.conditionText)){
+            influencingStyles.concat(q(rule.cssRules));
+          }
+        } catch (e) {
+          console.error(e);
+        }
+      } else if(rule instanceof CSSStyleRule){
+        try{
+          if(el.matches(rule.selectorText)){
+            influencingStyles.push(rule.style);
+          }
+        } catch(e){
+          console.error(e);
+        }
+      }
+    }
+  };
+  for (var i in sheets) {
+    try{
+      q(sheets[i].cssRules);
+    } catch(e){
+      console.error(e);
+    }
+  }
+
+  for(const style of influencingStyles) {
+    const sourceMap = style.parentRule.parentStyleSheet.ownerNode.textContent.match(/\/\*\#\s*sourceMappingURL\s*=\s*([^\s*]+)\s*\*\//gm)[0]
+    const sourceMapJSON = JSON.parse(decodeBase64(extractSourceMappingURL(sourceMap)))
+    const parentRuleCssText = style.parentRule.cssText
+    const parentRuleSelector = style.parentRule.selectorText
+    const range = findCssBlockRange(sourceMapJSON.sourcesContent[0], parentRuleSelector);
+  }
+
   return vettedStyles.sort(function({prop:propA}, {prop:propB}) {
     if (propA < propB) return -1
     if (propA > propB) return 1
     return 0
   })
+}
+
+let canvas_color
+export const getComputedCanvasBackgroundColor = () => {
+  if (canvas_color) return canvas_color
+
+  const foo = document.createElement('span')
+  foo.style.backgroundColor = 'Canvas'
+  document.body.appendChild(foo)
+  canvas_color = getComputedStyle(foo).backgroundColor
+  document.body.removeChild(foo)
+
+  return canvas_color
 }
 
 export const getComputedBackgroundColor = el => {
@@ -66,7 +122,7 @@ export const getComputedBackgroundColor = el => {
 
       if (node.nodeName === 'HTML') {
         found = true
-        background = 'white'
+        background = getComputedCanvasBackgroundColor()
       }
 
       if (bg !== 'rgba(0, 0, 0, 0)') {

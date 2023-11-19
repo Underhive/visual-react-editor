@@ -14,12 +14,13 @@ import { showTip as showAccessibilityTip, removeAll as removeAllAccessibilityTip
 
 import {
   metaKey, htmlStringToDom, createClassname, camelToDash,
-  isOffBounds, getStyles, deepElementFromPoint, getShadowValues,
+  isOffBounds, getStyle, getStyles, deepElementFromPoint, getShadowValues,
   isSelectorValid, findNearestChildElement, findNearestParentElement,
   getTextShadowValues, isFixed,
 } from '../utilities/'
+import history, { cssPath } from '../utilities/history'
 
-export function Selectable(visbug) {
+export function Selectable(uhWebEditor) {
   const page              = document.body
   let selected            = []
   let selectedCallbacks   = []
@@ -32,28 +33,57 @@ export function Selectable(visbug) {
     label:    null,
   }
 
+  const sourceList = {}
+
+  const mapSourceFromElement = (el) => {
+    let sourceMap = {}
+    if(el.children.length == 0) return 
+    for(const child of el.children) {
+      if(child.children.length) {
+        sourceMap[cssPath(child)] = mapSourceFromElement(child)
+      } else {
+        let propName
+        for(const prop in child) {
+          if(prop.includes("reactFiber")) propName = prop
+        }
+        if(propName && child[propName]) {
+          sourceMap[cssPath(child)] = child[propName]._debugSource ?? child[propName]._debugOwner._debugSource
+          sourceList[cssPath(child)] = child[propName]._debugSource ?? child[propName]._debugOwner._debugSource
+        }
+      }
+    }
+    return sourceMap
+  }
+  
+  const sourceMap         = mapSourceFromElement(document.body)
+  console.log({ sourceMap, sourceList })
+  history.mutations.saveSourceMap(sourceList)
+
   const listen = () => {
     page.addEventListener('click', on_click, true)
     page.addEventListener('dblclick', on_dblclick, true)
 
     page.on('selectstart', on_selection)
     page.on('mousemove', on_hover)
-    document.addEventListener('copy', on_copy)
-    document.addEventListener('cut', on_cut)
-    document.addEventListener('paste', on_paste)
+    document.addEventListener('copy', on_copy) // history done
+    document.addEventListener('cut', on_cut) // history done
+    document.addEventListener('paste', on_paste) // history done
 
     watchCommandKey()
 
     hotkeys(`${metaKey}+alt+c`, on_copy_styles)
-    hotkeys(`${metaKey}+alt+v`, e => on_paste_styles())
+    hotkeys(`${metaKey}+alt+v`, e => on_paste_styles()) // TODO: add edit here
     hotkeys('esc', on_esc)
-    hotkeys(`${metaKey}+d`, on_duplicate)
-    hotkeys('backspace,del,delete', on_delete)
-    hotkeys('alt+del,alt+backspace', on_clearstyles)
+    hotkeys(`${metaKey}+d`, on_duplicate) // history done
+    hotkeys('backspace,del,delete', on_delete) // history done
+    hotkeys('alt+del,alt+backspace', on_clearstyles) // history done
     hotkeys(`${metaKey}+e,${metaKey}+shift+e`, on_expand_selection)
-    hotkeys(`${metaKey}+g,${metaKey}+shift+g`, on_group)
+    hotkeys(`${metaKey}+g,${metaKey}+shift+g`, on_group) // TODO: add edit here
     hotkeys('tab,shift+tab,enter,shift+enter', on_keyboard_traversal)
     hotkeys(`${metaKey}+shift+enter`, on_select_children)
+    hotkeys(`shift+'`, on_select_parent)
+    hotkeys(`${metaKey}+z`, history.actions.undo)
+    hotkeys(`${metaKey}+shift+z`, history.actions.redo)
   }
 
   const unlisten = () => {
@@ -106,6 +136,7 @@ export function Selectable(visbug) {
           'data-label-id':      null,
           'data-pseudo-select':         null,
           'data-measuring':     null,
+          'data-outward':       null,
       }))
 
     selected = selected.filter(node => node.getAttribute('data-label-id') !== id)
@@ -117,7 +148,7 @@ export function Selectable(visbug) {
     e.preventDefault()
     e.stopPropagation()
     if (isOffBounds(e.target)) return
-    visbug.toolSelected('text')
+    uhWebEditor.toolSelected('text')
   }
 
   const watchCommandKey = e => {
@@ -125,7 +156,7 @@ export function Selectable(visbug) {
 
     document.onkeydown = function(e) {
       if (hotkeys.ctrl && selected.length) {
-        $('visbug-handles, visbug-label, visbug-hover, visbug-grip').forEach(el =>
+        $('uh-web-editor-handles, uh-web-editor-label, uh-web-editor-hover, uh-web-editor-grip').forEach(el =>
           el.style.display = 'none')
 
         did_hide = true
@@ -134,7 +165,7 @@ export function Selectable(visbug) {
 
     document.onkeyup = function(e) {
       if (did_hide) {
-        $('visbug-handles, visbug-label, visbug-hover, visbug-grip').forEach(el =>
+        $('uh-web-editor-handles, uh-web-editor-label, uh-web-editor-hover, uh-web-editor-grip').forEach(el =>
           el.style.display = null)
 
         did_hide = false
@@ -156,15 +187,39 @@ export function Selectable(visbug) {
     const deep_clone = root_node.cloneNode(true)
     deep_clone.removeAttribute('data-selected')
     root_node.parentNode.insertBefore(deep_clone, root_node.nextSibling)
+
+    history.actions.do({
+      parentLocation: cssPath(deep_clone.parentNode),
+      location: cssPath(deep_clone),
+      element: {
+        tagName: deep_clone.tagName,
+        outerHTML: deep_clone.outerHTML,
+      },
+      action: 'add',
+    })
+
     e.preventDefault()
   }
 
   const on_delete = e =>
     selected.length && delete_all()
 
-  const on_clearstyles = e =>
-    selected.forEach(el =>
-      el.attr('style', null))
+  const on_clearstyles = (_e) => {
+    selected.forEach(el => {
+      const beforeEdit = el.outerHTML
+      el.attr('style', null)
+      history.actions.do({
+        parentLocation: cssPath(el.parentNode),
+        location: cssPath(el),
+        element: {
+          tagName: el?.tagName?.toLowerCase(),
+          outerHTML: beforeEdit,
+          finalOuterHTML: el.outerHTML,
+        },
+        action: 'edit',
+      })
+    })
+  }
 
   const on_copy = async e => {
     // if user has selected text, dont try to copy an element
@@ -179,7 +234,7 @@ export function Selectable(visbug) {
       window.copy_backup = $node.outerHTML
       e.clipboardData.setData('text/html', window.copy_backup)
 
-      const {state} = await navigator.permissions.query({name:'clipboard-write'})
+      const { state } = await navigator.permissions.query({ name: 'clipboard-write' })
 
       if (state === 'granted')
         await navigator.clipboard.writeText(window.copy_backup)
@@ -192,6 +247,19 @@ export function Selectable(visbug) {
       $node.removeAttribute('data-selected')
       window.copy_backup = $node.outerHTML
       e.clipboardData.setData('text/html', window.copy_backup)
+      const el = selected[0]
+      if(el?.tagName?.toLowerCase() != 'uh-web-editor-handles' && el?.tagName?.toLowerCase() != 'uh-web-editor-label' && el?.tagName?.toLowerCase() != 'uh-web-editor-hover' && el?.tagName?.toLowerCase() != 'uh-web-editor-distance') {
+        history.actions.do({
+          parentLocation: cssPath(el.parentNode),
+          location: cssPath(el),
+          element: {
+            tagName: el?.tagName?.toLowerCase(),
+            outerHTML: el.outerHTML,
+          },
+          action: 'delete',
+        })
+        // log the deleted element for undo
+      }
       selected[0].remove()
     }
   }
@@ -204,9 +272,23 @@ export function Selectable(visbug) {
     if (selected.length && potentialHTML) {
       e.preventDefault()
 
-      selected.forEach(el =>
-        el.appendChild(
-          htmlStringToDom(potentialHTML)))
+      selected.forEach(parent => {
+        const el = htmlStringToDom(potentialHTML)
+        if(!(el instanceof Element)) return
+        parent.appendChild(el)
+        if(el?.tagName?.toLowerCase() != 'uh-web-editor-handles' && el?.tagName?.toLowerCase() != 'uh-web-editor-label' && el?.tagName?.toLowerCase() != 'uh-web-editor-hover' && el?.tagName?.toLowerCase() != 'uh-web-editor-distance') {
+          history.actions.do({
+            parentLocation: cssPath(parent),
+            location: cssPath(el),
+            element: {
+              tagName: el?.tagName?.toLowerCase(),
+              outerHTML: el.outerHTML,
+            },
+            action: 'add',
+          })
+          // log the deleted element for undo
+        }
+      })
     }
   }
 
@@ -217,7 +299,7 @@ export function Selectable(visbug) {
       getStyles(el))
 
     try {
-      const colormode = $('vis-bug')[0].colorMode
+      const colormode = $('uh-web-editor')[0].colorMode
 
       const styles = window.copied_styles[0]
         .map(({prop,value}) => {
@@ -316,11 +398,33 @@ export function Selectable(visbug) {
     }
   }
 
-  const on_selection = e =>
-    !isOffBounds(e.target)
+  const getElementSkeleton = (el, tabLevel, hasChildrenWithoutChildren) => {
+    const tabSpace = ' '.repeat(tabLevel)
+    let skeleton = ``
+    for(const child of el.children) {
+      const tab = '_'.repeat(2)
+      if(child.children.length) {
+        const hasChildrenWithoutChildren = !(Array.from(child.children).some(innerChild => !innerChild.children.length) 
+                                              && Array.from(child.children).some(innerChild => innerChild.children.length)
+                                          )
+        skeleton += `${tabSpace}<${child.tagName.toLowerCase()}>\n${getElementSkeleton(child, tabLevel + 2, hasChildrenWithoutChildren)}`
+      } else {
+        skeleton += `${tabSpace}${hasChildrenWithoutChildren ? ` |${tab}` : ''}<${child.tagName.toLowerCase()}>\n`
+      }
+    }
+    return skeleton
+  }
+
+  const on_selection = e => !isOffBounds(e.target)
     && selected.length
     && selected[0].textContent != e.target.textContent
     && e.preventDefault()
+
+  // console.log(e)
+  // const el = e.target
+  // let skeleton = `<${el?.tagName?.toLowerCase().toLowerCase()}>\n${getElementSkeleton(e.target, 2)}`
+  // console.log(skeleton)
+  // TODO: show this in the UI
 
   const on_keyboard_traversal = (e, {key}) => {
     if (!selected.length) return
@@ -364,7 +468,7 @@ export function Selectable(visbug) {
   }
 
   const show_tip = el => {
-    const active_tool = visbug.activeTool
+    const active_tool = uhWebEditor.activeTool
     let tipFactory
 
     if (active_tool === 'accessibility') {
@@ -391,7 +495,7 @@ export function Selectable(visbug) {
 
   const on_hover = e => {
     const $target = deepElementFromPoint(e.clientX, e.clientY)
-    const tool = visbug.activeTool
+    const tool = uhWebEditor.activeTool
 
     if (isOffBounds($target) || $target.hasAttribute('data-selected') || $target.hasAttribute('draggable')) {
       clearMeasurements()
@@ -414,11 +518,11 @@ export function Selectable(visbug) {
       const [$anchor] = selected
       createMeasurements({$anchor, $target})
     }
-    else if (tool === 'margin' && !hover_state.element.$shadow.querySelector('visbug-boxmodel')) {
+    else if (tool === 'margin' && !hover_state.element.$shadow.querySelector('uh-web-editor-boxmodel')) {
       hover_state.element.$shadow.appendChild(
         createMarginVisual(hover_state.target, true))
     }
-    else if (tool === 'padding' && !hover_state.element.$shadow.querySelector('visbug-boxmodel')) {
+    else if (tool === 'padding' && !hover_state.element.$shadow.querySelector('uh-web-editor-boxmodel')) {
       hover_state.element.$shadow.appendChild(
         createPaddingVisual(hover_state.target, true))
     }
@@ -429,7 +533,7 @@ export function Selectable(visbug) {
 
   const select = el => {
     const id = handles.length
-    const tool = visbug.activeTool
+    const tool = uhWebEditor.activeTool
 
     el.setAttribute('data-selected', true)
     el.setAttribute('data-label-id', id)
@@ -457,16 +561,17 @@ export function Selectable(visbug) {
           'data-selected-hide': null,
           'data-label-id':      null,
           'data-pseudo-select': null,
+          'data-outward':       null,
         }))
 
     $('[data-pseudo-select]').forEach(hover =>
       hover.removeAttribute('data-pseudo-select'))
 
     Array.from([
-      ...$('visbug-handles'),
-      ...$('visbug-label'),
-      ...$('visbug-hover'),
-      ...$('visbug-distance'),
+      ...$('uh-web-editor-handles'),
+      ...$('uh-web-editor-label'),
+      ...$('uh-web-editor-hover'),
+      ...$('uh-web-editor-distance'),
     ]).forEach(el =>
       el.remove())
 
@@ -484,8 +589,21 @@ export function Selectable(visbug) {
       else if (el.parentNode)   return el.parentNode
     })
 
-    Array.from([...selected, ...labels, ...handles]).forEach(el =>
-      el.remove())
+    Array.from([...selected, ...labels, ...handles]).forEach(el => {
+      if(el?.tagName?.toLowerCase() != 'uh-web-editor-handles' && el?.tagName?.toLowerCase() != 'uh-web-editor-label' && el?.tagName?.toLowerCase() != 'uh-web-editor-hover' && el?.tagName?.toLowerCase() != 'uh-web-editor-distance') {
+        history.actions.do({
+          parentLocation: cssPath(el.parentNode),
+          location: cssPath(el),
+          element: {
+            tagName: el?.tagName?.toLowerCase(),
+            outerHTML: el.outerHTML,
+          },
+          action: 'delete',
+        })
+        // log the deleted element for undo
+      }
+      el.remove()
+    })
 
     labels    = []
     handles   = []
@@ -536,17 +654,7 @@ export function Selectable(visbug) {
 
     hover_state.label   = no_label
       ? null
-      : createHoverLabel(el, `
-          <a node>${el.nodeName.toLowerCase()}</a>
-          <a>${el.id && '#' + el.id}</a>
-          ${createClassname(el).split('.')
-            .filter(name => name != '')
-            .reduce((links, name) => `
-              ${links}
-              <a>.${name}</a>
-            `, '')
-          }
-        `)
+      : createHoverLabel(el, handleLabelText(el, uhWebEditor.activeTool))
   }
 
   const clearHover = () => {
@@ -567,17 +675,7 @@ export function Selectable(visbug) {
       : createLabel({
           el,
           id,
-          template: `
-            <a node>${el.nodeName.toLowerCase()}</a>
-            <a>${el.id && '#' + el.id}</a>
-            ${createClassname(el).split('.')
-              .filter(name => name != '')
-              .reduce((links, name) => `
-                ${links}
-                <a>.${name}</a>
-              `, '')
-            }
-          `
+          template: handleLabelText(el, uhWebEditor.activeTool)
         })
 
     let observer        = createObserver(el, {handle,label})
@@ -592,12 +690,14 @@ export function Selectable(visbug) {
     })
   }
 
-  const setLabel = (el, label) =>
+  const setLabel = (el, label) => {
+    label.text = handleLabelText(el, uhWebEditor.activeTool)
     label.update = {boundingRect: el.getBoundingClientRect(), isFixed: isFixed(el)}
+  }
 
   const createLabel = ({el, id, template}) => {
     if (!labels[id]) {
-      const label = document.createElement('visbug-label')
+      const label = document.createElement('uh-web-editor-label')
 
       label.text = template
       label.position = {
@@ -635,7 +735,7 @@ export function Selectable(visbug) {
 
   const createHandle = ({el, id}) => {
     if (!handles[id]) {
-      const handle = document.createElement('visbug-handles')
+      const handle = document.createElement('uh-web-editor-handles')
 
       handle.position = { el, node_label_id: id }
 
@@ -651,7 +751,7 @@ export function Selectable(visbug) {
       if (hover_state.element)
         hover_state.element.remove()
 
-      hover_state.element = document.createElement('visbug-hover')
+      hover_state.element = document.createElement('uh-web-editor-hover')
       document.body.insertAdjacentElement('afterend',hover_state.element)
       hover_state.element.position = {el}
 
@@ -664,7 +764,7 @@ export function Selectable(visbug) {
       if (hover_state.label)
         hover_state.label.remove()
 
-      hover_state.label = document.createElement('visbug-label')
+      hover_state.label = document.createElement('uh-web-editor-label')
       document.body.insertAdjacentElement('afterend', hover_state.label)
 
       hover_state.label.text = text
@@ -685,7 +785,7 @@ export function Selectable(visbug) {
       if (hover_state.element)
         hover_state.element.remove()
 
-      hover_state.element = document.createElement('visbug-corners')
+      hover_state.element = document.createElement('uh-web-editor-corners')
       document.body.insertAdjacentElement('afterend', hover_state.element)
       hover_state.element.position = {el}
 
@@ -737,6 +837,31 @@ export function Selectable(visbug) {
     }
   }
 
+  const on_select_parent = (e, {key}) => {
+    const targets = selected.reduce((parents, node) => {
+      const parent_element = node.parentElement;
+
+      if (parent_element.hasAttribute('data-outward'))
+        return parents
+
+      parent_element.setAttribute('data-outward', true)
+      parents.push(parent_element)
+
+      return parents
+    }, [])
+
+    if (targets.length) {
+      e.preventDefault()
+      e.stopPropagation()
+
+      targets.forEach(node => {
+        if (node && node !== document.body) {
+          select(node)
+        }
+      })
+    }
+  }
+
   watchImagesForUpload()
   listen()
 
@@ -747,5 +872,25 @@ export function Selectable(visbug) {
     onSelectedUpdate,
     removeSelectedCallback,
     disconnect,
+  }
+}
+
+export const handleLabelText = (el, activeTool) => {
+  switch(activeTool) {
+    case 'align':
+      return getStyle(el, 'display')
+
+    default:
+      return `
+        <a node>${el.nodeName.toLowerCase()}</a>
+        <a>${el.id && '#' + el.id}</a>
+        ${createClassname(el).split('.')
+          .filter(name => name != '')
+          .reduce((links, name) => `
+            ${links}
+            <a>.${name}</a>
+          `, '')
+        }
+      `
   }
 }

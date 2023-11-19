@@ -10,27 +10,27 @@ const key_events = 'up,down,left,right'
 
 const command_events = `${metaKey}+up,${metaKey}+shift+up,${metaKey}+down,${metaKey}+shift+down`
 
-export function Margin(visbug) {
+export function Margin(uhWebEditor) {
   hotkeys(key_events, (e, handler) => {
     if (e.cancelBubble) return
 
     e.preventDefault()
-    pushElement(visbug.selection(), handler.key)
+    pushElement(uhWebEditor.selection(), handler.key)
   })
 
   hotkeys(command_events, (e, handler) => {
     e.preventDefault()
-    pushAllElementSides(visbug.selection(), handler.key)
+    pushAllElementSides(uhWebEditor.selection(), handler.key)
   })
 
-  visbug.onSelectedUpdate(paintBackgrounds)
+  uhWebEditor.onSelectedUpdate(paintBackgrounds)
 
   return () => {
     hotkeys.unbind(key_events)
     hotkeys.unbind(command_events)
     hotkeys.unbind('up,down,left,right') // bug in lib?
-    visbug.removeSelectedCallback(paintBackgrounds)
-    removeBackgrounds(visbug.selection())
+    uhWebEditor.removeSelectedCallback(paintBackgrounds)
+    removeBackgrounds(uhWebEditor.selection())
   }
 }
 
@@ -70,7 +70,7 @@ function paintBackgrounds(els) {
     const label_id = el.getAttribute('data-label-id')
 
     document
-      .querySelector(`visbug-handles[data-label-id="${label_id}"]`)
+      .querySelector(`uh-web-editor-handles[data-label-id="${label_id}"]`)
       .backdrop = {
         element:  createMarginVisual(el),
         update:   createMarginVisual,
@@ -81,8 +81,8 @@ function paintBackgrounds(els) {
 function removeBackgrounds(els) {
   els.forEach(el => {
     const label_id = el.getAttribute('data-label-id')
-    const boxmodel = document.querySelector(`visbug-handles[data-label-id="${label_id}"]`)
-      .$shadow.querySelector('visbug-boxmodel')
+    const boxmodel = document.querySelector(`uh-web-editor-handles[data-label-id="${label_id}"]`)
+      .$shadow.querySelector('uh-web-editor-boxmodel')
 
     if (boxmodel) boxmodel.remove()
   })
@@ -91,7 +91,7 @@ function removeBackgrounds(els) {
 export function createMarginVisual(el, hover = false) {
   const bounds            = el.getBoundingClientRect()
   const calculatedStyle   = getStyle(el, 'margin')
-  const boxdisplay        = document.createElement('visbug-boxmodel')
+  const boxdisplay        = document.createElement('uh-web-editor-boxmodel')
 
   if (calculatedStyle !== '0px') {
     const sides = {

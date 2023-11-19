@@ -1,5 +1,4 @@
 const entries = [
-  'blank-page.js',
   'barrel-roll.js',
   'pesticide.js',
   'construct.js',

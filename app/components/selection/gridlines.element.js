@@ -20,7 +20,7 @@ export class Gridlines extends HTMLElement {
 
   set update({ width, height, top, left }) {
     const { winHeight, winWidth } = windowBounds()
-    const [svg] = this.$shadow.children
+    const svg = this.$shadow.querySelector('svg')
     const [rect,line1,line2,line3,line4] = svg.children
     top = top + window.scrollY
     left = left + window.scrollX
@@ -68,4 +68,4 @@ export class Gridlines extends HTMLElement {
   }
 }
 
-customElements.define('visbug-gridlines', Gridlines)
+customElements.define('uh-web-editor-gridlines', Gridlines)

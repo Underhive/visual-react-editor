@@ -24,12 +24,12 @@ const modemap = {
 
 const services = {}
 
-export function MetaTip(visbug) {
-  services.selectors = visbug.select
+export function MetaTip(uhWebEditor) {
+  services.selectors = uhWebEditor.select
   state.restoring = true
 
   $('body').on('mousemove', mouseMove)
-  visbug.onSelectedUpdate(togglePinned)
+  uhWebEditor.onSelectedUpdate(togglePinned)
 
   hotkeys('esc', _ => removeAll())
 
@@ -37,7 +37,7 @@ export function MetaTip(visbug) {
 
   return () => {
     $('body').off('mousemove', mouseMove)
-    visbug.removeSelectedCallback(togglePinned)
+    uhWebEditor.removeSelectedCallback(togglePinned)
     hotkeys.unbind('esc')
     hideAll()
   }
@@ -46,7 +46,7 @@ export function MetaTip(visbug) {
 const mouseMove = e => {
   const target = deepElementFromPoint(e.clientX, e.clientY)
 
-  if (isOffBounds(target) || target.nodeName === 'VISBUG-METATIP' || target.hasAttribute('data-metatip')) { // aka: mouse out
+  if (isOffBounds(target) || target.nodeName === 'uh-web-editor-metatip' || target.hasAttribute('data-metatip')) { // aka: mouse out
     if (state.active.tip) {
       wipe({
         tip: state.active.tip,
@@ -128,7 +128,7 @@ export function removeAll() {
     unobserve({tip, target})
   })
 
-  $('visbug-metatip').forEach(tip =>
+  $('uh-web-editor-metatip').forEach(tip =>
     tip.remove())
 
   $('[data-metatip]').attr('data-metatip', null)
@@ -136,9 +136,9 @@ export function removeAll() {
   state.tips.clear()
 }
 
-const render = (el, tip = document.createElement('visbug-metatip')) => {
+const render = (el, tip = document.createElement('uh-web-editor-metatip')) => {
   const { width, height } = el.getBoundingClientRect()
-  const colormode = modemap[$('vis-bug').attr('color-mode')]
+  const colormode = modemap[$('uh-web-editor').attr('color-mode')]
 
   const styles = getStyles(el)
     .map(style => Object.assign(style, {

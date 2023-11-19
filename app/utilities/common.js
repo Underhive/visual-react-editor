@@ -63,8 +63,8 @@ export const showHideNodeLabel = (el, show = false) => {
   const label_id = el.getAttribute('data-label-id')
 
   const nodes = $(`
-    visbug-label[data-label-id="${label_id}"],
-    visbug-handles[data-label-id="${label_id}"]
+    uh-web-editor-label[data-label-id="${label_id}"],
+    uh-web-editor-handles[data-label-id="${label_id}"]
   `)
 
   nodes.length && show
@@ -80,15 +80,15 @@ export const htmlStringToDom = (htmlString = "") =>
 
 export const isOffBounds = node =>
   node.closest && (
-       node.closest('vis-bug')
+       node.closest('uh-web-editor')
     || node.closest('hotkey-map')
-    || node.closest('visbug-metatip')
-    || node.closest('visbug-ally')
-    || node.closest('visbug-label')
-    || node.closest('visbug-handles')
-    || node.closest('visbug-corners')
-    || node.closest('visbug-grip')
-    || node.closest('visbug-gridlines')
+    || node.closest('uh-web-editor-metatip')
+    || node.closest('uh-web-editor-ally')
+    || node.closest('uh-web-editor-label')
+    || node.closest('uh-web-editor-handles')
+    || node.closest('uh-web-editor-corners')
+    || node.closest('uh-web-editor-grip')
+    || node.closest('uh-web-editor-gridlines')
   )
 
 export const isSelectorValid = (qs => (
@@ -107,3 +107,40 @@ export const swapElements = (src, target) => {
 
   temp.parentNode.removeChild(temp)
 }
+
+export function extractSourceMappingURL(cssContent) {
+  const regex = /\/\*\#\s*sourceMappingURL\s*=\s*data:application\/json;base64,([^\s*]+)\s*\*\//;
+  const matches = regex.exec(cssContent);
+  if (matches && matches[1]) {
+      return matches[1];
+  }
+  return null;
+}
+
+export function decodeBase64(base64String) {
+  return atob(base64String);
+}
+
+export function findCssBlockRange(cssString, selector) {
+  // Escape special characters in the selector
+  const escapedSelector = selector.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+
+  // Create a regex pattern to find the selector and capture everything from opening to closing brace
+  const pattern = `${escapedSelector}\\s*{([^}]*)}`;
+
+  // Create a regex object
+  const regex = new RegExp(pattern, 'g');
+
+  // Find the block in the CSS string
+  let match;
+  while ((match = regex.exec(cssString)) !== null) {
+      // Include the matched braces in the range
+      const startIndex = match.index;
+      const endIndex = regex.lastIndex;
+      return { startIndex, endIndex, blockContent: match[0].trim() };
+  }
+
+  return null;
+}
+
+export const apiURL = 'http://localhost:38388/'
