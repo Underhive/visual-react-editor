@@ -1,3 +1,4 @@
+import { decodeBase64, extractSourceMappingURL, findCssBlockRange } from './common'
 import { desiredPropMap } from './design-properties'
 
 export const getStyle = (el, name) => {
@@ -46,6 +47,48 @@ export const getStyles = el => {
       value: borderWidth,
     })
   }
+
+  // get source of style as well here
+  // var sheets = document.styleSheets, influencingStyles = [];
+  // var q = function(rules){
+  //   for (var r in rules) {
+  //     var rule = rules[r];
+  //     if(rule instanceof CSSMediaRule && window.matchMedia(rule.conditionText).matches){
+  //       influencingStyles.concat(q(rule.cssRules));
+  //     } else if(rule instanceof CSSSupportsRule){
+  //       try{
+  //         if(CSS.supports(rule.conditionText)){
+  //           influencingStyles.concat(q(rule.cssRules));
+  //         }
+  //       } catch (e) {
+  //         console.error(e);
+  //       }
+  //     } else if(rule instanceof CSSStyleRule){
+  //       try{
+  //         if(el.matches(rule.selectorText)){
+  //           influencingStyles.push(rule.style);
+  //         }
+  //       } catch(e){
+  //         console.error(e);
+  //       }
+  //     }
+  //   }
+  // };
+  // for (var i in sheets) {
+  //   try{
+  //     q(sheets[i].cssRules);
+  //   } catch(e){
+  //     console.error(e);
+  //   }
+  // }
+
+  // for(const style of influencingStyles) {
+  //   const sourceMap = style.parentRule.parentStyleSheet.ownerNode.textContent.match(/\/\*\#\s*sourceMappingURL\s*=\s*([^\s*]+)\s*\*\//gm)[0]
+  //   const sourceMapJSON = JSON.parse(decodeBase64(extractSourceMappingURL(sourceMap)))
+  //   const parentRuleCssText = style.parentRule.cssText
+  //   const parentRuleSelector = style.parentRule.selectorText
+  //   const range = findCssBlockRange(sourceMapJSON.sourcesContent[0], parentRuleSelector);
+  // }
 
   return vettedStyles.sort(function({prop:propA}, {prop:propB}) {
     if (propA < propB) return -1

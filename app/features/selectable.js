@@ -170,6 +170,10 @@ export function Selectable(uhWebEditor) {
 
         did_hide = false
       }
+
+      if (!e.metaKey) {
+        document.body.style.cursor = ''
+      }
     }
   }
 
@@ -702,7 +706,7 @@ export function Selectable(uhWebEditor) {
         isFixed: isFixed(el),
       }
 
-      document.body.appendChild(label)
+      document.body.insertAdjacentElement('afterend', label)
 
       $(label).on('query', ({detail}) => {
         if (!detail.text) return
@@ -735,7 +739,7 @@ export function Selectable(uhWebEditor) {
 
       handle.position = { el, node_label_id: id }
 
-      document.body.appendChild(handle)
+      document.body.insertAdjacentElement('afterend', handle)
 
       handles[handles.length] = handle
       return handle
@@ -748,7 +752,7 @@ export function Selectable(uhWebEditor) {
         hover_state.element.remove()
 
       hover_state.element = document.createElement('uh-web-editor-hover')
-      document.body.appendChild(hover_state.element)
+      document.body.insertAdjacentElement('afterend',hover_state.element)
       hover_state.element.position = {el}
 
       return hover_state.element
@@ -761,7 +765,7 @@ export function Selectable(uhWebEditor) {
         hover_state.label.remove()
 
       hover_state.label = document.createElement('uh-web-editor-label')
-      document.body.appendChild(hover_state.label)
+      document.body.insertAdjacentElement('afterend', hover_state.label)
 
       hover_state.label.text = text
       hover_state.label.position = {
@@ -782,7 +786,7 @@ export function Selectable(uhWebEditor) {
         hover_state.element.remove()
 
       hover_state.element = document.createElement('uh-web-editor-corners')
-      document.body.appendChild(hover_state.element)
+      document.body.insertAdjacentElement('afterend', hover_state.element)
       hover_state.element.position = {el}
 
       return hover_state.element

@@ -47,7 +47,7 @@ export function createGuide(vert = true) {
     z-index: 2147483643;
   `
 
-  vert 
+  vert
     ? styles += `
         width: 1px;
         height: 100vh;
@@ -92,16 +92,14 @@ const showGridlines = node => {
   if (state.gridlines) {
     state.gridlines.style.display = null
     state.gridlines.update = node.getBoundingClientRect()
-  }
-  else {
+  } else {
     state.gridlines = document.createElement('uh-web-editor-gridlines')
     state.gridlines.position = node.getBoundingClientRect()
-
-    document.body.appendChild(state.gridlines)
+    document.body.insertAdjacentElement('afterend', state.gridlines)
   }
 }
 
-const hideGridlines = () => {
+export const hideGridlines = () => {
   if (!state.gridlines) return
   state.gridlines.style.display = 'none'
 }

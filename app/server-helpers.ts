@@ -89,3 +89,50 @@ export function jsonToJsx(jsonString, spaces = 2) {
       return '{}'; // Return an empty JSX object on error
   }
 }
+
+export function htmlToJsx(htmlString) {
+  let jsxString = htmlString;
+
+  // Replace 'class' with 'className'
+  jsxString = jsxString.replace(/class=/g, 'className=');
+
+  // Replace 'for' with 'htmlFor' in labels
+  jsxString = jsxString.replace(/<label for=/g, '<label htmlFor=');
+
+  // Handle self-closing tags
+  const selfClosingTags = ['img', 'input', 'br', 'hr', 'meta', 'link', 'source', 'area', 'base', 'col', 'embed', 'param', 'track', 'wbr'];
+  selfClosingTags.forEach(tag => {
+      const regex = new RegExp(`<${tag}(.*?)>`, 'g');
+      jsxString = jsxString.replace(regex, `<${tag}$1 />`);
+  });
+
+  // Replace inline 'style' strings with object syntax
+  jsxString = jsxString.replace(/style="(.*?)"/g, (match, p1) => {
+      const styleObject = p1.split(';').reduce((acc, style) => {
+          if (style) {
+              const [key, value] = style.split(':');
+              acc[key.trim().replace(/-./g, c => c.substr(1).toUpperCase())] = value.trim();
+          }
+          return acc;
+      }, {});
+      return `style={${JSON.stringify(styleObject)}}`;
+  });
+
+  // Convert data-* and aria-* attributes
+  jsxString = jsxString.replace(/(data|aria)-([\w-]+)=/g, (match, p1, p2) => {
+      return `${p1}-${p2.toLowerCase()}=`;
+  });
+
+  // Handling boolean attributes
+  const booleanAttributes = ['disabled', 'checked', 'readonly', 'required', 'autofocus', 'autoplay', 'controls', 'loop', 'muted', 'default', 'novalidate', 'formNoValidate'];
+  booleanAttributes.forEach(attr => {
+      const regex = new RegExp(`${attr}="${attr}"`, 'g');
+      jsxString = jsxString.replace(regex, `${attr}`);
+      const regex2 = new RegExp(`${attr}=''`, 'g');
+      jsxString = jsxString.replace(regex2, `${attr}`);
+      const regex3 = new RegExp(`${attr}=""`, 'g');
+      jsxString = jsxString.replace(regex3, `${attr}`);
+  });
+
+  return jsxString;
+}

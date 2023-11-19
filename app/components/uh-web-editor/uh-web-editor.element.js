@@ -9,8 +9,8 @@ import {
 import {
   Selectable, Moveable, Padding, Margin, EditText, Font,
   Flex, Search, ColorPicker, BoxShadow, HueShift, MetaTip,
-  Guides, Screenshot, Position, Accessibility, draggable
-} from '../../features'
+  Guides, Screenshot, Position, Accessibility, draggable, Zoom
+} from '../../features/'
 
 import {
   WebEditorStyles,
@@ -28,6 +28,7 @@ import {
   constructibleStylesheetSupport,
   schemeRule
 } from '../../utilities'
+import { Creator } from '../../features/creator'
 
 export default class WebEditor extends HTMLElement {
   constructor() {
@@ -55,6 +56,9 @@ export default class WebEditor extends HTMLElement {
 
     provideSelectorEngine(this.selectorEngine)
 
+    if (this.getAttribute('viewmode') == 'artboard')
+      Zoom.start(this.selectorEngine)
+
     this.toolSelected($('[data-tool="guides"]', this.$shadow)[0])
   }
 
@@ -65,10 +69,19 @@ export default class WebEditor extends HTMLElement {
     hotkeys.unbind(
       Object.keys(this.toolbar_model).reduce((events, key) =>
         events += ',' + key, ''))
-    hotkeys.unbind(`${metaKey}+/`)
+    hotkeys.unbind(`${metaKey}+/,${metaKey}+.`)
+
+    if (this.getAttribute('viewmode') == 'artboard')
+      Zoom.stop()
   }
 
+  static get observedAttributes() { return ['viewmode','color-scheme'] }
+
   attributeChangedCallback(name, oldValue, newValue) {
+    newValue === 'artboard'
+      ? Zoom.start(this.selectorEngine)
+      : Zoom.stop()
+
     if (name === 'color-scheme')
       this.applyScheme(newValue)
   }
@@ -79,6 +92,10 @@ export default class WebEditor extends HTMLElement {
     this.hasAttribute('color-mode')
       ? this.getAttribute('color-mode')
       : this.setAttribute('color-mode', 'hex')
+
+    this.hasAttribute('viewmode')
+      ? this.getAttribute('viewmode')
+      : this.setAttribute('viewmode', 'artboard')
 
     this.hasAttribute('color-scheme')
       ? this.getAttribute('color-scheme')
@@ -129,8 +146,6 @@ export default class WebEditor extends HTMLElement {
     Array.from(document.body.children)
       .filter(node => node.nodeName.includes('web-editor'))
       .forEach(el => el.remove())
-
-    this.teardown();
 
     document.querySelectorAll('[data-pseudo-select=true]')
       .forEach(el =>
@@ -227,6 +242,10 @@ export default class WebEditor extends HTMLElement {
 
   search() {
     this.deactivate_feature = Search($('[data-tool="search"]', this.$shadow))
+  }
+
+  create() {
+    this.deactivate_feature = Creator($('[data-tool="create"]', this.$shadow))
   }
 
   boxshadow() {

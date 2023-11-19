@@ -60,11 +60,15 @@ export class Label extends HTMLElement {
   }
 
   set update({boundingRect, isFixed}) {
-    const top = boundingRect.y + (isFixed ? 0 : window.scrollY)
-    const left = boundingRect.x
-    const position = isFixed ? 'fixed' : 'absolute'
-    this.style.setProperty('--top', `${top}px`)
-    this.style.setProperty('--left', `${left}px`)
+    this.style.setProperty('--top', `${boundingRect.y + (isFixed ? 0 : window.scrollY)}px`)
+    this.style.setProperty('--left', `${boundingRect.x + window.scrollX - 1}px`)
+    // const top = boundingRect.y + (isFixed ? 0 : window.scrollY)
+    // const left = boundingRect.x
+    // const position = isFixed ? 'fixed' : 'absolute'
+    // this.style.setProperty('--top', `${top}px`)
+    // this.style.setProperty('--left', `${left}px`)
+
+
     this.style.setProperty('--max-width', `${boundingRect.width + (window.innerWidth - boundingRect.x - boundingRect.width - 20)}px`)
     this.style.setProperty('--position', position)
     this.setAttribute('data-original-top', top)
