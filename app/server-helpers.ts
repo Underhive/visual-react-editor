@@ -39,3 +39,51 @@ export function splitLines(stringData, osLineBreak = '\n') {
       return [lines, false];
   }
 }
+
+export function convertCssToJsx(cssString) {
+  const styleObject = {};
+  // Split the CSS string by semicolons and filter out empty strings
+  const styles = cssString.split(';').filter(style => style.trim());
+
+  styles.forEach(style => {
+      // Split each style into property and value by the colon
+      let [property, value] = style.split(':');
+
+      if (property && value) {
+          property = property.trim();
+          value = value.trim();
+
+          // Convert CSS property to camelCase for JSX
+          const camelCaseProperty = property.replace(/-./g, match => match.charAt(1).toUpperCase());
+
+          // Add to style object
+          styleObject[camelCaseProperty] = value;
+      }
+  });
+
+  return styleObject;
+}
+
+export function jsonToJsx(jsonString) {
+  try {
+      // Parse the JSON string into an object
+      const jsonObj = JSON.parse(jsonString);
+
+      // Convert the object into a JSX style string
+      let jsxString = '{';
+      for (const key in jsonObj) {
+          if (jsonObj.hasOwnProperty(key)) {
+              // Convert to camelCase and add the property and value to the string
+              const camelCaseKey = key.replace(/-./g, match => match.charAt(1).toUpperCase());
+              jsxString += `${camelCaseKey}: "${jsonObj[key]}", `;
+          }
+      }
+      // Remove the trailing comma and space, and close the brace
+      jsxString = jsxString.replace(/, $/, '') + '}';
+
+      return jsxString;
+  } catch (error) {
+      console.error('Invalid JSON string');
+      return '{}'; // Return an empty JSX object on error
+  }
+}

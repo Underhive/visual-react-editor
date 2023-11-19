@@ -211,6 +211,14 @@ document.addEventListener("readystatechange", (event) => {
         log.attributeValue = r.target.getAttribute(r.attributeName)
         log.oldValue = r.oldValue
         log.action = 'edit'
+        log.target = {
+          tagName: target.localName
+        }
+        axios.post(apiURL, {
+          log,
+          source: target[propName]._debugSource,
+          timestamp: Date.now()
+        })
       } else if(r.type === 'characterData') {
         log.characterData = r.target.textContent
         log.oldValue = r.oldValue

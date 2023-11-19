@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import express, { Request, Response, json } from 'express';
-import { splitLines, buildLineEndingPositions } from './server-helpers';
+import { splitLines, buildLineEndingPositions, convertCssToJsx, jsonToJsx } from './server-helpers';
 import * as fs from 'fs';
 import { platform } from 'os';
 
@@ -48,6 +48,8 @@ type RemoveChildEditLog = {
 } & GenericEditLog
 
 const insideTags = (tagName: string) => new RegExp(`<${tagName}[^>]*>([\\s\\S]*?)<\\\/${tagName}>`, 'g')
+
+const attributeInTag = (attr: string) => new RegExp(`^<\\w+\\s+(?:[^>]*?${attr}=\\{([^}]+\\})[^>]*?)>`, 'g')
 
 app.use(json());
 
@@ -112,7 +114,7 @@ app.post('/edit/characterData', (req: Request, res: Response) => {
   const tagStart = fileData.indexOf(afterCursor, colStart);
   const tagEnd = tagStart + afterCursor.length - 1;
 
-  const newData = afterCursor.replace(tagData, body.log.characterData).replace(/^\s+|\s+$/g, '');;
+  const newData = afterCursor.replace(tagData, body.log.characterData).replace(/^\s+|\s+$/g, '');
 
   const finalFileData = fileData.substring(0, tagStart) + newData + fileData.substring(tagEnd)
 
@@ -131,6 +133,72 @@ app.post('/edit/attributes', (req: Request, res: Response) => {
   } = req.body;
 
   console.log(body);
+
+  const line = body.source.lineNumber;
+  const column = body.source.columnNumber;
+  const osLineBreak = platform() === 'win32' ? '\r\n' : '\n';
+  const fileData = fs.readFileSync(body.source.fileName, 'utf8');
+  const [fileDataLines, lastLineHadNewLineChar] = splitLines(fileData, osLineBreak);
+  const lineData = fileDataLines[line - 1];
+
+  const cumulativeColEnds: number[] = buildLineEndingPositions(fileDataLines, lastLineHadNewLineChar);
+
+  let afterCursor = `${lineData.substring(column - 1)}${osLineBreak}`
+  let objectLevel = attributeInTag(body.log.attributeName).exec(afterCursor);
+  let lineWindow = line
+  
+  while(!objectLevel && lineWindow < fileDataLines.length) {
+    lineWindow += 1;
+    afterCursor += `${fileDataLines[lineWindow - 1]}`;
+    objectLevel = attributeInTag(body.log.attributeName).exec(afterCursor);
+    afterCursor += `${osLineBreak}`;
+  }
+  if (!objectLevel && body.log.attributeName === 'style') {
+    afterCursor = afterCursor.replace(/^\s+|\s+$/g, '')
+    // insert style attribute
+    let styleObject = convertCssToJsx(body.log.attributeValue!);
+    styleObject = jsonToJsx(JSON.stringify(styleObject, null, 2))
+    
+    console.log(fileData, afterCursor);
+
+    const colStart = cumulativeColEnds[body.source.lineNumber - 2];
+    const tagStart = fileData.indexOf(afterCursor, colStart);
+    const tagEnd = tagStart + afterCursor.length;
+    console.log(tagStart, afterCursor.length, fileData.length, tagEnd);
+    
+    const newStyle = ` style={${styleObject}}`
+    const newData = afterCursor.replace(/\/?>/, newStyle + '>');
+    const finalFileData = fileData.substring(0, tagStart) + newData + fileData.substring(tagEnd)
+    fs.writeFileSync(body.source.fileName, finalFileData);
+    res.json({
+      data: "OK"
+    })
+    return;
+  } else if(!objectLevel) {
+    res.json({
+      data: "ERROR"
+    })
+    return;
+  }
+
+  const tagData = objectLevel![1];
+
+  // find line and col where tag data starts
+  let colStart = cumulativeColEnds[body.source.lineNumber - 2];
+  const tagStart = fileData.indexOf(afterCursor, colStart);
+  const tagEnd = tagStart + afterCursor.length;
+
+  let finalStyles
+  if(body.log.attributeName === 'style') {
+    finalStyles = convertCssToJsx(body.log.attributeValue);
+  } else {
+    res.json({ data: "OK" })
+    return;
+  }
+  finalStyles = jsonToJsx(JSON.stringify(finalStyles, null, 2))
+  const newData = afterCursor.replace(tagData, finalStyles);
+  const finalFileData = fileData.substring(0, tagStart) + newData + fileData.substring(tagEnd)
+  fs.writeFileSync(body.source.fileName, finalFileData);
 
   res.json({
     data: "OK"
