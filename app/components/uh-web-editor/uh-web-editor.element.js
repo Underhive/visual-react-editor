@@ -95,7 +95,7 @@ export default class WebEditor extends HTMLElement {
 
     this.hasAttribute('viewmode')
       ? this.getAttribute('viewmode')
-      : this.setAttribute('viewmode', 'document')
+      : this.setAttribute('viewmode', 'artboard')
 
     this.hasAttribute('color-scheme')
       ? this.getAttribute('color-scheme')

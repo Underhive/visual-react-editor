@@ -92,11 +92,9 @@ const showGridlines = node => {
   if (state.gridlines) {
     state.gridlines.style.display = null
     state.gridlines.update = node.getBoundingClientRect()
-  }
-  else {
+  } else {
     state.gridlines = document.createElement('uh-web-editor-gridlines')
     state.gridlines.position = node.getBoundingClientRect()
-
     document.body.insertAdjacentElement('afterend', state.gridlines)
   }
 }

@@ -8,7 +8,7 @@ html {
 
 body {
   min-height: 100vh;
-  outline: 1px solid ButtonFace;
+  outline: 1px solid black;
   box-shadow: 0 2px 5px hsl(0 0% 0% / 25%) !important;
   box-shadow:
     0 3px 2px hsl(0 0% 0% / 2%),

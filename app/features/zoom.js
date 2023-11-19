@@ -45,8 +45,8 @@ export const zoomOut = (amount = .1) => {
   state.page.originX = state.mouse.x
   state.page.originY = state.mouse.y
 
-  if (state.page.scale < .01)
-    state.page.scale = .01
+  if (state.page.scale < .001)
+    state.page.scale = .001
 
   scale()
 }
@@ -76,8 +76,8 @@ export const zoomToHomebase = async () => {
 }
 
 const scale = async () => {
-  const stash = state.visbug.selection()
-  state.visbug.unselect_all()
+  const stash = state.webeditor.selection()
+  state.webeditor.unselect_all()
   hideGridlines()
 
   await document.body.animate([{
@@ -90,7 +90,7 @@ const scale = async () => {
   }).finished
 
   stash.forEach(el =>
-    state.visbug.select(el))
+    state.webeditor.select(el))
 }
 
 const handleKeydown = e => {
@@ -136,10 +136,9 @@ const handleWheel = e => {
     state.page.originY = e.clientY
 
     scaleUp
-      ? zoomIn((e.deltaY * .01) * -1)
-      : zoomOut(e.deltaY * .01)
-  }
-  else {
+      ? zoomIn((e.deltaY * .001) * -1)
+      : zoomOut(e.deltaY * .001)
+  } else {
     document.body.style.cursor = ''
   }
 }
@@ -150,7 +149,7 @@ const handleMousemove = e => {
 }
 
 const start = SelectorEngine => {
-  state.visbug = SelectorEngine
+  state.webeditor = SelectorEngine
 
   setupDocument()
 
