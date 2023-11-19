@@ -157,7 +157,7 @@ app.post('/edit/attributes', (req: Request, res: Response) => {
     afterCursor = afterCursor.replace(/^\s+|\s+$/g, '')
     // insert style attribute
     let styleObject = convertCssToJsx(body.log.attributeValue!);
-    styleObject = jsonToJsx(JSON.stringify(styleObject, null, 2))
+    styleObject = jsonToJsx(JSON.stringify(styleObject, null, 2), body.source.columnNumber)
     
     console.log(fileData, afterCursor);
 
@@ -195,7 +195,7 @@ app.post('/edit/attributes', (req: Request, res: Response) => {
     res.json({ data: "OK" })
     return;
   }
-  finalStyles = jsonToJsx(JSON.stringify(finalStyles, null, 2))
+  finalStyles = jsonToJsx(JSON.stringify(finalStyles, null, 2), body.source.columnNumber)
   const newData = afterCursor.replace(tagData, finalStyles);
   const finalFileData = fileData.substring(0, tagStart) + newData + fileData.substring(tagEnd)
   fs.writeFileSync(body.source.fileName, finalFileData);
@@ -213,6 +213,12 @@ app.post('/edit/childList', (req: Request, res: Response) => {
   } = req.body;
 
   console.log(body);
+
+  if(body.log.action === 'added') {
+
+  } else if(body.log.action === 'removed') {
+
+  }
 
   res.json({
     data: "OK"

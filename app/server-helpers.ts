@@ -64,22 +64,24 @@ export function convertCssToJsx(cssString) {
   return styleObject;
 }
 
-export function jsonToJsx(jsonString) {
+export function jsonToJsx(jsonString, spaces = 2) {
   try {
       // Parse the JSON string into an object
       const jsonObj = JSON.parse(jsonString);
+      const spacer = ' '.repeat(spaces);
+      const exitSpacer = ' '.repeat(spaces < 2 ? spaces : spaces - 2);
 
       // Convert the object into a JSX style string
-      let jsxString = '{';
+      let jsxString = '{\n ';
       for (const key in jsonObj) {
           if (jsonObj.hasOwnProperty(key)) {
               // Convert to camelCase and add the property and value to the string
               const camelCaseKey = key.replace(/-./g, match => match.charAt(1).toUpperCase());
-              jsxString += `${camelCaseKey}: "${jsonObj[key]}", `;
+              jsxString += `${spacer}${camelCaseKey}: "${jsonObj[key]}",\n `;
           }
       }
       // Remove the trailing comma and space, and close the brace
-      jsxString = jsxString.replace(/, $/, '') + '}';
+      jsxString = jsxString.replace(/, $/, '') + exitSpacer + '}';
 
       return jsxString;
   } catch (error) {
