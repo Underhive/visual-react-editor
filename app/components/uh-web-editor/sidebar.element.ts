@@ -83,6 +83,7 @@ export default class EditorSidebar extends HTMLElement {
 
     const onBlurAttribute = e => {
       e.target.removeEventListener('input', editAttribute)
+      e.target.removeEventListener('blur', onBlurAttribute)
 
       if(globalThis.$target) {
         const latestStyles = updateAppliedStyles(globalThis.$target, true)
