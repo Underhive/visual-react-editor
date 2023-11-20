@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import express, { Request, Response, json } from 'express';
-import { splitLines, buildLineEndingPositions, convertCssToJsx, jsonToJsx } from './server-helpers';
+import { splitLines, buildLineEndingPositions, convertCssToJsx, jsonToJsx, getFullSourcePathFromRef, jsxToCssName } from './server-helpers';
 import * as fs from 'fs';
 import { platform } from 'os';
 
@@ -47,6 +47,39 @@ type RemoveChildEditLog = {
   removedNodes: any
 } & GenericEditLog
 
+type Styles = {
+  [property: string]: string;
+}
+type SourceMapJSON = {
+  version: number;
+  sources: string[];
+  names: any[];
+  mappings: string;
+  sourcesContent: string[];
+  sourceRoot: string;
+}
+
+type StyleSheetSource = {
+  sourceMapJSON?: SourceMapJSON;
+  parentRuleCssText?: string;
+  parentRuleSelector?: string;
+  range?: {
+    startIndex: number;
+    endIndex: number;
+    blockContent: string;
+  };
+  styles: Styles;
+  type: "inline" | "stylesheet";
+}
+
+type StyleSheetEditLog = {
+  name: string,
+  value: string,
+  file: string,
+  selector: string,
+  source: StyleSheetSource
+}
+
 const insideTags = (tagName: string) => new RegExp(`<${tagName}[^>]*>([\\s\\S]*?)<\\\/${tagName}>`, 'g')
 
 const attributeInTag = (attr: string) => new RegExp(`^<\\w+\\s+(?:[^>]*?${attr}=\\{([^}]+\\})[^>]*?)>`, 'g')
@@ -65,11 +98,6 @@ app.get('/', (_req: Request, res: Response) => {
 });
 
 app.post('/edit/', (req: Request, res: Response) => {
-  const body: {
-    log: GenericEditLog;
-    source: ReactFiberSourceDeclaration;
-  } = req.body;
-
   res.json({
     data: "honeypot"
   })
@@ -119,6 +147,40 @@ app.post('/edit/characterData', (req: Request, res: Response) => {
   const finalFileData = fileData.substring(0, tagStart) + newData + fileData.substring(tagEnd)
 
   fs.writeFileSync(body.source.fileName, finalFileData);
+
+  res.json({
+    data: "OK"
+  })
+})
+
+app.post('/edit/stylesheet', (req: Request, res: Response) => {
+  const body: {
+    log: StyleSheetEditLog;
+    source: ReactFiberSourceDeclaration;
+    timestamp: number;
+  } = req.body;
+
+  if(body.log?.source?.type === 'inline' || !body.log?.source?.range) {
+    res.json({
+      data: "OK"
+    })
+    return;
+  }
+
+  const styleSheetSource = getFullSourcePathFromRef(
+    body.source.fileName,
+    body.log.file,
+  )
+
+  const fileData = fs.readFileSync(styleSheetSource, 'utf8');
+  const rangeToEdit = body.log.source.range
+  const cssName = jsxToCssName(body.log.name);
+  const regex = new RegExp(`${cssName}(\\s*:\\s*)[^;]+`, 'g')
+  const updatedCssText = rangeToEdit.blockContent.replace(regex, `${cssName}: ${body.log.value}`);
+  
+  const finalFileData = fileData.substring(0, rangeToEdit.startIndex) + updatedCssText + fileData.substring(rangeToEdit.endIndex)
+
+  fs.writeFileSync(styleSheetSource, finalFileData);
 
   res.json({
     data: "OK"

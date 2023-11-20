@@ -16,11 +16,12 @@ import {
   metaKey, htmlStringToDom, createClassname, camelToDash,
   isOffBounds, getStyle, getStyles, deepElementFromPoint, getShadowValues,
   isSelectorValid, findNearestChildElement, findNearestParentElement,
-  getTextShadowValues, isFixed,
+  getTextShadowValues, isFixed, decodeBase64, extractSourceMappingURL, findCssBlockRange, cssToJson, updateAppliedStyles,
 } from '../utilities/'
 import history, { cssPath } from '../utilities/history'
+import { convertCssToJsx } from '../server-helpers'
 
-export function Selectable(uhWebEditor) {
+export const Selectable = (uhWebEditor) => {
   const page              = document.body
   let selected            = []
   let selectedCallbacks   = []
@@ -118,6 +119,9 @@ export function Selectable(uhWebEditor) {
       unselect($target.getAttribute('data-label-id'))
     else
       select($target)
+
+    globalThis.$target = $target
+    updateAppliedStyles($target)
   }
 
   const unselect = id => {

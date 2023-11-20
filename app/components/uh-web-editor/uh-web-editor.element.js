@@ -99,7 +99,7 @@ export default class WebEditor extends HTMLElement {
 
     this.hasAttribute('color-scheme')
       ? this.getAttribute('color-scheme')
-      : this.setAttribute('color-scheme', 'auto')
+      : this.setAttribute('color-scheme', 'dark')
 
     const main_ol = this.$shadow.querySelector('ol:not([colors])')
     const buttonPieces = $('li[data-tool], li[data-tool] *', main_ol)

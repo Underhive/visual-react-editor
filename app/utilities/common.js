@@ -1,5 +1,84 @@
 import $ from 'blingblingjs'
 import { nodeKey } from './strings'
+import { convertCssToJsx } from '../server-helpers';
+
+export const updateAppliedStyles = (el, dontUpdate) => {
+  const elStyleObject = el.style
+  const sheets = document.styleSheets;
+  var influencingStyles = [];
+  var q = (rules) => {
+    for (var r in rules) {
+      var rule = rules[r];
+      if(rule instanceof CSSMediaRule && window.matchMedia(rule.conditionText).matches){
+        influencingStyles.concat(q(rule.cssRules));
+      } else if(rule instanceof CSSSupportsRule){
+        try{
+          if(CSS.supports(rule.conditionText)){
+            influencingStyles.concat(q(rule.cssRules));
+          }
+        } catch (e) {
+          console.error(e);
+        }
+      } else if(rule instanceof CSSStyleRule){
+        try{
+          if(el.matches(rule.selectorText)){
+            influencingStyles.push(rule.style);
+          }
+        } catch(e){
+          console.error(e);
+        }
+      }
+    }
+  };
+  for (var i in sheets) {
+    if(sheets.item(i).href) continue;
+    try{
+      q(sheets.item(i).cssRules);
+    } catch(e){
+      console.error(e);
+    }
+  }
+
+  const inlineStyles = {
+    styles: convertCssToJsx(elStyleObject.cssText),
+    type: 'inline'
+  }
+
+  let appliedStyles = []
+
+  for(const style of influencingStyles) {
+    const sourceMap = style.parentRule.parentStyleSheet.ownerNode.textContent.match(/\/\*\#\s*sourceMappingURL\s*=\s*([^\s*]+)\s*\*\//gm)[0]
+    const sourceMapJSON = JSON.parse(decodeBase64(extractSourceMappingURL(sourceMap)))
+    const parentRuleCssText = style.parentRule.cssText
+    const parentRuleSelector = style.parentRule.selectorText
+    const range = findCssBlockRange(sourceMapJSON.sourcesContent[0], parentRuleSelector);
+    
+    const styles = JSON.parse(cssToJson(parentRuleCssText))
+    appliedStyles.push({
+      sourceMapJSON,
+      parentRuleCssText,
+      parentRuleSelector,
+      range,
+      styles: styles[parentRuleSelector.trim()],
+      type: 'stylesheet'
+    })
+  }
+
+  elStyleObject.cssText.length > 0 && appliedStyles.push(inlineStyles)
+
+  let reactFiberProp
+  for(let prop in el) {
+    if(prop.includes('reactFiber')) reactFiberProp = prop
+  }
+
+  const source = el[reactFiberProp]._debugSource
+  globalThis.sharedStorage.set('currentElementReactFiberSource', source)
+
+  if(dontUpdate) return appliedStyles.reverse()
+  const currentStyles = globalThis.sharedStorage.get('currentStyles')
+  currentStyles.data = appliedStyles.reverse()
+  return currentStyles.data
+}
 
 export const deepElementFromPoint = (x, y) => {
   const el = document.elementFromPoint(x, y)
@@ -143,4 +222,35 @@ export function findCssBlockRange(cssString, selector) {
   return null;
 }
 
-export const apiURL = 'http://localhost:38388/'
+export function cssToJson(cssString) {
+  // Extract the selector and the CSS rules
+  const match = cssString.match(/(.+?)\s*\{\s*(.+)\s*\}/);
+  if (!match) return "{}";
+
+  const selector = match[1].trim();
+  const cssRules = match[2].trim();
+
+  // Split the rules into an array
+  const cssArray = cssRules.replace(/\s*;\s*/g, ';').replace(/\s*:\s*/g, ':').split(';');
+
+  // Create an object for the CSS properties
+  let properties = {};
+
+  // Process each CSS property
+  cssArray.forEach(item => {
+      let [property, value] = item.split(':');
+      if (property && value) {
+          // Convert CSS property to camelCase for JSON
+          let jsonProperty = property.replace(/-./g, match => match.charAt(1).toUpperCase());
+          properties[jsonProperty] = value;
+      }
+  });
+
+  // Create the final JSON object with the selector
+  let cssObject = {};
+  cssObject[selector] = properties;
+
+  return JSON.stringify(cssObject, null, 2);
+}
+
+export const apiURL = 'http://localhost:38388'

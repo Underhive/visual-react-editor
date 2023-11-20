@@ -1,0 +1,174 @@
+@import "../_variables.css";
+
+:host {
+  position: fixed;
+  width: 403px;
+  height: 100%;
+  top: 0;
+  right: 0;
+  background-color: rgb(24, 24, 24);
+  z-index: var(--layer-1);
+  border-left: 1px solid rgb(70, 70, 70);
+  font-family: monospace;
+  color: rgb(226, 226, 226);
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+:host .tabs {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  align-items: center;
+  background-color: rgb(12, 12, 12);
+  padding: 8px 0px;
+  border-bottom: 4px solid rgb(199, 199, 199);
+
+  .tab[data-active="true"] {
+    color: rgb(12, 12, 12);
+    background-color: rgb(224, 224, 224);
+    font-weight: 800;
+  }
+
+  .tab {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    color: rgb(226, 226, 226);
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    transition: color 0.2s ease;
+    border-radius: 8px;
+    border: 0px solid transparent;
+    background-color: #242424; 
+    padding: 4px 16px 4px 16px;
+
+    &:hover:not([data-active="true"]) {
+      color: rgb(226, 226, 226);
+      background-color: #313131; 
+    }
+
+    &.active {
+      color: rgb(12, 12, 12);
+      background-color: rgb(224, 224, 224); 
+    }
+  }
+}
+
+:host .style-info {
+  display: flex;
+  flex-direction: column;
+  background-color: rgb(12, 12, 12);
+  padding: 0px 4px;
+  border-top: 2px solid rgb(70, 70, 70);
+  border-bottom: 1px solid rgb(70, 70, 70);
+  margin-top: 16px;
+
+  .attr-new {
+    display: flex;
+    margin-left: 6px;
+    font-size: 16px;
+    font-weight: 800;
+    color: #fff;
+    background-color: #1a1a1a;
+    padding: 0px 16px;
+    border-radius: 4px;
+    width: fit-content;
+    cursor: pointer;
+    margin-bottom: 8px;
+    margin-top: 6px;
+  }
+
+  .attr {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    background-color: rgb(12, 12, 12);
+    padding: 4px 8px;
+
+    .name {
+      font-size: 14px;
+      font-weight: 800;
+      color: rgb(226, 226, 226);
+      border-radius: 4px;
+      max-lines: 1;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      width: 100%;
+
+    }
+
+    .value {
+      font-size: 12px;
+      font-weight: 500;
+      color: rgb(226, 226, 226);
+      background-color: #242424;
+      padding: 2px 16px;
+      border-radius: 4px;
+      max-lines: 1;
+      line-clamp: 1;
+      text-overflow: ellipsis;
+      width: 100%;
+      height: min-content;
+    }
+
+    .delete {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 24px;
+      height: 24px;
+      margin-left: 8px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+
+      &:hover {
+        background-color: #313131;
+      }
+
+      svg {
+        width: 16px;
+        height: 16px;
+        fill: rgb(226, 226, 226);
+      }
+    }
+  }
+}
+
+:host .selector-header {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  background-color: rgb(12, 12, 12);
+  padding: 8px 6px;
+  border-bottom: 2px solid rgb(70, 70, 70);
+  margin-bottom: 4px;
+
+  .selector-name {
+    font-size: 12px;
+    font-weight: 500;
+    color: rgb(226, 226, 226);
+    background-color: #242424;
+    padding: 2px 16px;
+    border-radius: 4px;
+
+    /* max-lines */
+  }
+
+  .file-name {
+    font-size: 10px;
+    color: rgb(204, 204, 204);
+    cursor: pointer;
+    transition: color 0.2s ease;
+    text-decoration: underline;
+
+    &:hover {
+      color: rgb(224, 224, 224);
+    }
+  }
+}

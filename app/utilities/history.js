@@ -1,4 +1,5 @@
 import axios from "axios"
+import { apiURL as apiUrl } from "./common"
 
 const state = {
   history: []
@@ -189,7 +190,7 @@ document.addEventListener("readystatechange", (event) => {
       logOrNot = Object.keys(target).some(prop => prop.includes("__reactFiber"));
       if(!logOrNot) return
 
-      const apiURL = `http://localhost:38388/edit/${r.type}`
+      const apiURL = `${apiUrl}/edit/${r.type}`
 
       let log = {
         type: r.type,

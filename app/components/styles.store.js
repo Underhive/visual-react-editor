@@ -1,6 +1,7 @@
 import 'construct-style-sheets-polyfill'
 
 import { default as uhWebEditor_css }     from './uh-web-editor/uh-web-editor.element.css'
+import { default as sidebar_css }     from './uh-web-editor/sidebar.element.css'
 import { default as uhWebEditor_artboard_css }     from './uh-web-editor/uh-web-editor.artboard.css'
 import { default as handles_css }    from './selection/handles.element.css'
 import { default as handle_css }     from './selection/handle.element.css'
@@ -56,3 +57,4 @@ export const WebEditorDarkStyles     = constructStylesheet(uhWebEditor_dark_css)
 export const MetatipDarkStyles    = constructStylesheet(metatip_dark_css)
 export const HotkeymapDarkStyles  = constructStylesheet(hotkeymap_dark_css)
 export const ArtboardStyles       = constructStylesheet(uhWebEditor_artboard_css)
+export const SidebarStyles = constructStylesheet(sidebar_css)

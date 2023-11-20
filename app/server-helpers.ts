@@ -136,3 +136,30 @@ export function htmlToJsx(htmlString) {
 
   return jsxString;
 }
+
+export function getFullSourcePathFromRef(fileName1, fileName2) {
+    // Extract the base directory from fileName1
+    const baseDirectory = fileName1.substring(0, fileName1.lastIndexOf('/'));
+
+    // Normalize fileName2 by removing any protocol-like prefixes and leading './'
+    const normalizedFileName2 = fileName2.replace(/^[a-z]+:\/\/\.?\//, '');
+
+    // Split both paths into components
+    const baseComponents = baseDirectory.split('/');
+    const fileName2Components = normalizedFileName2.split('/');
+
+    // Find the common root and construct the relative path for fileName2
+    let commonRootIndex = 0;
+    while (commonRootIndex < fileName2Components.length && baseComponents.includes(fileName2Components[commonRootIndex])) {
+        commonRootIndex++;
+    }
+    const relativePath = fileName2Components.slice(commonRootIndex).join('/');
+
+    // Combine the base directory with the relative path of fileName2
+    return baseDirectory + '/' + relativePath;
+}
+
+export function jsxToCssName(jsxAttributeName) {
+    // Replace camelCase with kebab-case using a regex
+    return jsxAttributeName.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
+}

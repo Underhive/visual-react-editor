@@ -223,6 +223,7 @@ const handleBlur = ({target}) => {
 }
 
 const wipe = ({tip, e:{target}}) => {
+  if(!tip) return
   tip.remove()
   unobserve({tip, target})
   state.tips.delete(target)

@@ -5,4 +5,5 @@ app/bundle.min.js
 app/bundle.css
 package-lock.json
 dist/
+bin/
 

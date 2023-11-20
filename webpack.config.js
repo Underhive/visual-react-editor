@@ -19,4 +19,13 @@ module.exports = {
     ],
   },
   mode: "development",
+  devServer: {
+    hot: true,
+    inline: true,
+    host: "localhost",
+    port: 8082,
+    watchOptions: {
+        poll: true
+    }
+  }
 };
