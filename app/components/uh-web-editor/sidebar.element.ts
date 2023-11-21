@@ -40,6 +40,7 @@ export default class EditorSidebar extends HTMLElement {
   blurAwaitingPost: any
   elementTree: ElementNode
   activeTab: any
+  lastTarget: any
 
   constructor() {
     super()
@@ -84,6 +85,28 @@ export default class EditorSidebar extends HTMLElement {
         this.setup()
       }
     })
+
+    globalThis.sharedStorage.set('currentStyles', new Proxy({ data: [] }, {
+      set: (target, key, value) => {
+        if(key === 'data') {
+          this.appliedStyles = value
+          this.cleanup()
+          this.setup()
+        }
+        target[key] = value
+        return true
+      }
+    }))
+
+    globalThis.$target = new Proxy({ data: {} }, {
+      set: (target, key, value) => {
+        if(key === 'data') {
+          target[key] = value
+          this.elementTree = this.createElementTree(value)
+        }
+        return true
+      }
+    })
   }
 
   connectedCallback() {
@@ -120,7 +143,7 @@ export default class EditorSidebar extends HTMLElement {
     e.target.removeEventListener('input', this.editAttribute)
     e.target.removeEventListener('blur', this.onBlurAttribute)
 
-    if(globalThis.$target.data) {
+    if(globalThis.$target.data.style) {
       const latestStyles = updateAppliedStyles(globalThis.$target.data, true)
       if(this.blurAwaitingPost) {
         const data = this.blurAwaitingPost
@@ -226,28 +249,6 @@ export default class EditorSidebar extends HTMLElement {
       : this.setAttribute('color-scheme', 'auto')
 
     this.$shadow.addEventListener('click', this.doubleClickAttr)
-
-    globalThis.sharedStorage.set('currentStyles', new Proxy({ data: [] }, {
-      set: (target, key, value) => {
-        if(key === 'data') {
-          this.appliedStyles = value
-          this.cleanup()
-          this.setup()
-        }
-        target[key] = value
-        return true
-      }
-    }))
-
-    globalThis.$target = new Proxy({ data: {} }, {
-      set: (target, key, value) => {
-        if(key === 'data') {
-          this.elementTree = this.createElementTree(value)
-        }
-        target[key] = value
-        return true
-      }
-    })
 
     this.$shadow.querySelectorAll('.tabs .tab').forEach(e => e.addEventListener('click', this.onTabClicked))
     if(this.activeTab.data === 'styles') {

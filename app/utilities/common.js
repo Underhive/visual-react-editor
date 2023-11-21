@@ -68,15 +68,13 @@ export const updateAppliedStyles = (el, dontUpdate) => {
 
   let reactFiberProp = `__reactFiber$${globalThis.$blingHash}`
   let reactContainerProp = `__reactContainer$${globalThis.$blingHash}`
-  // for(let prop in el) {
-  //   if(prop.includes('reactFiber')) reactFiberProp = prop
-  // }
 
   const container = el[reactContainerProp]
   const source = container?.stateNode?.current?.memoizedState?.element?._source ?? el[reactFiberProp]._debugSource
   globalThis.sharedStorage.set('currentElementReactFiberSource', source)
 
   if(dontUpdate) return appliedStyles.reverse()
+
   const currentStyles = globalThis.sharedStorage.get('currentStyles')
   currentStyles.data = appliedStyles.reverse()
   return currentStyles.data
