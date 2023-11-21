@@ -18,6 +18,7 @@ import {
 import { EditText } from '../../features'
 
 import axios from 'axios'
+import Incrementable from '../../utilities/incrementable'
 
 export default class EditorSidebar extends HTMLElement {
   
@@ -51,6 +52,46 @@ export default class EditorSidebar extends HTMLElement {
       this.applyScheme(newValue)
   }
 
+  editAttribute = e => {
+    const data = {
+      name: e.target.dataset.name,
+      value: e.target.value ?? e.target.textContent,
+      file: e.target.dataset.file,
+      selector: e.target.dataset.selector
+    }
+    const source = globalThis.sharedStorage.get('currentElementReactFiberSource')
+    this.blurAwaitingPost = {
+      log: data,
+      source: source,
+      timestamp: Date.now()
+    }
+  }
+
+  onBlurAttribute = e => {
+    e.target.removeEventListener('input', this.editAttribute)
+    e.target.removeEventListener('blur', this.onBlurAttribute)
+
+    if(globalThis.$target) {
+      const latestStyles = updateAppliedStyles(globalThis.$target, true)
+      if(this.blurAwaitingPost) {
+        const data = this.blurAwaitingPost
+        data.log.source = latestStyles.find(style => style.parentRuleSelector === e.target.dataset.selector && style.sourceMapJSON?.sources?.[0] === e.target.dataset.file)
+        axios.post(`${apiURL}/edit/stylesheet`, this.blurAwaitingPost)
+        this.blurAwaitingPost = undefined
+      }
+    }
+  }
+
+  doubleClickAttr = e => {
+    if(e.target.matches('.attr .value')) {
+      e.stopPropagation()
+      EditText([e.target])
+      e.target.addEventListener('input', this.editAttribute)
+      e.target.addEventListener('blur', this.onBlurAttribute)
+      new Incrementable(e.target)
+    }
+  }
+
   setup() {
     this.$shadow.innerHTML = this.render()
 
@@ -66,46 +107,7 @@ export default class EditorSidebar extends HTMLElement {
       ? this.getAttribute('color-scheme')
       : this.setAttribute('color-scheme', 'auto')
 
-    const editAttribute = e => {
-      const data = {
-        name: e.target.dataset.name,
-        value: e.target.textContent,
-        file: e.target.dataset.file,
-        selector: e.target.dataset.selector
-      }
-      const source = globalThis.sharedStorage.get('currentElementReactFiberSource')
-      this.blurAwaitingPost = {
-        log: data,
-        source: source,
-        timestamp: Date.now()
-      }
-    }
-
-    const onBlurAttribute = e => {
-      e.target.removeEventListener('input', editAttribute)
-      e.target.removeEventListener('blur', onBlurAttribute)
-
-      if(globalThis.$target) {
-        const latestStyles = updateAppliedStyles(globalThis.$target, true)
-        if(this.blurAwaitingPost) {
-          const data = this.blurAwaitingPost
-          data.log.source = latestStyles.find(style => style.parentRuleSelector === e.target.dataset.selector && style.sourceMapJSON?.sources?.[0] === e.target.dataset.file)
-          axios.post(`${apiURL}/edit/stylesheet`, this.blurAwaitingPost)
-          this.blurAwaitingPost = undefined
-        }
-      }
-    }
-
-    const doubleClickAttr = e => {
-      e.stopPropagation()
-      if(e.target.matches('.attr .value')) {
-        EditText([e.target])
-        e.target.addEventListener('input', editAttribute)
-        e.target.addEventListener('blur', onBlurAttribute)
-      }
-    }
-
-    this.$shadow.addEventListener('dblclick', doubleClickAttr)
+    this.$shadow.addEventListener('click', this.doubleClickAttr)
 
     globalThis.sharedStorage.set('currentStyles', new Proxy({ data: [] }, {
       set: (target, key, value) => {
@@ -128,6 +130,7 @@ export default class EditorSidebar extends HTMLElement {
   
   cleanup() {
     this.$shadow.innerHTML = '' 
+    this.$shadow.removeEventListener('click', this.doubleClickAttr)
   }
 
   render() {
@@ -155,12 +158,12 @@ export default class EditorSidebar extends HTMLElement {
                       return `
                         <div class="attr">
                           <div class="name">${attr}:</div>
-                          <div 
+                          <textarea 
                             class="value" 
                             data-name="${attr}" 
                             data-file="${style.sourceMapJSON?.sources?.[0]}"
                             data-selector="${style.parentRuleSelector}"
-                          >${style.styles[attr]}</div>
+                          >${style.styles[attr]}</textarea>
                           <div class="delete">(-)</div>
                         </div>
                       `
