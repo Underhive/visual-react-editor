@@ -287,12 +287,12 @@ export const WebEditorModel = {
     description: 'Change any text on the page with a <b>double click</b>',
     instruction: '',
   },
-  x: {
-    tool:        'screenshot',
-    icon:        Icons.camera,
-    label:       'Screenshot',
-    description: 'Screenshot selected elements or the entire page'
-  },
+  // x: {
+  //   tool:        'screenshot',
+  //   icon:        Icons.camera,
+  //   label:       'Screenshot',
+  //   description: 'Screenshot selected elements or the entire page'
+  // },
   s: {
     tool:        'search',
     icon:        Icons.search,
