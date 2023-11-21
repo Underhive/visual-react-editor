@@ -120,7 +120,7 @@ export const Selectable = (uhWebEditor) => {
     else
       select($target)
 
-    globalThis.$target = $target
+    globalThis.$target.data = $target
     updateAppliedStyles($target)
   }
 
@@ -649,6 +649,7 @@ export const Selectable = (uhWebEditor) => {
     `${node.nodeName.toLowerCase()}${createClassname(node)}`
 
   const overlayHoverUI = ({el, no_hover = false, no_label = true}) => {
+    if(!el) return
     if (hover_state.target === el) return
     hover_state.target = el
 

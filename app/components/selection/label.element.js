@@ -70,10 +70,10 @@ export class Label extends HTMLElement {
 
 
     this.style.setProperty('--max-width', `${boundingRect.width + (window.innerWidth - boundingRect.x - boundingRect.width - 20)}px`)
-    this.style.setProperty('--position', position)
-    this.setAttribute('data-original-top', top)
-    this.setAttribute('data-original-left', left)
-    this.setAttribute('data-original-position', position)
+    if(this.position) this.style.setProperty('--position', this.position)
+    this.setAttribute('data-original-top', this.top)
+    this.setAttribute('data-original-left', this.left)
+    if(this.position) this.setAttribute('data-original-position', this.position)
 
     this.detectOutsideViewport()
   }

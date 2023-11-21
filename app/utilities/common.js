@@ -66,12 +66,14 @@ export const updateAppliedStyles = (el, dontUpdate) => {
 
   elStyleObject.cssText.length > 0 && appliedStyles.push(inlineStyles)
 
-  let reactFiberProp
-  for(let prop in el) {
-    if(prop.includes('reactFiber')) reactFiberProp = prop
-  }
+  let reactFiberProp = `__reactFiber$${globalThis.$blingHash}`
+  let reactContainerProp = `__reactContainer$${globalThis.$blingHash}`
+  // for(let prop in el) {
+  //   if(prop.includes('reactFiber')) reactFiberProp = prop
+  // }
 
-  const source = el[reactFiberProp]._debugSource
+  const container = el[reactContainerProp]
+  const source = container?.stateNode?.current?.memoizedState?.element?._source ?? el[reactFiberProp]._debugSource
   globalThis.sharedStorage.set('currentElementReactFiberSource', source)
 
   if(dontUpdate) return appliedStyles.reverse()
@@ -185,6 +187,17 @@ export const swapElements = (src, target) => {
   temp.parentNode.insertBefore(target, temp)
 
   temp.parentNode.removeChild(temp)
+}
+
+export const showOneOffHandle = (el, node_label_id = -1) => {
+  if(!el) return
+  Array.from([
+    ...$('uh-web-editor-handles'),
+  ]).forEach(el =>
+    el.remove())
+  const handle = document.createElement('uh-web-editor-handles')
+  handle.position = { el, node_label_id }
+  document.body.insertAdjacentElement('afterend', handle)
 }
 
 export function extractSourceMappingURL(cssContent) {

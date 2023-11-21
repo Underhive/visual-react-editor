@@ -1,5 +1,13 @@
 @import "../_variables.css";
 
+:host .hidden {
+  display: none;
+}
+
+:host .visible {
+  display: block
+}
+
 :host {
   position: fixed;
   width: 403px;
@@ -13,6 +21,11 @@
   color: rgb(226, 226, 226);
   overflow-y: auto;
   overflow-x: hidden;
+}
+
+:host .styles-content {
+  display: flex;
+  flex-direction: column;
 }
 
 :host .tabs {
@@ -169,4 +182,117 @@
       color: rgb(224, 224, 224);
     }
   }
+}
+
+:host .tree-content {
+  display: flex;
+  flex-direction: column;
+
+  .show-root {
+    display: flex;
+    background-color: rgb(199, 199, 199);
+    padding: 4px 8px;
+    font-size: 14px;
+    color: #242424;
+    font-weight: 600;
+    margin: 8px;
+    border-radius: 2px;
+    cursor: pointer;
+    width: fit-content;
+    justify-self: end;
+
+    &:hover {
+      background-color: rgb(224, 224, 224);
+    }
+  }
+}
+
+:host .node {
+  color: rgb(226, 226, 226);
+  border: 0px solid rgb(70, 70, 70);
+
+  .header {
+    display: flex;
+    flex-direction: row;
+    font-size: 10px;
+    align-items: center;
+    justify-content: space-between;
+    background-color: rgb(12, 12, 12);
+
+    &:hover {
+      border: 1px solid rgb(70, 70, 70);
+    }
+  }
+
+  .open-close {
+    font-size: 16px;
+  }
+
+  .button {
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .header .name {
+    font-size: 12px;
+    font-weight: 800;
+    color: #242424;
+    background-color: rgb(224, 224, 224);
+    padding: 4px 12px;
+    border-radius: 2px;
+    margin-bottom: 4px;
+    margin-top: 4px;
+    margin-right: 8px;
+  }
+
+  .header .actions {
+    display: flex;
+    flex-direction: row;
+    font-size: 10px;
+    align-items: center;
+    justify-content: space-around;
+    /* background-color: rgb(12, 12, 12); */
+    width: 15%;
+  }
+
+  .header .left {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-around;
+  }
+}
+
+:host .modal {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: fixed; 
+  z-index: var(--layer-top); 
+  top: 0;
+  left: 0;
+  width: 100%; /* Full width */
+  height: 100%; /* Full height */
+  overflow: auto; /* Enable scroll if needed */
+  background-color: rgb(0,0,0); /* Fallback color */
+  background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+}
+
+:host .edit-element .content {
+  display: flex;
+  flex-direction: column;
+  width: 600px;
+  height: 600px;
+  background-color: white;
+  color: #000;
+}
+
+:host .add-element .content {
+  display: flex;
+  flex-direction: column;
+  width: 600px;
+  height: 600px;
+  background-color: white;
+  color: #000;
 }

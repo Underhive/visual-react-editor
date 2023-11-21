@@ -13,12 +13,24 @@ import {
   constructibleStylesheetSupport,
   schemeRule,
   apiURL,
-  updateAppliedStyles
+  updateAppliedStyles,
+  cssPath,
+  showOneOffHandle
 } from '../../utilities'
 import { EditText } from '../../features'
 
 import axios from 'axios'
 import Incrementable from '../../utilities/incrementable'
+import { createMarginVisual } from '../../features/margin'
+
+type ElementNode = {
+  name: string
+  selector: string
+  open: boolean
+  children: ElementNode[]
+  ariaLevel: number
+  fileName: string
+}
 
 export default class EditorSidebar extends HTMLElement {
   
@@ -26,6 +38,8 @@ export default class EditorSidebar extends HTMLElement {
   applyScheme: Function
   appliedStyles: any[]
   blurAwaitingPost: any
+  elementTree: ElementNode
+  activeTab: any
 
   constructor() {
     super()
@@ -35,6 +49,41 @@ export default class EditorSidebar extends HTMLElement {
       this.$shadow,
       SidebarStyles, SidebarStyles, SidebarStyles
     )
+
+    this.activeTab = new Proxy({ data: 'styles' }, {
+      set: (target, p, newValue, receiver) => {
+        target[p] = newValue
+        this.$shadow.querySelector('.tabs .styles').setAttribute('data-active', (newValue === 'styles').toString())
+        this.$shadow.querySelector('.tabs .tree').setAttribute('data-active', (newValue === 'tree').toString())
+        if(newValue === 'styles') {
+          this.$shadow.querySelector('.styles-content').setAttribute('style', 'display: flex;')
+          this.$shadow.querySelector('.tree-content').setAttribute('style', 'display: none;')
+        } else if(newValue === 'tree') {
+          this.$shadow.querySelector('.styles-content').setAttribute('style', 'display: none;')
+          this.$shadow.querySelector('.tree-content').setAttribute('style', 'display: flex;')
+        }
+        return true
+      },
+    })
+
+    document.addEventListener('readystatechange', e => {
+      if(document.readyState === "complete") {
+        const rootFiberNode = (document.querySelector('#root') as any)
+        let blingHash
+        for(let key in rootFiberNode) {
+          if(key.startsWith('__reactContainer$')) {
+            blingHash = key.split('$')[1]
+            break
+          }
+        }
+        globalThis.$blingHash = blingHash
+        this.elementTree = this.createElementTree(rootFiberNode)
+        const latestStyles = updateAppliedStyles(rootFiberNode)
+        this.appliedStyles = latestStyles
+        this.cleanup()
+        this.setup()
+      }
+    })
   }
 
   connectedCallback() {
@@ -71,8 +120,8 @@ export default class EditorSidebar extends HTMLElement {
     e.target.removeEventListener('input', this.editAttribute)
     e.target.removeEventListener('blur', this.onBlurAttribute)
 
-    if(globalThis.$target) {
-      const latestStyles = updateAppliedStyles(globalThis.$target, true)
+    if(globalThis.$target.data) {
+      const latestStyles = updateAppliedStyles(globalThis.$target.data, true)
       if(this.blurAwaitingPost) {
         const data = this.blurAwaitingPost
         data.log.source = latestStyles.find(style => style.parentRuleSelector === e.target.dataset.selector && style.sourceMapJSON?.sources?.[0] === e.target.dataset.file)
@@ -89,6 +138,75 @@ export default class EditorSidebar extends HTMLElement {
       e.target.addEventListener('input', this.editAttribute)
       e.target.addEventListener('blur', this.onBlurAttribute)
       new Incrementable(e.target)
+    }
+  }
+
+  onShowRootTreeClicked = e => {
+    const rootFiberNode = (document.querySelector('#root') as any)
+    this.elementTree = this.createElementTree(rootFiberNode)
+    this.cleanup()
+    this.setup()
+  }
+
+  onTabClicked = e => {
+    this.activeTab.data = (e.target as any).classList.contains('styles') ? 'styles' : 'tree'
+  }
+
+  onTreeNodeOpenCloseClicked = e => {
+    e.stopPropagation()
+    const state = e.target.dataset.state === "true";
+    // e.target.dataset.state = (!state).toString()
+    const selector = e.target.parentNode.dataset.selector
+    // find selector in tree
+    const node = this.elementTree
+    const findNode = (node: ElementNode, selector: string) => {
+      if(node.selector === selector) return node
+      if(node.children.length > 0) {
+        for(let i = 0; i < node.children.length; i++) {
+          const foundNode = findNode(node.children[i], selector)
+          if(foundNode) return foundNode
+        }
+      }
+      return null
+    }
+    const foundNode = findNode(node, selector)
+    if(!foundNode) return
+    foundNode.open = !state
+    this.cleanup()
+    this.setup()
+  }
+
+  onTreeNodeNameClicked = e => {
+    const selector = e.target.parentNode.dataset.selector
+    const elementFromSelector = document.querySelector(selector)
+    
+    elementFromSelector.animate([
+      { backgroundColor: 'transparent' },
+      { backgroundColor: 'hsla(330, 100%, 40%, 70%)' },
+      { backgroundColor: 'transparent' },
+    ], 600)
+
+    elementFromSelector.scrollIntoView({ behavior: 'instant', block: 'center', inline: 'center' })
+    
+    showOneOffHandle(elementFromSelector, -9999)
+
+    const latestStyles = updateAppliedStyles(elementFromSelector)
+    this.appliedStyles = latestStyles
+    this.cleanup()
+    this.setup()
+  }
+
+  onTreeNodeActionClicked = e => {
+    if(e.target.classList.contains('edit')) {
+      const editModal: HTMLElement = this.$shadow.querySelector('.modal.edit-element')
+      editModal.classList.remove('hidden')
+      editModal.style.display = 'flex'
+      console.log('edit clicked')
+    } else if(e.target.classList.contains('add')) {
+      const addModal: HTMLElement = this.$shadow.querySelector('.modal.add-element')
+      addModal.classList.remove('hidden')
+      addModal.style.display = 'flex' 
+      console.log('add clicked')
     }
   }
 
@@ -113,12 +231,56 @@ export default class EditorSidebar extends HTMLElement {
       set: (target, key, value) => {
         if(key === 'data') {
           this.appliedStyles = value
-          this.$shadow.innerHTML = this.render()
+          this.cleanup()
+          this.setup()
         }
         target[key] = value
         return true
       }
     }))
+
+    globalThis.$target = new Proxy({ data: {} }, {
+      set: (target, key, value) => {
+        if(key === 'data') {
+          this.elementTree = this.createElementTree(value)
+        }
+        target[key] = value
+        return true
+      }
+    })
+
+    this.$shadow.querySelectorAll('.tabs .tab').forEach(e => e.addEventListener('click', this.onTabClicked))
+    if(this.activeTab.data === 'styles') {
+      this.$shadow.querySelector('.styles-content').setAttribute('style', 'display: flex;')
+      this.$shadow.querySelector('.tree-content').setAttribute('style', 'display: none;')
+    } else if(this.activeTab.data === 'tree') {
+      this.$shadow.querySelector('.styles-content').setAttribute('style', 'display: none;')
+      this.$shadow.querySelector('.tree-content').setAttribute('style', 'display: flex;')
+    }
+
+    const allOpenClose = this.$shadow.querySelectorAll(`.open-close`)
+    allOpenClose.forEach(e => e.addEventListener('click', this.onTreeNodeOpenCloseClicked))
+
+    const allTreeNodeNames = this.$shadow.querySelectorAll(`.node .name`)
+    allTreeNodeNames.forEach(e => e.addEventListener('click', this.onTreeNodeNameClicked))
+
+    const allTreeNodeActionButtons = this.$shadow.querySelectorAll(`.node .actions .button`)
+    allTreeNodeActionButtons.forEach(e => e.addEventListener('click', this.onTreeNodeActionClicked))
+    this.$shadow.querySelector('.show-root').addEventListener('click', this.onShowRootTreeClicked)
+  }
+
+  createElementTree(element: Element, ariaLevel = 0) {
+    const children = element.children.length > 0 ? Array.from(element.children).map(child => this.createElementTree(child, ariaLevel + 1)) : []
+    const _debugSource = (element as any)[`__reactFiber$${globalThis.$blingHash}`]?._debugSource
+    const fileName = _debugSource ? `${_debugSource?.fileName.split('/').pop()}(${_debugSource?.lineNumber}:${_debugSource?.columnNumber})` : 'inline'
+    return {
+      name: `${element.tagName.toLowerCase()}`,
+      selector: cssPath(element),
+      open: children.length > 0 && ariaLevel <= 4,
+      children: children,
+      fileName: ariaLevel < 6 ? `[${fileName}]` : '',
+      ariaLevel
+    }
   }
 
   extractFilename(path) {
@@ -129,22 +291,65 @@ export default class EditorSidebar extends HTMLElement {
   }
   
   cleanup() {
-    this.$shadow.innerHTML = '' 
     this.$shadow.removeEventListener('click', this.doubleClickAttr)
+    this.$shadow.querySelectorAll('.tabs .tab').forEach(e => e.removeEventListener('click', this.onTabClicked))
+    const allOpenClose = this.$shadow.querySelectorAll(`.open-close`)
+    allOpenClose.forEach(e => e.removeEventListener('click', this.onTreeNodeOpenCloseClicked))
+    const allTreeNodeNames = this.$shadow.querySelectorAll(`.node .name`)
+    allTreeNodeNames.forEach(e => e.removeEventListener('click', this.onTreeNodeNameClicked))
+    const allTreeNodeActionButtons = this.$shadow.querySelectorAll(`.node .actions .button`)
+    allTreeNodeActionButtons.forEach(e => e.addEventListener('click', this.onTreeNodeActionClicked))
+    this.$shadow.querySelector('.show-root').removeEventListener('click', this.onShowRootTreeClicked)
+    this.$shadow.innerHTML = ''
+  }
+
+  renderTree(node: ElementNode) {
+    if(!node) return ''
+    const rgbLevel = node.ariaLevel * 15
+    return `
+      <div class="node">
+        <div class="header" style="padding-left: ${24 * node.ariaLevel}px;  background-color: rgb(${rgbLevel}, ${rgbLevel}, ${rgbLevel});">
+          <div 
+            class="left"
+            data-selector="${node.selector}"
+          > 
+            <div class="name button"> ${node.name} ${node.fileName} </div>
+            ${node.children.length > 0 ? 
+            `<div 
+              class="open-close button" 
+              data-state="${node.open}"
+              style="color: ${node.open ? '#bfb1b0' : '#ff8400'};"
+            > 
+              ${node.open ? '▲' : '▼'} 
+            </div>` : ''}
+          </div>  
+          <div class="actions">
+            <div class="button edit"> edit </div>
+            <div class="button add"> (+) </div>
+          </div>
+        </div>
+        <div class="children">
+          ${node.open ? node.children.map(child => this.renderTree(child)).join('\n') : ''} 
+        </div>
+      </div>
+    `
   }
 
   render() {
+    const stylesActive = this.activeTab.data === 'styles'
+    const treeActive = this.activeTab.data === 'tree'
+
     return `
       <div>
         <div class="tabs">
-          <div class="tab" data-active="true" data-name="styles">
+          <div class="tab styles" data-active="${stylesActive}" data-name="styles">
             Styles
           </div>
-          <div class="tab" data-name="tree">
+          <div class="tab tree" data-active="${treeActive}" data-name="tree">
             Tree
           </div>
         </div>
-        <div class="styles">
+        <div class="styles-content">
           <div class="styles-list">
             ${this.appliedStyles ? this.appliedStyles.map(style => {
                 const fileName = this.extractFilename(style.sourceMapJSON?.sources?.[0])
@@ -174,9 +379,21 @@ export default class EditorSidebar extends HTMLElement {
               }).join('\n') : ''}
           </div>
         </div>
-
-        <div class="tree">
-              
+        <div class="tree-content">
+          <div class="modal hidden edit-element">
+            <div class="content">
+              asodijasodijasoidj
+            </div>
+          </div>
+          <div class="modal hidden add-element">
+            <div class="content">
+              asodijasodijasoidj
+            </div>
+          </div>
+          <div style="display: flex; justify-content: end;"> 
+            <div class="show-root">show root</div>
+          </div>
+            ${this.renderTree(this.elementTree)}
         </div>
       </div>`
   }

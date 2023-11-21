@@ -54,7 +54,8 @@ export class Gridlines extends HTMLElement {
 
     return `
       <svg
-        width="100%"
+        width="${winWidth}"
+        height="${winHeight}"
         viewBox="0 0 ${winWidth} ${winHeight}"
         version="1.1" xmlns="http://www.w3.org/2000/svg"
       >
