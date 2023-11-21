@@ -5,6 +5,7 @@
     "sourceMap": true,
     "outDir": "dist",
     "esModuleInterop": true,
+    "resolveJsonModule": true,
     "allowJs": true,
     "lib": [
       "es2017",
