@@ -160,7 +160,7 @@ app.post('/edit/stylesheet', (req: Request, res: Response) => {
     timestamp: number;
   } = req.body;
 
-  if(body.log?.source?.type === 'inline' || !body.log?.source?.range) {
+  if(body.log?.source?.type === 'inline' || !body.log?.source?.range || !body.source?.fileName) {
     res.json({
       data: "OK"
     })
