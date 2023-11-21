@@ -85,7 +85,7 @@ export class BoxModel extends HTMLElement {
   }
 
   createMeasurements({mode, bounds, sides, color}) {
-    const win_width   = window.innerWidth
+    const win_width   = document.documentElement.clientWidth
     const pill_height = 18
     const offset      = 3
 

@@ -205,7 +205,7 @@ const render = (el, tip = document.createElement('uh-web-editor-metatip')) => {
 
 const mouse_quadrant = e => ({
   north: e.clientY > window.innerHeight / 2,
-  west:  e.clientX > window.innerWidth / 2
+  west:  e.clientX > document.documentElement.clientWidth / 2
 })
 
 const tip_position = (node, e, north, west) => ({

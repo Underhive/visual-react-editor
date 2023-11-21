@@ -69,7 +69,7 @@ export class Label extends HTMLElement {
     // this.style.setProperty('--left', `${left}px`)
 
 
-    this.style.setProperty('--max-width', `${boundingRect.width + (window.innerWidth - boundingRect.x - boundingRect.width - 20)}px`)
+    this.style.setProperty('--max-width', `${boundingRect.width + (document.documentElement.clientWidth - boundingRect.x - boundingRect.width - 20)}px`)
     if(this.position) this.style.setProperty('--position', this.position)
     this.setAttribute('data-original-top', this.top)
     this.setAttribute('data-original-left', this.left)
@@ -108,7 +108,7 @@ export class Label extends HTMLElement {
     const outsideTop = originalPosition.top - boundingBox.height - scrollY < 0
     const outsideBottom = originalPosition.top - scrollY > window.innerHeight
     const outsideLeft = originalPosition.left - scrollX < 0
-    const outsideRight = originalPosition.left - scrollX > window.innerWidth
+    const outsideRight = originalPosition.left - scrollX > document.documentElement.clientWidth
 
     const isOutsideViewport =
       outsideTop || outsideBottom || outsideLeft || outsideRight
@@ -152,7 +152,7 @@ export class Label extends HTMLElement {
       style.offscreenText = '←'
       createOffscreenLabelIndicator(node_label_id, style.offscreenText, style.hoverText, 0, 'calc(50vh - 0.5rem)', style.color)
     } else if (outsideRight && !outsideTop && !outsideBottom) {
-      style.left = window.innerWidth - boundingBox.width
+      style.left = document.documentElement.clientWidth - boundingBox.width
       style.top = Math.max(boundingBox.height, currentPosition.top)
       style.offscreenText = '→'
       createOffscreenLabelIndicator(node_label_id, style.offscreenText, style.hoverText, `calc(100vw - 1.5rem)`, 'calc(50vh - 0.5rem)', style.color, adjustRightSideToCount)
