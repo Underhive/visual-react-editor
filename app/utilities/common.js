@@ -1,6 +1,6 @@
 import $ from 'blingblingjs'
 import { nodeKey } from './strings'
-import { convertCssToJsx } from '../server-helpers';
+import { convertCssToJsx } from '../server/server-helpers';
 
 export const updateAppliedStyles = (el, dontUpdate) => {
   const elStyleObject = el.style

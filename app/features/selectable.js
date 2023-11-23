@@ -19,9 +19,9 @@ import {
   getTextShadowValues, isFixed, decodeBase64, extractSourceMappingURL, findCssBlockRange, cssToJson, updateAppliedStyles,
 } from '../utilities/'
 import history, { cssPath } from '../utilities/history'
-import { convertCssToJsx } from '../server-helpers'
+import { convertCssToJsx } from '../server/server-helpers'
 
-export const Selectable = (uhWebEditor) => {
+export function Selectable(uhWebEditor) {
   const page              = document.body
   let selected            = []
   let selectedCallbacks   = []
@@ -33,42 +33,13 @@ export const Selectable = (uhWebEditor) => {
     element:  null,
     label:    null,
   }
-
-  const sourceList = {}
-
-  const mapSourceFromElement = (el) => {
-    let sourceMap = {}
-    if(el.children.length == 0) return 
-    for(const child of el.children) {
-      if(child.children.length) {
-        sourceMap[cssPath(child)] = mapSourceFromElement(child)
-      } else {
-        let propName
-        for(const prop in child) {
-          if(prop.includes("reactFiber")) propName = prop
-        }
-        if(propName && child[propName]) {
-          sourceMap[cssPath(child)] = child[propName]._debugSource ?? child[propName]._debugOwner._debugSource
-          sourceList[cssPath(child)] = child[propName]._debugSource ?? child[propName]._debugOwner._debugSource
-        }
-      }
-    }
-    return sourceMap
-  }
   
-  const sourceMap         = mapSourceFromElement(document.body)
-  console.log({ sourceMap, sourceList })
-  history.mutations.saveSourceMap(sourceList)
-
   const listen = () => {
     page.addEventListener('click', on_click, true)
     page.addEventListener('dblclick', on_dblclick, true)
 
     page.on('selectstart', on_selection)
     page.on('mousemove', on_hover)
-    document.addEventListener('copy', on_copy) // history done
-    document.addEventListener('cut', on_cut) // history done
-    document.addEventListener('paste', on_paste) // history done
 
     watchCommandKey()
 
@@ -85,6 +56,9 @@ export const Selectable = (uhWebEditor) => {
     hotkeys(`shift+'`, on_select_parent)
     hotkeys(`${metaKey}+z`, history.actions.undo)
     hotkeys(`${metaKey}+shift+z`, history.actions.redo)
+    hotkeys(`${metaKey}+c`, on_copy)
+    hotkeys(`${metaKey}+v`, on_paste)
+    hotkeys(`${metaKey}+x`, on_cut)
   }
 
   const unlisten = () => {
@@ -94,11 +68,7 @@ export const Selectable = (uhWebEditor) => {
     page.off('selectstart', on_selection)
     page.off('mousemove', on_hover)
 
-    document.removeEventListener('copy', on_copy)
-    document.removeEventListener('cut', on_cut)
-    document.removeEventListener('paste', on_paste)
-
-    hotkeys.unbind(`esc,${metaKey}+d,backspace,del,delete,alt+del,alt+backspace,${metaKey}+e,${metaKey}+shift+e,${metaKey}+g,${metaKey}+shift+g,tab,shift+tab,enter,shift+enter`)
+    hotkeys.unbind(`esc,${metaKey}+d,backspace,del,delete,alt+del,alt+backspace,${metaKey}+e,${metaKey}+shift+e,${metaKey}+g,${metaKey}+shift+g,tab,shift+tab,enter,shift+enter,${metaKey}+c,${metaKey}+v,${metaKey}+x`)
   }
 
   const on_click = e => {
@@ -198,6 +168,8 @@ export const Selectable = (uhWebEditor) => {
       element: {
         tagName: deep_clone.tagName,
         outerHTML: deep_clone.outerHTML,
+        debugSource: {...el[`__reactFiber$${globalThis.$blingHash}`]?._debugSource},
+        parentDebugSource: {...el.parentNode?.[`__reactFiber$${globalThis.$blingHash}`]?._debugSource}
       },
       action: 'add',
     })
@@ -219,6 +191,8 @@ export const Selectable = (uhWebEditor) => {
           tagName: el?.tagName?.toLowerCase(),
           outerHTML: beforeEdit,
           finalOuterHTML: el.outerHTML,
+          debugSource: {...el[`__reactFiber$${globalThis.$blingHash}`]?._debugSource},
+          parentDebugSource: {...el.parentNode?.[`__reactFiber$${globalThis.$blingHash}`]?._debugSource}
         },
         action: 'edit',
       })
@@ -226,6 +200,7 @@ export const Selectable = (uhWebEditor) => {
   }
 
   const on_copy = async e => {
+    console.log('copy')
     // if user has selected text, dont try to copy an element
     if (window.getSelection().toString().length)
       return
@@ -235,13 +210,13 @@ export const Selectable = (uhWebEditor) => {
       let $node = selected[0].cloneNode(true)
       $node.removeAttribute('data-selected')
 
-      window.copy_backup = $node.outerHTML
-      e.clipboardData.setData('text/html', window.copy_backup)
+      globalThis.copy_backup = $node.outerHTML
+      // e.clipboardData.setData('text/html', globalThis.copy_backup)
 
       const { state } = await navigator.permissions.query({ name: 'clipboard-write' })
 
       if (state === 'granted')
-        await navigator.clipboard.writeText(window.copy_backup)
+        await navigator.clipboard.writeText(globalThis.copy_backup)
     }
   }
 
@@ -249,8 +224,8 @@ export const Selectable = (uhWebEditor) => {
     if (selected[0] && window.node_clipboard !== selected[0]) {
       let $node = selected[0].cloneNode(true)
       $node.removeAttribute('data-selected')
-      window.copy_backup = $node.outerHTML
-      e.clipboardData.setData('text/html', window.copy_backup)
+      globalThis.copy_backup = $node.outerHTML
+      e.clipboardData?.setData?.('text/html', globalThis.copy_backup)
       const el = selected[0]
       if(el?.tagName?.toLowerCase() != 'uh-web-editor-handles' && el?.tagName?.toLowerCase() != 'uh-web-editor-label' && el?.tagName?.toLowerCase() != 'uh-web-editor-hover' && el?.tagName?.toLowerCase() != 'uh-web-editor-distance') {
         history.actions.do({
@@ -259,19 +234,21 @@ export const Selectable = (uhWebEditor) => {
           element: {
             tagName: el?.tagName?.toLowerCase(),
             outerHTML: el.outerHTML,
+            debugSource: {...el[`__reactFiber$${globalThis.$blingHash}`]?._debugSource},
+            parentDebugSource: {...el.parentNode?.[`__reactFiber$${globalThis.$blingHash}`]?._debugSource}
           },
           action: 'delete',
         })
         // log the deleted element for undo
       }
-      selected[0].remove()
+      // selected[0].remove() // REACT REMOVES THIS
     }
   }
 
   const on_paste = async (e, index = 0) => {
-    const clipData = e.clipboardData.getData('text/html')
+    const clipData = e.clipboardData?.getData?.('text/html')
     const globalClipboard = await navigator.clipboard.readText()
-    const potentialHTML = clipData || globalClipboard || window.copy_backup
+    const potentialHTML = clipData || globalClipboard || globalThis.copy_backup
 
     if (selected.length && potentialHTML) {
       e.preventDefault()
@@ -287,6 +264,8 @@ export const Selectable = (uhWebEditor) => {
             element: {
               tagName: el?.tagName?.toLowerCase(),
               outerHTML: el.outerHTML,
+              debugSource: {...el[`__reactFiber$${globalThis.$blingHash}`]?._debugSource},
+              parentDebugSource: {...el.parentNode?.[`__reactFiber$${globalThis.$blingHash}`]?._debugSource}
             },
             action: 'add',
           })
@@ -601,12 +580,14 @@ export const Selectable = (uhWebEditor) => {
           element: {
             tagName: el?.tagName?.toLowerCase(),
             outerHTML: el.outerHTML,
+            debugSource: {...el[`__reactFiber$${globalThis.$blingHash}`]?._debugSource},
+            parentDebugSource: {...el.parentNode?.[`__reactFiber$${globalThis.$blingHash}`]?._debugSource}
           },
           action: 'delete',
         })
         // log the deleted element for undo
       }
-      el.remove()
+      // el.remove() // REACT REMOVES THIS
     })
 
     labels    = []

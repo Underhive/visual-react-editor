@@ -30,6 +30,7 @@ type ElementNode = {
   children: ElementNode[]
   ariaLevel: number
   fileName: string
+  isSelected: boolean
 }
 
 export default class EditorSidebar extends HTMLElement {
@@ -51,7 +52,7 @@ export default class EditorSidebar extends HTMLElement {
       SidebarStyles, SidebarStyles, SidebarStyles
     )
 
-    this.activeTab = new Proxy({ data: 'styles' }, {
+    this.activeTab = new Proxy({ data: 'tree' }, {
       set: (target, p, newValue, receiver) => {
         target[p] = newValue
         this.$shadow.querySelector('.tabs .styles').setAttribute('data-active', (newValue === 'styles').toString())
@@ -102,7 +103,11 @@ export default class EditorSidebar extends HTMLElement {
       set: (target, key, value) => {
         if(key === 'data') {
           target[key] = value
-          this.elementTree = this.createElementTree(value)
+          if(value.parentNode) {
+            this.elementTree = this.createElementTree(value.parentNode)
+          } else {
+            this.elementTree = this.createElementTree(value)
+          }
         }
         return true
       }
@@ -274,12 +279,14 @@ export default class EditorSidebar extends HTMLElement {
     const children = element.children.length > 0 ? Array.from(element.children).map(child => this.createElementTree(child, ariaLevel + 1)) : []
     const _debugSource = (element as any)[`__reactFiber$${globalThis.$blingHash}`]?._debugSource
     const fileName = _debugSource ? `${_debugSource?.fileName.split('/').pop()}(${_debugSource?.lineNumber}:${_debugSource?.columnNumber})` : 'inline'
+    const selector = cssPath(element)
     return {
       name: `${element.tagName.toLowerCase()}`,
-      selector: cssPath(element),
-      open: children.length > 0 && ariaLevel <= 4,
+      selector,
+      open: children.length > 0 && ariaLevel < 4,
       children: children,
-      fileName: ariaLevel < 6 ? `[${fileName}]` : '',
+      fileName: ariaLevel < 6 ? fileName : '',
+      isSelected: cssPath(globalThis.$target) === selector,
       ariaLevel
     }
   }
@@ -306,15 +313,16 @@ export default class EditorSidebar extends HTMLElement {
 
   renderTree(node: ElementNode) {
     if(!node) return ''
-    const rgbLevel = node.ariaLevel * 15
+    const rgbLevel = node.ariaLevel * 14
     return `
       <div class="node">
-        <div class="header" style="padding-left: ${24 * node.ariaLevel}px;  background-color: rgb(${rgbLevel}, ${rgbLevel}, ${rgbLevel});">
+        <div class="header" 
+          style="padding-left: ${18 * node.ariaLevel}px; ${node.isSelected ? `border: 2px solid blue;` : ``} background-color: rgb(${rgbLevel}, ${rgbLevel}, ${rgbLevel});">
           <div 
             class="left"
             data-selector="${node.selector}"
           > 
-            <div class="name button"> ${node.name} ${node.fileName} </div>
+            <div class="name button" title="${node.fileName}"> ${node.name} </div>
             ${node.children.length > 0 ? 
             `<div 
               class="open-close button" 
@@ -391,7 +399,7 @@ export default class EditorSidebar extends HTMLElement {
               asodijasodijasoidj
             </div>
           </div>
-          <div style="display: flex; justify-content: end;"> 
+          <div style="display: flex; justify-content: start;"> 
             <div class="show-root">show root</div>
           </div>
             ${this.renderTree(this.elementTree)}

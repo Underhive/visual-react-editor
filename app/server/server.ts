@@ -1,20 +1,17 @@
 #!/usr/bin/env node
 
 import express, { Request, Response, json } from 'express';
-import { splitLines, buildLineEndingPositions, convertCssToJsx, jsonToJsx, getFullSourcePathFromRef, jsxToCssName } from './server-helpers';
+import { splitLines, buildLineEndingPositions, convertCssToJsx, jsonToJsx, getFullSourcePathFromRef, jsxToCssName, diffJson } from './server-helpers';
 import * as fs from 'fs';
 import { platform } from 'os';
-
-import axios from 'axios';
+import { modifyElementStyle } from './modifiers/styler';
+import { insertChildrenIntoElement, insertElement } from './modifiers/inserter';
+import { removeElement } from './modifiers/remover';
 
 const app = express();
 const port = process.env.PORT || 38388;
 
 const apiURL = process.env.API_URL || 'https://api.underhive.in';
-
-const diffs: {
-  [url: string]: any;
-} = {}
 
 type ReactFiberSourceDeclaration = {
   columnNumber: number,
@@ -40,11 +37,13 @@ type AttributeEditLog = {
 } & GenericEditLog
 
 type AddChildEditLog = {
-  addedNodes: any
+  html: string
+  action: 'added'
 } & GenericEditLog
 
 type RemoveChildEditLog = {
-  removedNodes: any
+  html: string
+  action: 'removed'
 } & GenericEditLog
 
 type Styles = {
@@ -86,6 +85,42 @@ const attributeInTag = (attr: string) => new RegExp(`^<\\w+\\s+(?:[^>]*?${attr}=
 
 app.use(json());
 
+const fileQueues = new Map<string, { queue: any[], isProcessing: boolean }>();
+function queueMiddleware(req, res, next) {
+  if(!fileQueues.has(req.body.source.fileName)) {
+    fileQueues.set(req.body.source.fileName, {
+      queue: [],
+      isProcessing: false,
+    });
+  }
+  const jobQueue = fileQueues.get(req.body.source.fileName);
+  jobQueue.queue.push({ req, res, next });
+
+  // Process the queue if not already processing
+  if (!jobQueue.isProcessing) {
+    processQueue(jobQueue);
+  }
+}
+
+function processQueue(jobQueue: { queue: any[], isProcessing: boolean }) {
+  let requestQueue = jobQueue.queue;
+  let isProcessing = jobQueue.isProcessing;
+  if(requestQueue.length > 0) {
+    isProcessing = true;
+    const { req, res, next } = requestQueue.shift();
+
+    // Process the request, then call the actual handler
+    next();
+
+    // After the response is finished, process the next item in the queue
+    res.on('finish', () => {
+      processQueue(jobQueue);
+    });
+  } else {
+    isProcessing = false;
+  }
+}
+
 app.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Methods", "*");
@@ -103,7 +138,7 @@ app.post('/edit/', (req: Request, res: Response) => {
   })
 })
 
-app.post('/edit/characterData', (req: Request, res: Response) => {
+app.post('/edit/characterData', queueMiddleware, (req: Request, res: Response) => {
   const body: {
     log: TextEditLog;
     source: ReactFiberSourceDeclaration;
@@ -153,7 +188,7 @@ app.post('/edit/characterData', (req: Request, res: Response) => {
   })
 })
 
-app.post('/edit/stylesheet', (req: Request, res: Response) => {
+app.post('/edit/stylesheet', queueMiddleware, (req: Request, res: Response) => {
   const body: {
     log: StyleSheetEditLog;
     source: ReactFiberSourceDeclaration;
@@ -187,7 +222,7 @@ app.post('/edit/stylesheet', (req: Request, res: Response) => {
   })
 })
 
-app.post('/edit/attributes', (req: Request, res: Response) => {
+app.post('/edit/attributes', queueMiddleware, async (req: Request, res: Response) => {
   const body: {
     log: AttributeEditLog;
     source: ReactFiberSourceDeclaration;
@@ -195,79 +230,30 @@ app.post('/edit/attributes', (req: Request, res: Response) => {
   } = req.body;
 
   console.log(body);
-
-  const line = body.source.lineNumber;
-  const column = body.source.columnNumber;
-  const osLineBreak = platform() === 'win32' ? '\r\n' : '\n';
-  const fileData = fs.readFileSync(body.source.fileName, 'utf8');
-  const [fileDataLines, lastLineHadNewLineChar] = splitLines(fileData, osLineBreak);
-  const lineData = fileDataLines[line - 1];
-
-  const cumulativeColEnds: number[] = buildLineEndingPositions(fileDataLines, lastLineHadNewLineChar);
-
-  let afterCursor = `${lineData.substring(column - 1)}${osLineBreak}`
-  let objectLevel = attributeInTag(body.log.attributeName).exec(afterCursor);
-  let lineWindow = line
-  
-  while(!objectLevel && lineWindow < fileDataLines.length) {
-    lineWindow += 1;
-    afterCursor += `${fileDataLines[lineWindow - 1]}`;
-    objectLevel = attributeInTag(body.log.attributeName).exec(afterCursor);
-    afterCursor += `${osLineBreak}`;
-  }
-  if (!objectLevel && body.log.attributeName === 'style') {
-    afterCursor = afterCursor.replace(/^\s+|\s+$/g, '')
-    // insert style attribute
-    let styleObject = convertCssToJsx(body.log.attributeValue!);
-    styleObject = jsonToJsx(JSON.stringify(styleObject, null, 2), body.source.columnNumber)
-    
-    console.log(fileData, afterCursor);
-
-    const colStart = cumulativeColEnds[body.source.lineNumber - 2];
-    const tagStart = fileData.indexOf(afterCursor, colStart);
-    const tagEnd = tagStart + afterCursor.length;
-    console.log(tagStart, afterCursor.length, fileData.length, tagEnd);
-    
-    const newStyle = ` style={${styleObject}}`
-    const newData = afterCursor.replace(/\/?>/, newStyle + '>');
-    const finalFileData = fileData.substring(0, tagStart) + newData + fileData.substring(tagEnd)
-    fs.writeFileSync(body.source.fileName, finalFileData);
+  if(body.log.attributeName != 'style') {
     res.json({
       data: "OK"
     })
-    return;
-  } else if(!objectLevel) {
-    res.json({
-      data: "ERROR"
-    })
-    return;
+    return
   }
 
-  const tagData = objectLevel![1];
+  const cssJson = convertCssToJsx(body.log.attributeValue!);
+  const oldCssJson = convertCssToJsx(body.log.oldValue!);
+  const diff = diffJson(oldCssJson, cssJson);
 
-  // find line and col where tag data starts
-  let colStart = cumulativeColEnds[body.source.lineNumber - 2];
-  const tagStart = fileData.indexOf(afterCursor, colStart);
-  const tagEnd = tagStart + afterCursor.length;
-
-  let finalStyles
-  if(body.log.attributeName === 'style') {
-    finalStyles = convertCssToJsx(body.log.attributeValue);
-  } else {
-    res.json({ data: "OK" })
-    return;
+  try {
+    const finalFileData = await modifyElementStyle(body.source.fileName, body.source.lineNumber, body.source.columnNumber, diff)
+    fs.writeFileSync(body.source.fileName, finalFileData);
+  } catch(e) {
+    console.error(e);
   }
-  finalStyles = jsonToJsx(JSON.stringify(finalStyles, null, 2), body.source.columnNumber)
-  const newData = afterCursor.replace(tagData, finalStyles);
-  const finalFileData = fileData.substring(0, tagStart) + newData + fileData.substring(tagEnd)
-  fs.writeFileSync(body.source.fileName, finalFileData);
-
   res.json({
     data: "OK"
   })
+
 })
 
-app.post('/edit/childList', (req: Request, res: Response) => {
+app.post('/edit/childList', async (req: Request, res: Response) => {
   const body: {
     log: AddChildEditLog | RemoveChildEditLog;
     source: ReactFiberSourceDeclaration;
@@ -276,11 +262,20 @@ app.post('/edit/childList', (req: Request, res: Response) => {
 
   console.log(body);
 
-  if(body.log.action === 'added') {
-
-  } else if(body.log.action === 'removed') {
-
+  if(!body.source) {
+    res.json({
+      data: "OK"
+    })
+    return;
   }
+
+  let finalFileData
+  if(body.log.action === 'added') {
+    finalFileData = await insertChildrenIntoElement(body.source.fileName, body.source.lineNumber, body.source.columnNumber, body.log.html)
+  } else if(body.log.action === 'removed') {
+    finalFileData = await removeElement(body.source.fileName, body.source.lineNumber, body.source.columnNumber)
+  }
+  fs.writeFileSync(body.source.fileName, finalFileData);
 
   res.json({
     data: "OK"

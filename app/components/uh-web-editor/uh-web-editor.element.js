@@ -52,7 +52,7 @@ export default class WebEditor extends HTMLElement {
     this.setup()
 
     this.selectorEngine = Selectable(this)
-    this.colorPicker    = ColorPicker(this.$shadow, this.selectorEngine)
+    // this.colorPicker    = ColorPicker(this.$shadow, this.selectorEngine)
 
     provideSelectorEngine(this.selectorEngine)
 
@@ -180,22 +180,23 @@ export default class WebEditor extends HTMLElement {
           </li>
         `,'')}
       </ol>
-      <ol colors>
-        <li class="color" id="foreground" aria-label="Text" aria-description="Change the text color">
-          <input type="color">
-          ${Icons.color_text}
-        </li>
-        <li class="color" id="background" aria-label="Background or Fill" aria-description="Change the background color or fill of svg">
-          <input type="color">
-          ${Icons.color_background}
-        </li>
-        <li class="color" id="border" aria-label="Border or Stroke" aria-description="Change the border color or stroke of svg">
-          <input type="color">
-          ${Icons.color_border}
-        </li>
-      </ol>
     `
   }
+  // ^^^^^^^^^^
+  // <ol colors>
+  //   <li class="color" id="foreground" aria-label="Text" aria-description="Change the text color">
+  //     <input type="color">
+  //     ${Icons.color_text}
+  //   </li>
+  //   <li class="color" id="background" aria-label="Background or Fill" aria-description="Change the background color or fill of svg">
+  //     <input type="color">
+  //     ${Icons.color_background}
+  //   </li>
+  //   <li class="color" id="border" aria-label="Border or Stroke" aria-description="Change the border color or stroke of svg">
+  //     <input type="color">
+  //     ${Icons.color_border}
+  //   </li>
+  // </ol>
 
   demoTip({key, tool, label, description, instruction}) {
     return `

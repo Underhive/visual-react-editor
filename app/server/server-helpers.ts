@@ -163,3 +163,15 @@ export function jsxToCssName(jsxAttributeName) {
     // Replace camelCase with kebab-case using a regex
     return jsxAttributeName.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
 }
+
+export function diffJson(json1: {}, json2: {}) {
+    const diff = {}
+    Object.keys(json2).forEach(key => {
+      if(json1[key] !== json2[key]) {
+        diff[key] = json2[key]
+      }
+    })
+    return diff
+  }
+
+  

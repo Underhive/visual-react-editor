@@ -10,10 +10,10 @@
 
 :host {
   position: fixed;
-  width: 403px;
+  width: 303px;
   height: 100%;
   top: 0;
-  right: 0;
+  left: 0;
   background-color: rgb(24, 24, 24);
   z-index: var(--layer-1);
   border-left: 1px solid rgb(70, 70, 70);

@@ -144,3 +144,31 @@ export const accessibility = `
     <path d="M12,2c1.1,0,2,0.9,2,2s-0.9,2-2,2s-2-0.9-2-2S10.9,2,12,2z M21,9h-6v13h-2v-6h-2v6H9V9H3V7h18V9z"/>
   </svg>
 `
+
+export const alignments = {
+  left: `<svg class="svg" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><path fill="#000" fill-opacity="1" fill-rule="evenodd" stroke="none" d="M10 22H9V9h1v13zm12-8H12v-2h10v2zm-10 5h6v-2h-6v2z"></path></svg>`,
+  hcenter: `<svg class="svg" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><path fill="#000" fill-opacity="1" fill-rule="evenodd" stroke="none" d="M16 9h-1v3h-5v2h5v3h-3v2h3v3h1v-3h3v-2h-3v-3h5v-2h-5V9z"></path></svg>`,
+  right: `<svg class="svg" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><path fill="#000" fill-opacity="1" fill-rule="evenodd" stroke="none" d="M22 22h1V9h-1v13zm-12-8h10v-2H10v2zm10 5h-6v-2h6v2z"></path></svg>`,
+  top: `<svg class="svg" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><path fill="#000" fill-opacity="1" fill-rule="evenodd" stroke="none" d="M14 22V12h-2v10h2zm8-12V9H9v1h13zm-3 2v6h-2v-6h2z"></path></svg>`,
+  vcenter: `<svg class="svg" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><path fill="#000" fill-opacity="1" fill-rule="evenodd" stroke="none" d="M12 15v-5h2v5h3v-3h2v3h3v1h-3v3h-2v-3h-3v5h-2v-5H9v-1h3z"></path></svg>`,
+  bottom: `<svg class="svg" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><path fill="#000" fill-opacity="1" fill-rule="evenodd" stroke="none" d="M14 10v10h-2V10h2zm8 12v1H9v-1h13zm-3-2v-6h-2v6h2z"></path></svg>`,  
+}
+
+export const unproportional = `<svg class="svg" xmlns="http://www.w3.org/2000/svg" width="8" height="14" viewBox="0 0 8 14"><path fill="#000" fill-opacity="1" fill-rule="evenodd" stroke="none" d="M6 5V3.5C6 2.12 4.88 1 3.5 1 2.12 1 1 2.12 1 3.5V5H0V3.5C0 1.567 1.567 0 3.5 0 5.433 0 7 1.567 7 3.5V5H6zm1 4H6v1.5C6 11.88 4.88 13 3.5 13 2.12 13 1 11.88 1 10.5V9H0v1.5C0 12.433 1.567 14 3.5 14 5.433 14 7 12.433 7 10.5V9z"></path></svg>`
+export const proportional = `<svg class="svg" xmlns="http://www.w3.org/2000/svg" width="8" height="14" viewBox="0 0 8 14"><path fill="#000" fill-opacity="1" fill-rule="evenodd" stroke="none" d="M6 3.5V5h1V3.5C7 1.567 5.433 0 3.5 0 1.567 0 0 1.567 0 3.5V5h1V3.5C1 2.12 2.12 1 3.5 1 4.88 1 6 2.12 6 3.5zM6 9h1v1.5C7 12.433 5.433 14 3.5 14 1.567 14 0 12.433 0 10.5V9h1v1.5C1 11.88 2.12 13 3.5 13 4.88 13 6 11.88 6 10.5V9zM3 4v6h1V4H3z"></path></svg>`
+
+export const corners = {
+  all: `<svg class="svg" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path fill="#000" fill-opacity="1" fill-rule="evenodd" stroke="none" d="M2 4.5C2 3.12 3.12 2 4.5 2H6v1H4.5C3.672 3 3 3.672 3 4.5V6H2V4.5zM10 2h1.5C12.88 2 14 3.12 14 4.5V6h-1V4.5c0-.828-.672-1.5-1.5-1.5H10V2zm-7 8v1.5c0 .828.672 1.5 1.5 1.5H6v1H4.5C3.12 14 2 12.88 2 11.5V10h1zm11 0v1.5c0 1.38-1.12 2.5-2.5 2.5H10v-1h1.5c.828 0 1.5-.672 1.5-1.5V10h1z"></path></svg>`,
+  topLeft: `<svg class="svg" xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8"><path fill="#000" fill-opacity="1" fill-rule="evenodd" stroke="none" d="M0 4.5C0 2.015 2.015 0 4.5 0H8v1H4.5C2.567 1 1 2.567 1 4.5V8H0V4.5z"></path></svg>`,
+  topRight: `<svg class="svg" xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8"><path fill="#000" fill-opacity="1" fill-rule="evenodd" stroke="none" d="M8 4.5C8 2.015 5.985 0 3.5 0H0v1h3.5C5.433 1 7 2.567 7 4.5V8h1V4.5z"></path></svg>`,
+  bottomLeft: `<svg class="svg" xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8"><path fill="#000" fill-opacity="1" fill-rule="evenodd" stroke="none" d="M0 3.5C0 5.985 2.015 8 4.5 8H8V7H4.5C2.567 7 1 5.433 1 3.5V0H0v3.5z"></path></svg>`,
+  bottomRight: `<svg class="svg" xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8"><path fill="#000" fill-opacity="1" fill-rule="evenodd" stroke="none" d="M8 3.5C8 5.985 5.985 8 3.5 8H0V7h3.5C5.433 7 7 5.433 7 3.5V0h1v3.5z"></path></svg>`
+}
+
+export const arrowDown = `<svg class="svg" xmlns="http://www.w3.org/2000/svg" width="8" height="11" viewBox="0 0 8 11"><path fill="#000" fill-opacity="1" fill-rule="evenodd" stroke="none" d="M4 10.207.646 6.854l.708-.708L3.5 8.293V0h1v8.293l2.146-2.147.708.708L4 10.207z"></path></svg>`
+export const arrowRight = `<svg class="svg" xmlns="http://www.w3.org/2000/svg" width="11" height="7" viewBox="0 0 11 7"><path fill="#000" fill-opacity="1" fill-rule="evenodd" stroke="none" d="M10.707 3.5 7.354.146l-.708.708L8.793 3H.5v1h8.293L6.646 6.146l.708.708L10.707 3.5z"></path></svg>`
+export const arrowBack = `<svg class="svg" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path fill="#000" fill-opacity="1" fill-rule="evenodd" stroke="none" d="M8 3h2c1.933 0 3.5 1.567 3.5 3.5 0 1.933-1.567 3.5-3.5 3.5H4.707l2.147 2.146-.708.708-3-3-.353-.354.353-.354 3-3 .708.708L4.707 9H10c1.38 0 2.5-1.12 2.5-2.5C12.5 5.12 11.38 4 10 4H8V3z"></path></svg>`
+export const dot9Grid = `<svg width="60" height="60" viewBox="0 0 60 60" fill="currentColor"><defs><pattern id="align-panel-dot" width="20" height="20" patternUnits="userSpaceOnUse"><circle cx="10" cy="10" r="1"></circle></pattern></defs><rect width="60" height="60" y="0" fill="url(#align-panel-dot)"></rect></svg>`
+export const rightAngle = `<svg class="svg" xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8"><path fill="#000" fill-opacity="1" fill-rule="evenodd" stroke="none" d="M0 0v8h8V7H5c0-2.21-1.79-4-4-4V0H0zm1 4v3h3c0-1.657-1.343-3-3-3z"></path></svg>`
+export const arrowBoxInward = `<svg class="svg" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"><path fill="#000" fill-opacity="1" fill-rule="evenodd" stroke="none" d="M1.646 13.646 4.293 11H2v-1h4v4H5v-2.293l-2.646 2.647-.708-.707zm12.708 0L11.707 11H14v-1h-4v4h1v-2.293l2.646 2.647.708-.707zM1.646 2.354 4.293 5H2v1h4V2H5v2.293L2.354 1.646l-.708.708zm12.708 0L11.707 5H14v1h-4V2h1v2.293l2.646-2.647.708.708z"></path></svg>`
+

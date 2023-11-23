@@ -1,4 +1,4 @@
-import { convertCssToJsx } from '../server-helpers'
+import { convertCssToJsx } from '../server/server-helpers'
 import { cssToJson, decodeBase64, extractSourceMappingURL, findCssBlockRange } from './common'
 import { desiredPropMap } from './design-properties'
 

@@ -24,7 +24,8 @@ const setupDocument = () => {
   document.adoptedStyleSheets = [...document.adoptedStyleSheets, ArtboardStyles]
 
   document.body.scrollIntoView({
-    inline: 'center',
+    inline: 'end',
+    block: 'start',
     behavior: 'smooth',
   })
 }
@@ -34,16 +35,16 @@ const isMetaKey = e =>
 
 export const zoomIn = (amount = .1) => {
   state.page.scale += amount
-  state.page.originX = state.mouse.x
-  state.page.originY = state.mouse.y
+  state.page.originX = state.mouse.x 
+  state.page.originY = state.mouse.y 
 
   scale()
 }
 
 export const zoomOut = (amount = .1) => {
   state.page.scale -= amount
-  state.page.originX = state.mouse.x
-  state.page.originY = state.mouse.y
+  state.page.originX = state.mouse.x * state.page.scale
+  state.page.originY = state.mouse.y * state.page.scale
 
   if (state.page.scale < .001)
     state.page.scale = .001
@@ -52,7 +53,7 @@ export const zoomOut = (amount = .1) => {
 }
 
 export const zoomToFit = async () => {
-  const fixedScale = ((window.innerHeight * .9) / document.body.clientHeight).toFixed(2)
+  const fixedScale = ((window.innerWidth * .75) / document.body.clientWidth).toFixed(2)
   state.page.scale = parseFloat(fixedScale)
 
   await scale()
@@ -132,12 +133,14 @@ const handleWheel = e => {
       ? 'zoom-in'
       : 'zoom-out'
 
-    state.page.originX = e.clientX
-    state.page.originY = e.clientY
+    const speed = .0005
+    const finalScale = scaleUp ? state.page.scale + (e.deltaY * speed) : state.page.scale - (e.deltaY * speed)
+    state.page.originX = e.clientX * finalScale
+    state.page.originY = e.clientY * finalScale
 
     scaleUp
-      ? zoomIn((e.deltaY * .001) * -1)
-      : zoomOut(e.deltaY * .001)
+      ? zoomIn((e.deltaY * speed) * -1)
+      : zoomOut(e.deltaY * speed)
   } else {
     document.body.style.cursor = ''
   }

@@ -9,11 +9,41 @@ let sourceMap = {}
 
 const redoStack = []
 
+// AS we're making these changes from the source now so we should probably keep the history there only (edit can stay here)
+// Also there's a bug where if you undo and then redo it doesn't work
+
+const updateSource = (payload) => {
+  const { parentLocation, location, element, action } = payload
+  const log = {
+    type: 'childList',
+    target: {},
+    action: action === 'add' ? 'added' : 'removed',
+  }
+  const apiURL = `${apiUrl}/edit/childList`
+  const target = document.querySelector(action === 'add' ? parentLocation : location)
+  if((action === 'add' || action === 'delete') && (element.debugSource || element.parentDebugSource)) {
+    log.target = {
+      tagName: target.localName
+    }
+    if(element.nodeName === "#text") {
+      log.html = element.textContent
+    } else {
+      log.html = element.outerHTML
+    }
+    axios.post(apiURL, {
+      log,
+      source: action === 'add' ? element.parentDebugSource : element.debugSource,
+      timestamp: Date.now()
+    })
+  }
+}
+
 const mutations = {
   DO (state, payload) {
     state.history.push(payload)
     console.log('history', state.history.map(i => i.action))
     console.log('redoStack', redoStack.map(i => i.action))
+    updateSource(payload)
   },
   UNDO (state) {
     const last = state.history.length > 0 && state.history.pop() 
@@ -21,12 +51,12 @@ const mutations = {
     const { parentLocation, location, element, action } = last
     if(action === 'add') {
       const el = document.querySelector(location)
-      el.remove()
+      // el.remove()
     } else if(action === 'delete') {
       const el = document.createElement(element.tagName)
       const parent = document.querySelector(parentLocation)
-      parent.appendChild(el)
-      el.outerHTML = element.outerHTML
+      // parent.appendChild(el)
+      // el.outerHTML = element.outerHTML
     } else if (action === 'edit') {
       const el = document.querySelector(location)
       el.outerHTML = element.outerHTML
@@ -34,6 +64,8 @@ const mutations = {
     redoStack.push(last)
     console.log('history', state.history.map(i => i.action))
     console.log('redoStack', redoStack.map(i => i.action))
+    const payload = { ...last, action: action === 'add' ? 'delete' : 'add' }
+    updateSource(payload)
   },
   REDO () {
     const redoingAnUndo = redoStack.length > 0
@@ -44,18 +76,9 @@ const mutations = {
     if(action === 'add') {
       const el = document.createElement(element.tagName)
       const parent = document.querySelector(parentLocation)
-      parent.appendChild(el)
-      el.outerHTML = element.outerHTML
-      actions.do({
-        parentLocation: parentLocation,
-        location: location,
-        element: {
-          tagName: element.tagName,
-          outerHTML: element.outerHTML,
-        },
-        action: 'add',
-      })
-
+      // parent.appendChild(el)
+      // el.outerHTML = element.outerHTML
+      actions.do(last)
     } else if (action === 'delete') {
       const el = document.querySelector(location)
       actions.do({
@@ -64,10 +87,11 @@ const mutations = {
         element: {
           tagName: el?.tagName?.toLowerCase(),
           outerHTML: el.outerHTML,
+          debugSource: {...el[`__reactFiber$${globalThis.$blingHash}`]?._debugSource}
         },
         action: 'delete',
       })
-      el.remove()
+      // el.remove() // REACT DOES THIS
     } else if(action === 'edit') {
       const el = document.querySelector(location)
       actions.do({
@@ -93,7 +117,6 @@ const mutations = {
 export const actions = {
   do (payload) {
     mutations.DO(state, payload)
-    getters.naturalHistory(state)
   },
   undo () {
     mutations.UNDO(state)
@@ -107,31 +130,6 @@ export const getters = {
   history (state) {
     return state.history
   },
-  async naturalHistory (state) {
-    console.log({
-      history: state.history,
-      sourceMap: sourceMap
-    })
-
-    const stringToBase64 = (str) => {
-      return btoa(unescape(encodeURIComponent(str)));
-    }
-
-    // fetch("http://localhost:3000/ask/history", {
-    //   method: 'POST',
-    //   headers: {
-    //       'Content-Type': 'application/json; charset=utf-8'
-    //   },
-    //   body: JSON.stringify({
-    //     data: stringToBase64(JSON.stringify({
-    //       history: state.history,
-    //       sourceMap: sourceMap
-    //     }))
-    //   })
-    // }, response => {
-    //   console.log(response);
-    // })
-  }
 }
 
 export const cssPath = (el) => {
@@ -164,7 +162,6 @@ document.addEventListener("readystatechange", (event) => {
     var observer = new MutationObserver(onMutation);
     var observerSettings = {
       subtree: true,
-      childList: true,
       attributes: true,
       attributeOldValue: true,
       characterData: true,
@@ -198,16 +195,7 @@ document.addEventListener("readystatechange", (event) => {
         action: ''
       }
 
-      if(r.type === 'childList') {
-        if(r.addedNodes.length) {
-          log.addedNodes = r.addedNodes
-          log.action = 'add'
-        }
-        if(r.removedNodes.length) {
-          log.removedNodes = r.removedNodes
-          log.action = 'delete'
-        }
-      } else if(r.type === 'attributes' && r.attributeName != 'contenteditable' && r.attributeName != 'spellcheck' && !r.attributeName.includes('data-')) {
+      if(r.type === 'attributes' && r.attributeName != 'contenteditable' && r.attributeName != 'spellcheck' && !r.attributeName.includes('data-')) {
         log.attributeName = r.attributeName
         log.attributeValue = r.target.getAttribute(r.attributeName)
         log.oldValue = r.oldValue
