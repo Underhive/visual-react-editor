@@ -152,7 +152,9 @@ export default class EditorSidebar extends HTMLElement {
       const latestStyles = updateAppliedStyles(globalThis.$target.data, true)
       if(this.blurAwaitingPost) {
         const data = this.blurAwaitingPost
-        data.log.source = latestStyles.find(style => style.parentRuleSelector === e.target.dataset.selector && style.sourceMapJSON?.sources?.[0] === e.target.dataset.file)
+        data.log.source = latestStyles.find(style => style.parentRuleSelector === e.target.dataset.selector && style.sourceMapJSON?.sources?.[0] === e.target.dataset.file) ?? {
+          type: 'inline',
+        }
         axios.post(`${apiURL}/edit/stylesheet`, this.blurAwaitingPost)
         this.blurAwaitingPost = undefined
       }

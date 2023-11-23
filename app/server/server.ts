@@ -188,14 +188,27 @@ app.post('/edit/characterData', queueMiddleware, (req: Request, res: Response) =
   })
 })
 
-app.post('/edit/stylesheet', queueMiddleware, (req: Request, res: Response) => {
+app.post('/edit/stylesheet', queueMiddleware, async (req: Request, res: Response) => {
   const body: {
     log: StyleSheetEditLog;
     source: ReactFiberSourceDeclaration;
     timestamp: number;
   } = req.body;
 
-  if(body.log?.source?.type === 'inline' || !body.log?.source?.range || !body.source?.fileName) {
+  console.log(body);
+
+  if((!body.log?.source?.range || !body.source?.fileName) && body.log?.source?.type != 'inline') {
+    res.json({
+      data: "OK"
+    })
+    return;
+  }
+
+  if(body.log.source.type === 'inline') {
+    const finalFileData = await modifyElementStyle(body.source.fileName, body.source.lineNumber, body.source.columnNumber, {
+      [body.log.name]: body.log.value
+    })
+    fs.writeFileSync(body.source.fileName, finalFileData);
     res.json({
       data: "OK"
     })

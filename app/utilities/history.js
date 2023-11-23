@@ -5,8 +5,6 @@ const state = {
   history: []
 }
 
-let sourceMap = {}
-
 const redoStack = []
 
 // AS we're making these changes from the source now so we should probably keep the history there only (edit can stay here)
