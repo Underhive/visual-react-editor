@@ -37,11 +37,11 @@ export class Distance extends HTMLElement {
       : this.style.setProperty('--line-w', `var(--line-w)`)
 
     this.style.setProperty('--line-color', color === 'pink'
-      ? '330 100% 71%'
-      : '267 100% 58%')
+      ? '218, 103, 58'
+      : '221, 69%, 47%')
     this.style.setProperty('--line-base', color === 'pink'
-      ? '330 100% 71%'
-      : '267 100% 58%')
+      ? '218, 103, 58'
+      : '221, 69%, 47%')
   }
 
   render({q,d}, node_label_id) {

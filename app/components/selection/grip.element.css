@@ -10,7 +10,7 @@
   width: 20%;
   max-width: 10vmax;
   stroke: var(--theme-color);
-  stroke-width: 1px;
+  stroke-width: 4px;
   stroke-linecap: round;
   rx: 4;
 }

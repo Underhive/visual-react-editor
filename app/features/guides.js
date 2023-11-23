@@ -49,12 +49,12 @@ export function createGuide(vert = true) {
 
   vert
     ? styles += `
-        width: 1px;
+        width: 4px;
         height: 100vh;
         transform: rotate(180deg);
       `
     : styles += `
-        height: 1px;
+        height: 4px;
         width: 100vw;
       `
 

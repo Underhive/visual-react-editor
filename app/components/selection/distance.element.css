@@ -3,7 +3,7 @@
 :host {
   --line-color: var(--theme-purple);
   --line-base: var(--theme-color);
-  --line-width: 1px;
+  --line-width: 4px;
   --distance-h: 5px;
   --distance-w: 5px;
   --line-w: 1px;
@@ -37,7 +37,7 @@
   color: white;
   text-shadow: var(--text-shadow);
   box-shadow: var(--text-shadow);
-  background: hsl(var(--line-color) / 75%);
+  background: var(--theme-purple);
   border: 1px solid hsl(var(--line-color));
   border-radius: 1em;
   font-size: 0.7em;
@@ -62,5 +62,5 @@
 
 :host figure:matches([quadrant="bottom"], [quadrant="right"]) > div:first-of-type,
 :host figure:matches([quadrant="top"], [quadrant="left"]) > div:last-of-type {
-  background: linear-gradient(to var(--quadrant), hotpink 0%, hsl(var(--line-color)) 100%);
+  background: linear-gradient(to var(--quadrant), var(--theme-color) 0%, hsl(var(--line-color)) 100%);
 }

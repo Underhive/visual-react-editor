@@ -759,7 +759,7 @@ export function Selectable(uhWebEditor) {
         node_label_id:  'hover',
       }
 
-      hover_state.label.style.setProperty(`--label-bg`, `hsl(267, 100%, 58%)`)
+      hover_state.label.style.setProperty(`--label-bg`, `hsl(221, 69%, 47%)`)
 
 
       return hover_state.label

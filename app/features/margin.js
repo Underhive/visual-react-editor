@@ -110,7 +110,7 @@ export function createMarginVisual(el, hover = false) {
 
     boxdisplay.position = { 
       mode: 'margin',
-      color: hover ? 'purple' : 'pink',
+      color: hover ? 'var(--theme-purple)' : 'var(--theme-color)',
       bounds, 
       sides,
     }

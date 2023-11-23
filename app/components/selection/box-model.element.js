@@ -44,12 +44,12 @@ export class BoxModel extends HTMLElement {
     }
 
     if (color === 'pink') {
-      this.drawable.bg = 'hsla(330, 100%, 71%, 15%)'
-      this.drawable.stripe = 'hsla(330, 100%, 71%, 80%)'
+      this.drawable.bg = 'hsla(218, 103, 58, 15%)'
+      this.drawable.stripe = 'hsla(218, 103, 58, 80%)'
     }
     else {
-      this.drawable.bg = 'hsla(267, 100%, 58%, 15%)'
-      this.drawable.stripe = 'hsla(267, 100%, 58%, 80%)'
+      this.drawable.bg = 'hsla(221, 69%, 47%, 15%)'
+      this.drawable.stripe = 'hsla(221, 69%, 47%, 80%)'
     }
 
     this.styles({sides})

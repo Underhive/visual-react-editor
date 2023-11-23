@@ -72,7 +72,7 @@ export class Handles extends HTMLElement {
         viewBox="0 0 ${width} ${height}"
         version="1.1" xmlns="http://www.w3.org/2000/svg"
       >
-        <rect stroke="hotpink" fill="none" width="100%" height="100%"></rect>
+        <rect stroke="var(--theme-color)" fill="none" width="100%" height="100%"></rect>
       </svg>
       <uh-web-editor-handle placement="top-start"></uh-web-editor-handle>
       <uh-web-editor-handle placement="top-center"></uh-web-editor-handle>

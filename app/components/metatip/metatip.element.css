@@ -39,7 +39,7 @@
   border-radius: var(--border-radius);
   line-height: initial;
 
-  border: 1px solid var(--theme-bg);
+  border: 4px solid var(--theme-bg);
   box-shadow:
     0 3.6px 3.7px rgba(0, 0, 0, 0.101),
     0 12.1px 12.3px rgba(0, 0, 0, 0.149),

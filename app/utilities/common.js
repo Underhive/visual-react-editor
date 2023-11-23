@@ -114,7 +114,7 @@ export const getNodeIndex = el => {
 export function showEdge(el) {
   return el.animate([
     { outline: '1px solid transparent' },
-    { outline: '1px solid hsla(330, 100%, 71%, 80%)' },
+    { outline: '1px solid rgb(218, 103, 58)' },
     { outline: '1px solid transparent' },
   ], 600)
 }

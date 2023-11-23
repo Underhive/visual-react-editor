@@ -3,7 +3,7 @@ body:not([testing]) [data-selected=true] {
 }
 
 [data-pseudo-select=true] {
-  outline: 1px dashed hsl(267, 100%, 58%);
+  outline: 4px dashed var(--theme-purple);
 }
 
 [data-selected-hide=true][data-selected=true]:after {
@@ -11,7 +11,7 @@ body:not([testing]) [data-selected=true] {
 }
 
 [data-selected=true][contenteditable=true] {
-  caret-color: hotpink;
+  caret-color: var(--theme-color);
 }
 
 [data-measuring=true] {
