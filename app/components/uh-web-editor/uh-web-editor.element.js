@@ -29,6 +29,8 @@ import {
   schemeRule
 } from '../../utilities'
 import { Creator } from '../../features/creator'
+import WebEditorSidebar from './sidebar.element'
+import WebEditorDesignbar from './designbar.element'
 
 export default class WebEditor extends HTMLElement {
   constructor() {
@@ -40,6 +42,9 @@ export default class WebEditor extends HTMLElement {
       this.$shadow,
       WebEditorStyles, WebEditorLightStyles, WebEditorDarkStyles
     )
+
+    this.designbar = new WebEditorDesignbar();
+    this.sidebar = new WebEditorSidebar();
   }
 
   static get observedAttributes() {
@@ -60,6 +65,10 @@ export default class WebEditor extends HTMLElement {
       Zoom.start(this.selectorEngine)
 
     this.toolSelected($('[data-tool="guides"]', this.$shadow)[0])
+    
+    document.firstElementChild.prepend(this.designbar)
+    document.firstElementChild.prepend(this.sidebar)
+    this.selectorEngine.onSelectedUpdate(this.designbar.updateTarget)
   }
 
   disconnectedCallback() {

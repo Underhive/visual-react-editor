@@ -15,7 +15,10 @@ import {
   apiURL,
   updateAppliedStyles,
   cssPath,
-  showOneOffHandle
+  showOneOffHandle,
+  elementDebugSource,
+  hitEditSytlesheet,
+  elementAlternateDebugSource
 } from '../../utilities'
 import { EditText } from '../../features'
 
@@ -155,7 +158,7 @@ export default class EditorSidebar extends HTMLElement {
         data.log.source = latestStyles.find(style => style.parentRuleSelector === e.target.dataset.selector && style.sourceMapJSON?.sources?.[0] === e.target.dataset.file) ?? {
           type: 'inline',
         }
-        axios.post(`${apiURL}/edit/stylesheet`, this.blurAwaitingPost)
+        hitEditSytlesheet(data, elementAlternateDebugSource(globalThis.$target.data))
         this.blurAwaitingPost = undefined
       }
     }
@@ -279,8 +282,8 @@ export default class EditorSidebar extends HTMLElement {
 
   createElementTree(element: Element, ariaLevel = 0) {
     const children = element.children.length > 0 ? Array.from(element.children).map(child => this.createElementTree(child, ariaLevel + 1)) : []
-    const _debugSource = (element as any)[`__reactFiber$${globalThis.$blingHash}`]?._debugSource
-    const fileName = _debugSource ? `${_debugSource?.fileName.split('/').pop()}(${_debugSource?.lineNumber}:${_debugSource?.columnNumber})` : 'inline'
+    const _debugSource = elementDebugSource(element)
+    const fileName = _debugSource?.fileName ? `${_debugSource?.fileName.split('/').pop()}(${_debugSource?.lineNumber}:${_debugSource?.columnNumber})` : 'inline'
     const selector = cssPath(element)
     return {
       name: `${element.tagName.toLowerCase()}`,
@@ -411,5 +414,3 @@ export default class EditorSidebar extends HTMLElement {
 }
 
 customElements.define('uh-web-editor-sidebar', EditorSidebar)
-
-export const WebEditorSidebar = new (customElements.get('uh-web-editor-sidebar'))();

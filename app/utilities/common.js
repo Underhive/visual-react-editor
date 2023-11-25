@@ -1,6 +1,7 @@
 import $ from 'blingblingjs'
 import { nodeKey } from './strings'
 import { convertCssToJsx } from '../server/server-helpers';
+import axios from 'axios';
 
 export const updateAppliedStyles = (el, dontUpdate) => {
   const elStyleObject = el.style
@@ -66,11 +67,10 @@ export const updateAppliedStyles = (el, dontUpdate) => {
 
   elStyleObject.cssText.length > 0 && appliedStyles.push(inlineStyles)
 
-  let reactFiberProp = `__reactFiber$${globalThis.$blingHash}`
   let reactContainerProp = `__reactContainer$${globalThis.$blingHash}`
 
   const container = el[reactContainerProp]
-  const source = container?.stateNode?.current?.memoizedState?.element?._source ?? el[reactFiberProp]._debugSource
+  const source = container?.stateNode?.current?.memoizedState?.element?._source ?? elementDebugSource(el)
   globalThis.sharedStorage.set('currentElementReactFiberSource', source)
 
   if(dontUpdate) return appliedStyles.reverse()
@@ -262,6 +262,27 @@ export function cssToJson(cssString) {
   cssObject[selector] = properties;
 
   return JSON.stringify(cssObject, null, 2);
+}
+
+export const elementDebugSource = el => {
+  const fiberNode = el['__reactFiber$' + globalThis.$blingHash]
+  if(!fiberNode) return {}
+  return fiberNode._debugSource
+}
+
+export const elementAlternateDebugSource = el => {
+  const fiberNode = el['__reactFiber$' + globalThis.$blingHash]
+  if(!fiberNode.alternate) return {}
+  if(fiberNode.alternate) return fiberNode.alternate._debugSource
+}
+
+export const hitEditSytlesheet = async (data, alternateSource) => {
+  let response
+  try {
+    response = await axios.post(`${apiURL}/edit/stylesheet`, data)
+  } catch (e) {
+    if(e.response.status === 500) axios.post(`${apiURL}/edit/stylesheet`, { ...data, source: {...alternateSource} })
+  }
 }
 
 export const apiURL = 'http://localhost:38388'

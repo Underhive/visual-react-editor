@@ -1,5 +1,5 @@
 import axios from "axios"
-import { apiURL as apiUrl } from "./common"
+import { apiURL as apiUrl, elementDebugSource } from "./common"
 
 const state = {
   history: []
@@ -85,7 +85,7 @@ const mutations = {
         element: {
           tagName: el?.tagName?.toLowerCase(),
           outerHTML: el.outerHTML,
-          debugSource: {...el[`__reactFiber$${globalThis.$blingHash}`]?._debugSource}
+          debugSource: {...elementDebugSource(el)}
         },
         action: 'delete',
       })
@@ -201,11 +201,11 @@ document.addEventListener("readystatechange", (event) => {
         log.target = {
           tagName: target.localName
         }
-        axios.post(apiURL, {
-          log,
-          source: target[propName]._debugSource,
-          timestamp: Date.now()
-        })
+        // axios.post(apiURL, {
+        //   log,
+        //   source: target[propName]._debugSource,
+        //   timestamp: Date.now()
+        // })
       } else if(r.type === 'characterData') {
         log.characterData = r.target.textContent
         log.oldValue = r.oldValue
@@ -215,7 +215,7 @@ document.addEventListener("readystatechange", (event) => {
         }
         axios.post(apiURL, {
           log,
-          source: target[propName]._debugSource,
+          source: elementDebugSource(target),
           timestamp: Date.now()
         })
       }

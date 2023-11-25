@@ -16,7 +16,7 @@ import {
   metaKey, htmlStringToDom, createClassname, camelToDash,
   isOffBounds, getStyle, getStyles, deepElementFromPoint, getShadowValues,
   isSelectorValid, findNearestChildElement, findNearestParentElement,
-  getTextShadowValues, isFixed, decodeBase64, extractSourceMappingURL, findCssBlockRange, cssToJson, updateAppliedStyles,
+  getTextShadowValues, isFixed, decodeBase64, extractSourceMappingURL, findCssBlockRange, cssToJson, updateAppliedStyles, elementDebugSource,
 } from '../utilities/'
 import history, { cssPath } from '../utilities/history'
 import { convertCssToJsx } from '../server/server-helpers'
@@ -47,7 +47,7 @@ export function Selectable(uhWebEditor) {
     hotkeys(`${metaKey}+alt+v`, e => on_paste_styles()) // TODO: add edit here
     hotkeys('esc', on_esc)
     hotkeys(`${metaKey}+d`, on_duplicate) // history done
-    hotkeys('backspace,del,delete', on_delete) // history done
+    hotkeys(`${metaKey}+backspace,${metaKey}+del,${metaKey}+delete`, on_delete) // history done
     hotkeys('alt+del,alt+backspace', on_clearstyles) // history done
     hotkeys(`${metaKey}+e,${metaKey}+shift+e`, on_expand_selection)
     hotkeys(`${metaKey}+g,${metaKey}+shift+g`, on_group) // TODO: add edit here
@@ -68,7 +68,7 @@ export function Selectable(uhWebEditor) {
     page.off('selectstart', on_selection)
     page.off('mousemove', on_hover)
 
-    hotkeys.unbind(`esc,${metaKey}+d,backspace,del,delete,alt+del,alt+backspace,${metaKey}+e,${metaKey}+shift+e,${metaKey}+g,${metaKey}+shift+g,tab,shift+tab,enter,shift+enter,${metaKey}+c,${metaKey}+v,${metaKey}+x`)
+    hotkeys.unbind(`esc,${metaKey}+d,${metaKey}+backspace,${metaKey}+del,${metaKey}+delete,alt+del,alt+backspace,${metaKey}+e,${metaKey}+shift+e,${metaKey}+g,${metaKey}+shift+g,tab,shift+tab,enter,shift+enter,${metaKey}+c,${metaKey}+v,${metaKey}+x`)
   }
 
   const on_click = e => {
@@ -161,15 +161,15 @@ export function Selectable(uhWebEditor) {
     const deep_clone = root_node.cloneNode(true)
     deep_clone.removeAttribute('data-selected')
     root_node.parentNode.insertBefore(deep_clone, root_node.nextSibling)
-
+    
     history.actions.do({
       parentLocation: cssPath(deep_clone.parentNode),
       location: cssPath(deep_clone),
       element: {
         tagName: deep_clone.tagName,
         outerHTML: deep_clone.outerHTML,
-        debugSource: {...el[`__reactFiber$${globalThis.$blingHash}`]?._debugSource},
-        parentDebugSource: {...el.parentNode?.[`__reactFiber$${globalThis.$blingHash}`]?._debugSource}
+        debugSource: {...elementDebugSource(el)},
+        parentDebugSource: {...elementDebugSource(el.parentNode)}
       },
       action: 'add',
     })
@@ -184,6 +184,7 @@ export function Selectable(uhWebEditor) {
     selected.forEach(el => {
       const beforeEdit = el.outerHTML
       el.attr('style', null)
+      console.log('on_clearstyles')
       history.actions.do({
         parentLocation: cssPath(el.parentNode),
         location: cssPath(el),
@@ -191,8 +192,8 @@ export function Selectable(uhWebEditor) {
           tagName: el?.tagName?.toLowerCase(),
           outerHTML: beforeEdit,
           finalOuterHTML: el.outerHTML,
-          debugSource: {...el[`__reactFiber$${globalThis.$blingHash}`]?._debugSource},
-          parentDebugSource: {...el.parentNode?.[`__reactFiber$${globalThis.$blingHash}`]?._debugSource}
+          debugSource: {...elementDebugSource(el)},
+          parentDebugSource: {...elementDebugSource(el.parentNode)}
         },
         action: 'edit',
       })
@@ -228,14 +229,15 @@ export function Selectable(uhWebEditor) {
       e.clipboardData?.setData?.('text/html', globalThis.copy_backup)
       const el = selected[0]
       if(el?.tagName?.toLowerCase() != 'uh-web-editor-handles' && el?.tagName?.toLowerCase() != 'uh-web-editor-label' && el?.tagName?.toLowerCase() != 'uh-web-editor-hover' && el?.tagName?.toLowerCase() != 'uh-web-editor-distance') {
+        console.log('on_cut')
         history.actions.do({
           parentLocation: cssPath(el.parentNode),
           location: cssPath(el),
           element: {
             tagName: el?.tagName?.toLowerCase(),
             outerHTML: el.outerHTML,
-            debugSource: {...el[`__reactFiber$${globalThis.$blingHash}`]?._debugSource},
-            parentDebugSource: {...el.parentNode?.[`__reactFiber$${globalThis.$blingHash}`]?._debugSource}
+            debugSource: {...elementDebugSource(el)},
+            parentDebugSource: {...elementDebugSource(el.parentNode)}
           },
           action: 'delete',
         })
@@ -258,14 +260,15 @@ export function Selectable(uhWebEditor) {
         if(!(el instanceof Element)) return
         parent.appendChild(el)
         if(el?.tagName?.toLowerCase() != 'uh-web-editor-handles' && el?.tagName?.toLowerCase() != 'uh-web-editor-label' && el?.tagName?.toLowerCase() != 'uh-web-editor-hover' && el?.tagName?.toLowerCase() != 'uh-web-editor-distance') {
+          console.log('on_paste')
           history.actions.do({
             parentLocation: cssPath(parent),
             location: cssPath(el),
             element: {
               tagName: el?.tagName?.toLowerCase(),
               outerHTML: el.outerHTML,
-              debugSource: {...el[`__reactFiber$${globalThis.$blingHash}`]?._debugSource},
-              parentDebugSource: {...el.parentNode?.[`__reactFiber$${globalThis.$blingHash}`]?._debugSource}
+              debugSource: {...elementDebugSource(el)},
+              parentDebugSource: {...elementDebugSource(el.parentNode)}
             },
             action: 'add',
           })
@@ -574,14 +577,15 @@ export function Selectable(uhWebEditor) {
 
     Array.from([...selected, ...labels, ...handles]).forEach(el => {
       if(el?.tagName?.toLowerCase() != 'uh-web-editor-handles' && el?.tagName?.toLowerCase() != 'uh-web-editor-label' && el?.tagName?.toLowerCase() != 'uh-web-editor-hover' && el?.tagName?.toLowerCase() != 'uh-web-editor-distance') {
+        console.log('delete_all')
         history.actions.do({
           parentLocation: cssPath(el.parentNode),
           location: cssPath(el),
           element: {
             tagName: el?.tagName?.toLowerCase(),
             outerHTML: el.outerHTML,
-            debugSource: {...el[`__reactFiber$${globalThis.$blingHash}`]?._debugSource},
-            parentDebugSource: {...el.parentNode?.[`__reactFiber$${globalThis.$blingHash}`]?._debugSource}
+            debugSource: {...elementDebugSource(el)},
+            parentDebugSource: {...elementDebugSource(el.parentNode)}
           },
           action: 'delete',
         })

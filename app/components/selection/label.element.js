@@ -67,6 +67,8 @@ export class Label extends HTMLElement {
     // const position = isFixed ? 'fixed' : 'absolute'
     // this.style.setProperty('--top', `${top}px`)
     // this.style.setProperty('--left', `${left}px`)
+    this.top = boundingRect.y + (isFixed ? 0 : window.scrollY)
+    this.left = boundingRect.x + window.scrollX - 1
 
 
     this.style.setProperty('--max-width', `${boundingRect.width + (window.innerWidth - boundingRect.x - boundingRect.width - 20)}px`)
@@ -102,8 +104,8 @@ export class Label extends HTMLElement {
       position: this.getAttribute('data-original-position'),
     }
 
-    const scrollX = document.body.scrollX || window.pageXOffset
-    const scrollY = document.body.scrollY || window.pageYOffset
+    const scrollX = window.scrollX ?? document.body.scrollX ?? window.pageXOffset
+    const scrollY = window.scrollY ?? document.body.scrollY ?? window.pageYOffset
 
     const outsideTop = originalPosition.top - boundingBox.height - scrollY < 0
     const outsideBottom = originalPosition.top - scrollY > window.innerHeight

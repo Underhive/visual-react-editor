@@ -34,7 +34,7 @@ export const WebEditorModel = {
                     </div>
                     <div>
                       <b>Position it:</b>
-                      <span>click & drag by the header area</span>
+                      <span>click & drag</span>
                     </div>
                   </div>`,
   },

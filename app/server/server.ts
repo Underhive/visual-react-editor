@@ -205,10 +205,20 @@ app.post('/edit/stylesheet', queueMiddleware, async (req: Request, res: Response
   }
 
   if(body.log.source.type === 'inline') {
-    const finalFileData = await modifyElementStyle(body.source.fileName, body.source.lineNumber, body.source.columnNumber, {
-      [body.log.name]: body.log.value
-    })
-    fs.writeFileSync(body.source.fileName, finalFileData);
+    try {
+      const finalFileData = await modifyElementStyle(body.source.fileName, body.source.lineNumber, body.source.columnNumber, {
+        [body.log.name]: body.log.value
+      })
+      fs.writeFileSync(body.source.fileName, finalFileData);
+    } catch(e) {
+      console.error(e);
+      if(e.message === "Unable to modify style") {
+        res.status(500).json({
+          data: "Unable to modify style"
+        })
+        return;
+      }
+    }
     res.json({
       data: "OK"
     })
@@ -254,11 +264,19 @@ app.post('/edit/attributes', queueMiddleware, async (req: Request, res: Response
   const oldCssJson = convertCssToJsx(body.log.oldValue!);
   const diff = diffJson(oldCssJson, cssJson);
 
+  console.log(diff);
+
   try {
     const finalFileData = await modifyElementStyle(body.source.fileName, body.source.lineNumber, body.source.columnNumber, diff)
     fs.writeFileSync(body.source.fileName, finalFileData);
   } catch(e) {
     console.error(e);
+    if(e.message === "Unable to modify style") {
+      res.status(500).json({
+        data: "Unable to modify style"
+      })
+      return;
+    }
   }
   res.json({
     data: "OK"

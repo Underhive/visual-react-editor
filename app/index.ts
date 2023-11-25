@@ -15,10 +15,6 @@ if (metaKey === 'ctrl')
     })
 
 import { WebEditorElement } from './components/uh-web-editor/uh-web-editor.element'
-import { WebEditorSidebar } from './components/uh-web-editor/sidebar.element'
-import { WebEditorDesignbar } from './components/uh-web-editor/designbar.element'
 document.firstElementChild.prepend(WebEditorElement)
-document.firstElementChild.prepend(WebEditorDesignbar)
-document.firstElementChild.prepend(WebEditorSidebar)
 
 export default WebEditorElement

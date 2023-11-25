@@ -127,7 +127,7 @@ export function createOffscreenLabelIndicator(node_label_id, text, hoverText, le
     label.style.setProperty('--left', left)
   }
 
-  document.body.appendChild(label)
+  document.head.appendChild(label)
 }
 
 export function removeOffscreenLabelIndicators() {
