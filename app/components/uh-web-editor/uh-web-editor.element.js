@@ -263,10 +263,10 @@ export default class WebEditor extends HTMLElement {
   }
 
   hueshift() {
-    this.deactivate_feature = HueShift({
-      Color:  this.colorPicker,
-      WebEditor: this.selectorEngine,
-    })
+    // this.deactivate_feature = HueShift({
+    //   // Color:  this.colorPicker,
+    //   WebEditor: this.selectorEngine,
+    // })
   }
 
   inspector() {

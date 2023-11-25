@@ -53,6 +53,7 @@ export function ColorPicker(pallete, selectorEngine) {
   })
 
   const extractColors = elements => {
+    if(!elements[0]) return
     state.elements = elements
 
     let isMeaningfulForeground  = false

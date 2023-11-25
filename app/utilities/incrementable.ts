@@ -48,7 +48,7 @@ export default class Incrementable {
 
 				// Find potential beginning and end
 
-				for (i = caretStart - 1; i > 0; i--) {
+				for (i = caretStart > 0 ? caretStart - 1 : 0; i > 0; i--) {
 					let char = content[i];
 
 					if (!PREFIX_SUFFIX.test(char)) {
@@ -76,7 +76,6 @@ export default class Incrementable {
 					return;
 				}
 
-				console.log(token);
 				target.focus();
 
 				if (target.selectionStart != start || target.selectionEnd != end) {
@@ -87,7 +86,7 @@ export default class Incrementable {
 				}
 
 				let adjusted = Incrementable.value(token, {
-					decrement: evt.key == "ArrowDown",
+					decrement: evt.key === "ArrowDown",
 					multiplier,
 					step: this.step
 				});

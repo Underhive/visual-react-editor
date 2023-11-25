@@ -193,6 +193,7 @@ export default class EditorDesignbar extends HTMLElement {
 
   render() {
     return `
+    
     <div>
         <div class="alignments bottom-border">
           <div class="header"><span> Align </span></div>

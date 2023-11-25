@@ -272,7 +272,7 @@ export const elementDebugSource = el => {
 
 export const elementAlternateDebugSource = el => {
   const fiberNode = el['__reactFiber$' + globalThis.$blingHash]
-  if(!fiberNode.alternate) return {}
+  if(!fiberNode?.alternate) return {}
   if(fiberNode.alternate) return fiberNode.alternate._debugSource
 }
 

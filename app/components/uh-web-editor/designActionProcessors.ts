@@ -714,11 +714,16 @@ export const strokeColorAlpha = (value) => {
 
 export const strokeWidth = (value) => {
   const target = globalThis.$target.data
+  const data2 = {
+    name: 'border-style',
+    value: 'solid',
+  }
   const data = {
     name: 'border-width',
     value: `${value}px`,
   }
   // target.style[data.name] = data.value
+  sendInlineStyle(data2)
   sendInlineStyle(data)
 }
 
