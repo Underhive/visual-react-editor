@@ -1,6 +1,6 @@
 import $ from 'blingblingjs'
 import { nodeKey } from './strings'
-import { convertCssToJsx } from '../server/server-helpers';
+import { convertCssToJsx } from '../cli/server-helpers';
 import axios from 'axios';
 
 export const updateAppliedStyles = (el, dontUpdate) => {

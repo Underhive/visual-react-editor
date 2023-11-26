@@ -11,7 +11,8 @@ export async function insertChildrenIntoElement(
   filePath: string,
   lineNumber: number,
   columnNumber: number,
-  childrenHtmlString: string
+  childrenHtmlString: string,
+  mainLanguage: 'js' | 'ts',
 ): Promise<string> {
   const code = fs.readFileSync(filePath, 'utf8');
   const ast = parse(code, {
@@ -42,7 +43,7 @@ export async function insertChildrenIntoElement(
 
   const generatedCode = generate(ast, { retainLines: true }).code;
   const options = await prettier.resolveConfig(filePath);
-  const formattedCode = await prettier.format(generatedCode, { parser: "babel-ts", ...options });
+  const formattedCode = await prettier.format(generatedCode, { parser: mainLanguage === 'ts' ? "babel-ts" : "babel", ...options });
   return formattedCode
 }
 
@@ -51,7 +52,8 @@ export async function insertElement(
   lineNumber: number,
   columnNumber: number,
   htmlString: string,
-  insertAfter: boolean = true
+  insertAfter: boolean = true,
+  mainLanguage: 'js' | 'ts'
 ): Promise<string> {
   const code = fs.readFileSync(filePath, 'utf8');
   const ast = parse(code, {
@@ -87,7 +89,7 @@ export async function insertElement(
 
   const generatedCode = generate(ast, { retainLines: true }).code;
   const options = await prettier.resolveConfig(filePath);
-  const formattedCode = await prettier.format(generatedCode, { parser: "babel-ts", ...options });
+  const formattedCode = await prettier.format(generatedCode, { parser: mainLanguage === 'ts' ? "babel-ts" : "babel", ...options });
   return formattedCode
 }
 

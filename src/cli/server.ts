@@ -100,9 +100,14 @@ const insideTags = (tagName: string) => new RegExp(`<${tagName}[^>]*>([\\s\\S]*?
 const attributeInTag = (attr: string) => new RegExp(`^<\\w+\\s+(?:[^>]*?${attr}=\\{([^}]+\\})[^>]*?)>`, 'g')
 
 const runServer = () => {
-  const underhiveJson = JSON.parse(fs.readFileSync('./underhive.json', 'utf8'));
+  const underhiveJson: {
+    language: 'js' | 'ts';
+    entrypoint: string;
+    port: number;
+  } = JSON.parse(fs.readFileSync('./underhive.json', 'utf8'));
   const port = underhiveJson.port || 38388;
-  
+  const language = underhiveJson.language ?? 'ts'
+
   const app = express();
 
   app.use(json());
@@ -230,7 +235,7 @@ const runServer = () => {
       try {
         const finalFileData = await modifyElementStyle(body.source.fileName, body.source.lineNumber, body.source.columnNumber, {
           [body.log.name]: body.log.value
-        })
+        }, language)
         fs.writeFileSync(body.source.fileName, finalFileData);
       } catch(e) {
         console.error(e);
@@ -289,7 +294,7 @@ const runServer = () => {
     console.log(diff);
 
     try {
-      const finalFileData = await modifyElementStyle(body.source.fileName, body.source.lineNumber, body.source.columnNumber, diff)
+      const finalFileData = await modifyElementStyle(body.source.fileName, body.source.lineNumber, body.source.columnNumber, diff, language)
       fs.writeFileSync(body.source.fileName, finalFileData);
     } catch(e) {
       console.error(e);
@@ -324,9 +329,9 @@ const runServer = () => {
 
     let finalFileData
     if(body.log.action === 'added') {
-      finalFileData = await insertChildrenIntoElement(body.source.fileName, body.source.lineNumber, body.source.columnNumber, body.log.html)
+      finalFileData = await insertChildrenIntoElement(body.source.fileName, body.source.lineNumber, body.source.columnNumber, body.log.html, language)
     } else if(body.log.action === 'removed') {
-      finalFileData = await removeElement(body.source.fileName, body.source.lineNumber, body.source.columnNumber)
+      finalFileData = await removeElement(body.source.fileName, body.source.lineNumber, body.source.columnNumber, language)
     }
     fs.writeFileSync(body.source.fileName, finalFileData);
 

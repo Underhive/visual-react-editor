@@ -6,15 +6,15 @@
   "license": "",
   "main": "dist/index.js",
   "scripts": {
-    "dev-server": "ts-node app/server/cli.ts server",
-    "build-server": "tsc app/server/cli.ts --outDir bin/server --module commonjs --target es6 --lib es6,dom --sourceMap --esModuleInterop --resolveJsonModule --skipLibCheck",
-    "start-server": "node bin/server/cli.js server",
+    "dev-server": "ts-node src/cli/index.ts server",
+    "build-server": "tsc src/cli/index.ts --outDir bin/server --module commonjs --target es6 --lib es6,dom --sourceMap --esModuleInterop --resolveJsonModule --skipLibCheck",
+    "start-server": "node bin/cli/index.js server",
     "start": "webpack --mode development --watch",
     "build": "webpack --mode production && npm run build-server",
     "bump": "npm version patch -m 'Release %s'"
   },
   "bin": {
-    "ucli": "./bin/server/cli.js"
+    "ucli": "./bin/cli/index.js"
   },
   "dependencies": {
     "@babel/core": "^7.23.3",

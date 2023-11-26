@@ -16,8 +16,8 @@
     ],
   },
   "include": [
-    "app/**/**/**/*",
-    "app/**/*",
+    "src/**/**/**/*",
+    "src/**/*",
   ],
   "exclude": [
     "node_modules"

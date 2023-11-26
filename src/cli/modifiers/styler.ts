@@ -11,7 +11,8 @@ type StyleObject = { [key: string]: string };
 async function modifyElementStyleForImported(
   filePath: string,
   styleVariableName: string,
-  newStyles: StyleObject
+  newStyles: StyleObject,
+  mainLanguage: 'js' | 'ts'
 ): Promise<boolean> {
   // Read the content of the imported file
   const code = fs.readFileSync(filePath, 'utf8');
@@ -36,7 +37,7 @@ async function modifyElementStyleForImported(
 
   // Generate the modified code and format it
   const modifiedCode = generate(ast, { retainLines: true,  }).code;
-  const formattedCode = await prettier.format(modifiedCode, { parser: "babel-ts" });
+  const formattedCode = await prettier.format(modifiedCode, { parser: mainLanguage === 'ts' ? "babel-ts" : "babel" });
 
   // Write the modified code back to the file
   fs.writeFileSync(filePath, formattedCode);
@@ -47,7 +48,8 @@ export async function modifyElementStyle(
   filePath: string,
   lineNumber: number,
   columnNumber: number,
-  newStyles: StyleObject
+  newStyles: StyleObject,
+  mainLanguage: 'js' | 'ts'
 ): Promise<string> {
   const code = fs.readFileSync(filePath, 'utf8');
   const ast = parse(code, {
@@ -106,7 +108,7 @@ export async function modifyElementStyle(
             // Resolve the path of the imported file
             const importedFilePath = await resolveImportedFilePath(path.node.source.value, filePath);
             // Modify the style in the imported file
-            didModify = await modifyElementStyleForImported(importedFilePath, styleVariableName, newStyles);
+            didModify = await modifyElementStyleForImported(importedFilePath, styleVariableName, newStyles, mainLanguage);
           }
         });
       }
@@ -133,7 +135,7 @@ export async function modifyElementStyle(
   const generatedCode = generate(ast, { retainLines: true }).code;
   const options = await prettier.resolveConfig(filePath);
   return await prettier.format(generatedCode, { 
-    parser: "babel-ts",
+    parser: mainLanguage === 'ts' ? "babel-ts" : "babel",
     ...options
   });
 }

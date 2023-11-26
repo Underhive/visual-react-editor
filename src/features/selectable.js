@@ -19,7 +19,7 @@ import {
   getTextShadowValues, isFixed, decodeBase64, extractSourceMappingURL, findCssBlockRange, cssToJson, updateAppliedStyles, elementDebugSource,
 } from '../utilities/'
 import history, { cssPath } from '../utilities/history'
-import { convertCssToJsx } from '../server/server-helpers'
+import { convertCssToJsx } from '../cli/server-helpers'
 
 export function Selectable(uhWebEditor) {
   const page              = document.body

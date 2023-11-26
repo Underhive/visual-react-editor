@@ -1,8 +1,8 @@
 .DS_Store
 node_modules/
-app/bundle.js
-app/bundle.min.js
-app/bundle.css
+src/bundle.js
+src/bundle.min.js
+src/bundle.css
 package-lock.json
 dist/
 bin/

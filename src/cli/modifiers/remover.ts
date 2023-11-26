@@ -7,7 +7,8 @@ import prettier from 'prettier';
 export async function removeElement(
   filePath: string,
   lineNumber: number,
-  columnNumber: number
+  columnNumber: number,
+  mainLanguage: 'js' | 'ts'
 ): Promise<string> {
   const code = fs.readFileSync(filePath, 'utf8');
   const ast = parse(code, {
@@ -33,6 +34,7 @@ export async function removeElement(
   }
 
   const generatedCode = generate(ast, { retainLines: true }).code;
-  const formattedCode = await prettier.format(generatedCode, { parser: "babel-ts" });
+  const options = await prettier.resolveConfig(filePath);
+  const formattedCode = await prettier.format(generatedCode, { parser: mainLanguage === 'ts' ? "babel-ts" : "babel", ...options });
   return formattedCode
 }
