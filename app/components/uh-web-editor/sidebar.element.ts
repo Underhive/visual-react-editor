@@ -19,6 +19,8 @@ type ElementNode = {
   name: string
   selector: string
   open: boolean
+  selected?: boolean
+  parentSelected?: boolean
   children: ElementNode[]
   ariaLevel: number
   fileName: string
@@ -82,11 +84,15 @@ export default class EditorSidebar extends HTMLElement {
     globalThis.sharedStorage.set('currentStyles', new Proxy({ data: [] }, {
       set: (target, key, value) => {
         if(key === 'data') {
+          target[key] = value
           this.appliedStyles = value
+          this.setNodeSelected(cssPath(globalThis.$target.data))
           this.cleanup()
           this.setup()
+
+          const selectedNode = this.$shadow.querySelector(`.node [data-selector="${cssPath(globalThis.$target.data)}"]`)
+          selectedNode?.parentElement?.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'center' });
         }
-        target[key] = value
         return true
       }
     }))
@@ -153,6 +159,34 @@ export default class EditorSidebar extends HTMLElement {
     }
   }
 
+  setNodeSelected = (selector: string) => {
+    const node = this.elementTree    
+    const foundNode = this.findNode(node, selector)
+    if(!foundNode) return
+    foundNode.selected = true
+    this.setChildrenSelected(foundNode)
+  }
+
+  setChildrenSelected = (node: ElementNode) => {
+    node.children.forEach(child => {
+      child.parentSelected = true
+      if(child.children.length > 0) {
+        this.setChildrenSelected(child)
+      }
+    })
+  }
+
+  findNode = (node: ElementNode, selector: string): ElementNode => {
+    if(node.selector === selector) return node
+    if(node.children.length > 0) {
+      for(let i = 0; i < node.children.length; i++) {
+        const foundNode = this.findNode(node.children[i], selector)
+        if(foundNode) return foundNode
+      }
+    }
+    return undefined
+  }
+
   doubleClickAttr = e => {
     if(e.target.matches('.attr .value')) {
       e.stopPropagation()
@@ -201,14 +235,16 @@ export default class EditorSidebar extends HTMLElement {
   onTreeNodeNameClicked = e => {
     const selector = e.target.parentNode.dataset.selector
     const elementFromSelector = document.querySelector(selector)
-    
-    elementFromSelector.animate([
-      { backgroundColor: 'transparent' },
-      { backgroundColor: 'hsla(330, 100%, 40%, 70%)' },
-      { backgroundColor: 'transparent' },
-    ], 600)
 
-    elementFromSelector.scrollIntoView({ behavior: 'instant', block: 'center', inline: 'center' })
+    elementFromSelector.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' })
+
+    setTimeout(() => {
+      elementFromSelector.animate([
+        { backgroundColor: 'transparent' },
+        { backgroundColor: 'hsla(330, 100%, 40%, 70%)' },
+        { backgroundColor: 'transparent' },
+      ], 600)
+    }, 500)
     
     showOneOffHandle(elementFromSelector, -9999)
 
@@ -280,7 +316,7 @@ export default class EditorSidebar extends HTMLElement {
       open: children.length > 0 && ariaLevel < 4,
       children: children,
       fileName: ariaLevel < 6 ? fileName : '',
-      isSelected: cssPath(globalThis.$target) === selector,
+      isSelected: cssPath(globalThis.$target.data) === selector,
       ariaLevel
     }
   }
@@ -313,7 +349,12 @@ export default class EditorSidebar extends HTMLElement {
     return `
       <div class="node">
         <div class="header" 
-          style="padding-left: ${18 * node.ariaLevel}px; ${node.isSelected ? `border: 2px solid blue;` : ``} background-color: rgb(${rgbLevel}, ${rgbLevel}, ${rgbLevel});">
+          data-parent-selected="${node.parentSelected}"
+          style="
+            padding-left: ${18 * node.ariaLevel}px; 
+            ${node.selected ? `border: 1px solid var(--theme-blue);` : ``} 
+            ${!node.parentSelected ? `background-color: rgb(${rgbLevel}, ${rgbLevel}, ${rgbLevel});` : ``}
+          ">
           <div 
             class="left"
             data-selector="${node.selector}"

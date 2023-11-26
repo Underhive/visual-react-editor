@@ -30,6 +30,8 @@
 
 :host .tabs {
   display: flex;
+  position: sticky;
+  top: 0;
   flex-direction: row;
   justify-content: space-around;
   align-items: center;
@@ -189,6 +191,21 @@
 :host .tree-content {
   display: flex;
   flex-direction: column;
+  margin-bottom: 100%;
+
+  .header[data-parent-selected="true"] {
+    border-right: 1px solid rgba(105, 167, 255, 0.5); 
+    border-left: 1px solid rgba(105, 167, 255, 0.5); 
+    background-color: rgba(105, 167, 255, 0.25); 
+    border-bottom: 1px solid rgba(105, 167, 255, 0.5);
+
+    &:hover {
+      border-right: 1px solid rgba(105, 167, 255, 0.5); 
+      border-left: 1px solid rgba(105, 167, 255, 0.5); 
+      background-color: rgba(105, 167, 255, 0.25); 
+      border-bottom: 1px solid rgba(105, 167, 255, 0.5);
+    }
+  }
 
   .show-root {
     display: flex;

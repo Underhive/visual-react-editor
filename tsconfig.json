@@ -7,6 +7,8 @@
     "esModuleInterop": true,
     "resolveJsonModule": true,
     "allowJs": true,
+    "declaration": true,
+    "declarationDir": "dist/types",
     "lib": [
       "es2017",
       "dom",

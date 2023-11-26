@@ -1,20 +1,20 @@
 {
-  "name": "uh-web-editor",
+  "name": "underhive",
   "version": "0.1.0",
   "description": "",
   "author": "Underhive Inc.",
   "license": "",
   "main": "dist/index.js",
   "scripts": {
-    "dev-server": "ts-node app/server/server.ts",
-    "build-server": "tsc app/server/server.ts --outDir bin/server --module commonjs --target es6 --lib es6,dom --sourceMap --esModuleInterop --resolveJsonModule --skipLibCheck",
-    "start-server": "node bin/server/server.js",
+    "dev-server": "ts-node app/server/cli.ts server",
+    "build-server": "tsc app/server/cli.ts --outDir bin/server --module commonjs --target es6 --lib es6,dom --sourceMap --esModuleInterop --resolveJsonModule --skipLibCheck",
+    "start-server": "node bin/server/cli.js server",
     "start": "webpack --mode development --watch",
     "build": "webpack --mode production && npm run build-server",
     "bump": "npm version patch -m 'Release %s'"
   },
   "bin": {
-    "uh-editor-server": "./bin/server/server.js"
+    "ucli": "./bin/server/cli.js"
   },
   "dependencies": {
     "@babel/core": "^7.23.3",
@@ -26,10 +26,12 @@
     "axios": "^1.6.2",
     "blingblingjs": "^2.1.1",
     "construct-style-sheets-polyfill": "^2.4.2",
+    "cors": "^2.8.5",
     "css-loader": "^6.8.1",
     "escodegen": "^2.1.0",
     "hotkeys-js": "^3.7.6",
     "html-react-parser": "^5.0.6",
+    "http-proxy-middleware": "^2.0.6",
     "prettier": "^3.1.0",
     "query-selector-shadow-dom": "^0.4.6",
     "source-map-loader": "^4.0.1",

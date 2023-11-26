@@ -8,10 +8,28 @@ import { modifyElementStyle } from './modifiers/styler';
 import { insertChildrenIntoElement, insertElement } from './modifiers/inserter';
 import { removeElement } from './modifiers/remover';
 
-const app = express();
 const port = process.env.PORT || 38388;
 
 const apiURL = process.env.API_URL || 'https://api.underhive.in';
+
+// const cors = require('cors');
+// const { createProxyMiddleware } = require('http-proxy-middleware');
+
+// Enable CORS for all requests
+// app.use(cors({
+//   origin: '*',
+  
+// }));
+
+// // Configuration for the proxy
+// const proxyConfig = {
+//     target: 'http://localhost:3001', // Target React app
+//     changeOrigin: true, // Needed for virtual hosted sites
+//     ws: true, // Enable WebSocket proxying if needed
+// };
+
+// // Use the proxy middleware for all requests
+// app.use('/', createProxyMiddleware(proxyConfig));
 
 type ReactFiberSourceDeclaration = {
   columnNumber: number,
@@ -83,132 +101,194 @@ const insideTags = (tagName: string) => new RegExp(`<${tagName}[^>]*>([\\s\\S]*?
 
 const attributeInTag = (attr: string) => new RegExp(`^<\\w+\\s+(?:[^>]*?${attr}=\\{([^}]+\\})[^>]*?)>`, 'g')
 
-app.use(json());
+const runServer = () => {
+  const app = express();
 
-const fileQueues = new Map<string, { queue: any[], isProcessing: boolean }>();
-function queueMiddleware(req, res, next) {
-  if(!fileQueues.has(req.body.source.fileName)) {
-    fileQueues.set(req.body.source.fileName, {
-      queue: [],
-      isProcessing: false,
-    });
-  }
-  const jobQueue = fileQueues.get(req.body.source.fileName);
-  jobQueue.queue.push({ req, res, next });
+  app.use(json());
 
-  // Process the queue if not already processing
-  if (!jobQueue.isProcessing) {
-    processQueue(jobQueue);
-  }
-}
+  const fileQueues = new Map<string, { queue: any[], isProcessing: boolean }>();
+  function queueMiddleware(req, res, next) {
+    if(!fileQueues.has(req.body.source.fileName)) {
+      fileQueues.set(req.body.source.fileName, {
+        queue: [],
+        isProcessing: false,
+      });
+    }
+    const jobQueue = fileQueues.get(req.body.source.fileName);
+    jobQueue.queue.push({ req, res, next });
 
-function processQueue(jobQueue: { queue: any[], isProcessing: boolean }) {
-  let requestQueue = jobQueue.queue;
-  let isProcessing = jobQueue.isProcessing;
-  if(requestQueue.length > 0) {
-    isProcessing = true;
-    const { req, res, next } = requestQueue.shift();
-
-    // Process the request, then call the actual handler
-    next();
-
-    // After the response is finished, process the next item in the queue
-    res.on('finish', () => {
+    // Process the queue if not already processing
+    if (!jobQueue.isProcessing) {
       processQueue(jobQueue);
-    });
-  } else {
-    isProcessing = false;
+    }
   }
-}
 
-app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Methods", "*");
-  res.header("Access-Control-Allow-Headers", "*");
-  next();
-});
+  function processQueue(jobQueue: { queue: any[], isProcessing: boolean }) {
+    let requestQueue = jobQueue.queue;
+    let isProcessing = jobQueue.isProcessing;
+    if(requestQueue.length > 0) {
+      isProcessing = true;
+      const { req, res, next } = requestQueue.shift();
 
-app.get('/', (_req: Request, res: Response) => {
-  res.send('pong');
-});
+      // Process the request, then call the actual handler
+      next();
 
-app.post('/edit/', (req: Request, res: Response) => {
-  res.json({
-    data: "honeypot"
-  })
-})
-
-app.post('/edit/characterData', queueMiddleware, (req: Request, res: Response) => {
-  const body: {
-    log: TextEditLog;
-    source: ReactFiberSourceDeclaration;
-    timestamp: number;
-  } = req.body;
-
-  const line = body.source.lineNumber;
-  const column = body.source.columnNumber;
-  const osLineBreak = platform() === 'win32' ? '\r\n' : '\n';
-  const fileData = fs.readFileSync(body.source.fileName, 'utf8');
-  const [fileDataLines, lastLineHadNewLineChar] = splitLines(fileData, osLineBreak);
-  const lineData = fileDataLines[line - 1];
-
-  const cumulativeColEnds: number[] = buildLineEndingPositions(fileDataLines, lastLineHadNewLineChar);
-
-  let afterCursor = `${lineData.substring(column - 1)}${osLineBreak}`
-  let objectLevel = insideTags(body.log.target.tagName).exec(afterCursor);
-  let lineWindow = line
-  
-  while(!objectLevel && lineWindow < fileDataLines.length) {
-    lineWindow += 1;
-    afterCursor += `${fileDataLines[lineWindow - 1]}${osLineBreak}`;
-    objectLevel = insideTags(body.log.target.tagName).exec(afterCursor);
+      // After the response is finished, process the next item in the queue
+      res.on('finish', () => {
+        processQueue(jobQueue);
+      });
+    } else {
+      isProcessing = false;
+    }
   }
-  if (!objectLevel) {
+
+  app.use((req, res, next) => {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Methods", "*");
+    res.header("Access-Control-Allow-Headers", "*");
+    next();
+  });
+
+  app.get('/', (_req: Request, res: Response) => {
+    res.send('pong');
+  });
+
+  app.post('/edit/', (req: Request, res: Response) => {
     res.json({
-      data: "ERROR"
+      data: "honeypot"
     })
-    return;
-  }
-
-  const tagData = objectLevel![1];
-
-  // find line and col where tag data starts
-  let colStart = cumulativeColEnds[body.source.lineNumber - 2];
-  const tagStart = fileData.indexOf(afterCursor, colStart);
-  const tagEnd = tagStart + afterCursor.length - 1;
-
-  const newData = afterCursor.replace(tagData, body.log.characterData).replace(/^\s+|\s+$/g, '');
-
-  const finalFileData = fileData.substring(0, tagStart) + newData + fileData.substring(tagEnd)
-
-  fs.writeFileSync(body.source.fileName, finalFileData);
-
-  res.json({
-    data: "OK"
   })
-})
 
-app.post('/edit/stylesheet', queueMiddleware, async (req: Request, res: Response) => {
-  const body: {
-    log: StyleSheetEditLog;
-    source: ReactFiberSourceDeclaration;
-    timestamp: number;
-  } = req.body;
+  app.post('/edit/characterData', queueMiddleware, (req: Request, res: Response) => {
+    const body: {
+      log: TextEditLog;
+      source: ReactFiberSourceDeclaration;
+      timestamp: number;
+    } = req.body;
 
-  console.log(body);
+    const line = body.source.lineNumber;
+    const column = body.source.columnNumber;
+    const osLineBreak = platform() === 'win32' ? '\r\n' : '\n';
+    const fileData = fs.readFileSync(body.source.fileName, 'utf8');
+    const [fileDataLines, lastLineHadNewLineChar] = splitLines(fileData, osLineBreak);
+    const lineData = fileDataLines[line - 1];
 
-  if((!body.log?.source?.range || !body.source?.fileName) && body.log?.source?.type != 'inline') {
+    const cumulativeColEnds: number[] = buildLineEndingPositions(fileDataLines, lastLineHadNewLineChar);
+
+    let afterCursor = `${lineData.substring(column - 1)}${osLineBreak}`
+    let objectLevel = insideTags(body.log.target.tagName).exec(afterCursor);
+    let lineWindow = line
+    
+    while(!objectLevel && lineWindow < fileDataLines.length) {
+      lineWindow += 1;
+      afterCursor += `${fileDataLines[lineWindow - 1]}${osLineBreak}`;
+      objectLevel = insideTags(body.log.target.tagName).exec(afterCursor);
+    }
+    if (!objectLevel) {
+      res.json({
+        data: "ERROR"
+      })
+      return;
+    }
+
+    const tagData = objectLevel![1];
+
+    // find line and col where tag data starts
+    let colStart = cumulativeColEnds[body.source.lineNumber - 2];
+    const tagStart = fileData.indexOf(afterCursor, colStart);
+    const tagEnd = tagStart + afterCursor.length - 1;
+
+    const newData = afterCursor.replace(tagData, body.log.characterData).replace(/^\s+|\s+$/g, '');
+
+    const finalFileData = fileData.substring(0, tagStart) + newData + fileData.substring(tagEnd)
+
+    fs.writeFileSync(body.source.fileName, finalFileData);
+
     res.json({
       data: "OK"
     })
-    return;
-  }
+  })
 
-  if(body.log.source.type === 'inline') {
-    try {
-      const finalFileData = await modifyElementStyle(body.source.fileName, body.source.lineNumber, body.source.columnNumber, {
-        [body.log.name]: body.log.value
+  app.post('/edit/stylesheet', queueMiddleware, async (req: Request, res: Response) => {
+    const body: {
+      log: StyleSheetEditLog;
+      source: ReactFiberSourceDeclaration;
+      timestamp: number;
+    } = req.body;
+
+    console.log(body);
+
+    if((!body.log?.source?.range || !body.source?.fileName) && body.log?.source?.type != 'inline') {
+      res.json({
+        data: "OK"
       })
+      return;
+    }
+
+    if(body.log.source.type === 'inline') {
+      try {
+        const finalFileData = await modifyElementStyle(body.source.fileName, body.source.lineNumber, body.source.columnNumber, {
+          [body.log.name]: body.log.value
+        })
+        fs.writeFileSync(body.source.fileName, finalFileData);
+      } catch(e) {
+        console.error(e);
+        if(e.message === "Unable to modify style") {
+          res.status(500).json({
+            data: "Unable to modify style"
+          })
+          return;
+        }
+      }
+      res.json({
+        data: "OK"
+      })
+      return;
+    }
+
+    const styleSheetSource = getFullSourcePathFromRef(
+      body.source.fileName,
+      body.log.file,
+    )
+
+    const fileData = fs.readFileSync(styleSheetSource, 'utf8');
+    const rangeToEdit = body.log.source.range
+    const cssName = jsxToCssName(body.log.name);
+    const regex = new RegExp(`${cssName}(\\s*:\\s*)[^;]+`, 'g')
+    const updatedCssText = rangeToEdit.blockContent.replace(regex, `${cssName}: ${body.log.value}`);
+    
+    const finalFileData = fileData.substring(0, rangeToEdit.startIndex) + updatedCssText + fileData.substring(rangeToEdit.endIndex)
+
+    fs.writeFileSync(styleSheetSource, finalFileData);
+
+    res.json({
+      data: "OK"
+    })
+  })
+
+  app.post('/edit/attributes', queueMiddleware, async (req: Request, res: Response) => {
+    const body: {
+      log: AttributeEditLog;
+      source: ReactFiberSourceDeclaration;
+      timestamp: number;
+    } = req.body;
+
+    console.log(body);
+    if(body.log.attributeName != 'style') {
+      res.json({
+        data: "OK"
+      })
+      return
+    }
+
+    const cssJson = convertCssToJsx(body.log.attributeValue!);
+    const oldCssJson = convertCssToJsx(body.log.oldValue!);
+    const diff = diffJson(oldCssJson, cssJson);
+
+    console.log(diff);
+
+    try {
+      const finalFileData = await modifyElementStyle(body.source.fileName, body.source.lineNumber, body.source.columnNumber, diff)
       fs.writeFileSync(body.source.fileName, finalFileData);
     } catch(e) {
       console.error(e);
@@ -222,97 +302,42 @@ app.post('/edit/stylesheet', queueMiddleware, async (req: Request, res: Response
     res.json({
       data: "OK"
     })
-    return;
-  }
 
-  const styleSheetSource = getFullSourcePathFromRef(
-    body.source.fileName,
-    body.log.file,
-  )
-
-  const fileData = fs.readFileSync(styleSheetSource, 'utf8');
-  const rangeToEdit = body.log.source.range
-  const cssName = jsxToCssName(body.log.name);
-  const regex = new RegExp(`${cssName}(\\s*:\\s*)[^;]+`, 'g')
-  const updatedCssText = rangeToEdit.blockContent.replace(regex, `${cssName}: ${body.log.value}`);
-  
-  const finalFileData = fileData.substring(0, rangeToEdit.startIndex) + updatedCssText + fileData.substring(rangeToEdit.endIndex)
-
-  fs.writeFileSync(styleSheetSource, finalFileData);
-
-  res.json({
-    data: "OK"
   })
-})
 
-app.post('/edit/attributes', queueMiddleware, async (req: Request, res: Response) => {
-  const body: {
-    log: AttributeEditLog;
-    source: ReactFiberSourceDeclaration;
-    timestamp: number;
-  } = req.body;
+  app.post('/edit/childList', async (req: Request, res: Response) => {
+    const body: {
+      log: AddChildEditLog | RemoveChildEditLog;
+      source: ReactFiberSourceDeclaration;
+      timestamp: number;
+    } = req.body;
 
-  console.log(body);
-  if(body.log.attributeName != 'style') {
-    res.json({
-      data: "OK"
-    })
-    return
-  }
+    console.log(body);
 
-  const cssJson = convertCssToJsx(body.log.attributeValue!);
-  const oldCssJson = convertCssToJsx(body.log.oldValue!);
-  const diff = diffJson(oldCssJson, cssJson);
-
-  console.log(diff);
-
-  try {
-    const finalFileData = await modifyElementStyle(body.source.fileName, body.source.lineNumber, body.source.columnNumber, diff)
-    fs.writeFileSync(body.source.fileName, finalFileData);
-  } catch(e) {
-    console.error(e);
-    if(e.message === "Unable to modify style") {
-      res.status(500).json({
-        data: "Unable to modify style"
+    if(!body.source) {
+      res.json({
+        data: "OK"
       })
       return;
     }
-  }
-  res.json({
-    data: "OK"
-  })
 
-})
+    let finalFileData
+    if(body.log.action === 'added') {
+      finalFileData = await insertChildrenIntoElement(body.source.fileName, body.source.lineNumber, body.source.columnNumber, body.log.html)
+    } else if(body.log.action === 'removed') {
+      finalFileData = await removeElement(body.source.fileName, body.source.lineNumber, body.source.columnNumber)
+    }
+    fs.writeFileSync(body.source.fileName, finalFileData);
 
-app.post('/edit/childList', async (req: Request, res: Response) => {
-  const body: {
-    log: AddChildEditLog | RemoveChildEditLog;
-    source: ReactFiberSourceDeclaration;
-    timestamp: number;
-  } = req.body;
-
-  console.log(body);
-
-  if(!body.source) {
     res.json({
       data: "OK"
     })
-    return;
-  }
-
-  let finalFileData
-  if(body.log.action === 'added') {
-    finalFileData = await insertChildrenIntoElement(body.source.fileName, body.source.lineNumber, body.source.columnNumber, body.log.html)
-  } else if(body.log.action === 'removed') {
-    finalFileData = await removeElement(body.source.fileName, body.source.lineNumber, body.source.columnNumber)
-  }
-  fs.writeFileSync(body.source.fileName, finalFileData);
-
-  res.json({
-    data: "OK"
   })
-})
 
-app.listen(port, () => {
-  console.log(`Underhive Server running at http://localhost:${port}`);
-});
+  app.listen(port, () => {
+    console.log(`Underhive Server running at http://localhost:${port}`);
+  });
+
+}
+
+export default runServer;
