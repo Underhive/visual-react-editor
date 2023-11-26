@@ -1,9 +1,8 @@
 import * as fs from 'fs';
-import parser from '@babel/parser';
+import { parse } from '@babel/parser';
 import traverse from '@babel/traverse';
 import * as path from 'path';
 import ignore from 'ignore';
-
 
 function readFilesRecursively(dir: string, filelist: string[] = []): string[] {
   const files = fs.readdirSync(dir, { withFileTypes: true });
@@ -75,7 +74,7 @@ export function addImportToEntrypoint(projectPath, importStatement) {
 
   console.log(`Adding import: ${importStatement}`);
   let code = fs.readFileSync(entrypointPath, 'utf8');
-  const ast = parser.parse(code, {
+  const ast = parse(code, {
     sourceType: 'module',
     plugins: mainLanguage === 'ts' ? ['typescript', 'jsx'] : ['jsx']
   });
