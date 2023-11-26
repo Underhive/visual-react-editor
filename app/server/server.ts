@@ -8,10 +8,6 @@ import { modifyElementStyle } from './modifiers/styler';
 import { insertChildrenIntoElement, insertElement } from './modifiers/inserter';
 import { removeElement } from './modifiers/remover';
 
-
-const underhiveJson = JSON.parse(fs.readFileSync('./underhive.json', 'utf8'));
-const port = underhiveJson.port || 38388;
-
 const apiURL = process.env.API_URL || 'https://api.underhive.in';
 
 // const cors = require('cors');
@@ -104,6 +100,9 @@ const insideTags = (tagName: string) => new RegExp(`<${tagName}[^>]*>([\\s\\S]*?
 const attributeInTag = (attr: string) => new RegExp(`^<\\w+\\s+(?:[^>]*?${attr}=\\{([^}]+\\})[^>]*?)>`, 'g')
 
 const runServer = () => {
+  const underhiveJson = JSON.parse(fs.readFileSync('./underhive.json', 'utf8'));
+  const port = underhiveJson.port || 38388;
+  
   const app = express();
 
   app.use(json());
