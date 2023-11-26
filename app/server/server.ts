@@ -8,7 +8,9 @@ import { modifyElementStyle } from './modifiers/styler';
 import { insertChildrenIntoElement, insertElement } from './modifiers/inserter';
 import { removeElement } from './modifiers/remover';
 
-const port = process.env.PORT || 38388;
+
+const underhiveJson = JSON.parse(fs.readFileSync('./underhive.json', 'utf8'));
+const port = underhiveJson.port || 38388;
 
 const apiURL = process.env.API_URL || 'https://api.underhive.in';
 
