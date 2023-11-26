@@ -10,25 +10,6 @@ import { removeElement } from './modifiers/remover';
 
 const apiURL = process.env.API_URL || 'https://api.underhive.in';
 
-// const cors = require('cors');
-// const { createProxyMiddleware } = require('http-proxy-middleware');
-
-// Enable CORS for all requests
-// app.use(cors({
-//   origin: '*',
-  
-// }));
-
-// // Configuration for the proxy
-// const proxyConfig = {
-//     target: 'http://localhost:3001', // Target React app
-//     changeOrigin: true, // Needed for virtual hosted sites
-//     ws: true, // Enable WebSocket proxying if needed
-// };
-
-// // Use the proxy middleware for all requests
-// app.use('/', createProxyMiddleware(proxyConfig));
-
 type ReactFiberSourceDeclaration = {
   columnNumber: number,
   fileName: string,

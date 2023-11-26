@@ -1,7 +1,7 @@
 {
   "name": "underhive",
   "version": "0.1.5",
-  "description": "",
+  "description": "A tool for creating the web from the web.",
   "author": "Underhive Inc.",
   "license": "",
   "main": "dist/index.js",
@@ -54,7 +54,6 @@
     "postcss-loader": "^3.0.0",
     "postcss-preset-env": "^6.7.0",
     "puppeteer": "^1.14.0",
-    "ragrid": "^1.0.6",
     "rollup": "^2.7.2",
     "rollup-plugin-node-resolve": "^5.2.0",
     "rollup-plugin-postcss": "^3.1.0",
