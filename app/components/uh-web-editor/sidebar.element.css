@@ -14,9 +14,9 @@
   height: 100%;
   top: 0;
   left: 0;
-  background-color: rgb(24, 24, 24);
-  z-index: var(--layer-1);
-  border-left: 1px solid rgb(70, 70, 70);
+  background-color: #1a1a1a;
+  z-index: var(--layer-top);
+  border-right: 1px solid #2c2c2c;
   font-family: monospace;
   color: rgb(226, 226, 226);
   overflow-y: auto;
@@ -33,31 +33,33 @@
   flex-direction: row;
   justify-content: space-around;
   align-items: center;
-  background-color: rgb(12, 12, 12);
-  padding: 8px 0px;
-  border-bottom: 4px solid rgb(199, 199, 199);
+  background-color: #3b3b3b;
 
   .tab[data-active="true"] {
-    color: rgb(12, 12, 12);
-    background-color: rgb(224, 224, 224);
-    font-weight: 800;
+    background-color: #0f0f0f;
+    color: var(--theme-blue);
+    border: 1px solid var(--theme-blue);
   }
+  
 
   .tab {
     display: flex;
     flex-direction: row;
     align-items: center;
     justify-content: center;
-    color: rgb(226, 226, 226);
+    color: #b2b2b2;
     font-size: 14px;
-    font-weight: 500;
+    font-weight: 800;
     letter-spacing: 0.5px;
     cursor: pointer;
     transition: color 0.2s ease;
-    border-radius: 8px;
     border: 0px solid transparent;
-    background-color: #242424; 
+    background-color: #2c2c2c; 
     padding: 4px 16px 4px 16px;
+    width: 100%;
+    user-select: none;
+    border-bottom: 1px solid var(--theme-blue);
+
 
     &:hover:not([data-active="true"]) {
       color: rgb(226, 226, 226);
@@ -190,19 +192,20 @@
 
   .show-root {
     display: flex;
-    background-color: rgb(199, 199, 199);
     padding: 4px 8px;
     font-size: 14px;
-    color: #242424;
     font-weight: 600;
     margin: 8px;
     border-radius: 2px;
     cursor: pointer;
-    width: fit-content;
     justify-self: end;
+    border: 1px solid #2c2c2c;
+    width: 100%;
+    align-items: center;
+    justify-content: center;
 
     &:hover {
-      background-color: rgb(224, 224, 224);
+      background-color: #2c2c2c;
     }
   }
 }
@@ -219,13 +222,16 @@
     justify-content: space-between;
     background-color: rgb(12, 12, 12);
 
+    border-top: 2px solid #2c2c2c;
+
     &:hover {
       border: 1px solid rgb(70, 70, 70);
     }
   }
 
   .open-close {
-    font-size: 16px;
+    font-size: 12px;
+    margin-right: 2px;
   }
 
   .button {
@@ -236,8 +242,8 @@
   .header .name {
     font-size: 12px;
     font-weight: 800;
-    color: #242424;
-    background-color: rgb(224, 224, 224);
+    /* color: #242424;
+    background-color: rgb(224, 224, 224); */
     padding: 4px 12px;
     border-radius: 2px;
     margin-bottom: 4px;

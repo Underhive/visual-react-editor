@@ -1,30 +1,13 @@
-import $          from 'blingblingjs'
-import hotkeys    from 'hotkeys-js'
-
 import {
   DesignbarStyles,
 } from '../styles.store'
 
 import * as Icons                 from './uh-web-editor.icons'
-import { provideSelectorEngine }  from '../../features/search'
 import {
-  metaKey,
-  isPolyfilledCE,
-  constructibleStylesheetSupport,
   schemeRule,
-  apiURL,
-  updateAppliedStyles,
-  cssPath,
-  showOneOffHandle,
-  hitEditSytlesheet,
-  elementAlternateDebugSource,
-  getStyles
 } from '../../utilities'
-import { EditText } from '../../features'
 
-import axios from 'axios'
 import Incrementable from '../../utilities/incrementable'
-import { createMarginVisual } from '../../features/margin'
 import { Processors, actions } from './designActionProcessors'
 import tinycolor from '@ctrl/tinycolor'
 
@@ -75,46 +58,45 @@ export default class EditorDesignbar extends HTMLElement {
     Object.keys(designActionsCategories).forEach(action => {
       Object.keys(designActionsCategories[action]).forEach(key => {
         const type = designActionsCategories[action][key].type
-        const actions = designActionsCategories[action][key].actions
         const prop = designActionsCategories[action][key].prop
         const activationValue = designActionsCategories[action][key].activationValue
         const defaultValue = designActionsCategories[action][key].default
         const regex: RegExp = designActionsCategories[action][key].regex
         const actionName = key
-        actions.forEach(fn => {
-          const el = this.$shadow.querySelector(`[data-name="${actionName}"]`)
-          if(el) {
-            const styles = window.getComputedStyle(target[0])
-            if(Array.isArray(prop)) {
-              const value = prop.map(p => styles[p])
-              if(value.some(v => activationValue.includes(v))) {
-                el.classList.add('active')
-              } else {
-                el.classList.remove('active')
-              }
-              return
+        const el = this.$shadow.querySelector(`[data-name="${actionName}"]`)
+        if(el) {
+          const styles = window.getComputedStyle(target[0])
+          if(Array.isArray(prop)) {
+            const value = prop.map(p => styles[p])
+            if(value.some(v => activationValue.includes(v))) {
+              el.classList.add('active')
+            } else {
+              el.classList.remove('active')
             }
-            const jsxProp = prop.replace(/-./g, match => match.charAt(1).toUpperCase());
-            const value = styles[jsxProp]
-            if(type === 'button' && prop) {
-              if(value === activationValue) {
-                el.classList.add('active')
-              } else {
-                el.classList.remove('active')
-              }
-            } else if(type === 'input') {
-              const valueFromRegex = regex.exec(value)?.[1] ?? regex.exec(value)?.[0] ?? defaultValue
-              if(valueFromRegex?.includes?.('rgb')) {
-                el.querySelector('input').value = tinycolor(valueFromRegex).toHexString()
-                el.querySelector('label').textContent = tinycolor(valueFromRegex).toHexString().toUpperCase()
-              } else if(prop === 'opacity') {
-                el.querySelector('input').value = (valueFromRegex * 100).toFixed(0)
-              } else {
-                el.querySelector('input').value = valueFromRegex
-              }
-            }
+            return
           }
-        })
+          const jsxProp = prop.replace(/-./g, match => match.charAt(1).toUpperCase());
+          const value = styles[jsxProp]
+          if(type === 'button' && prop) {
+            if(value === activationValue) {
+              el.classList.add('active')
+            } else {
+              el.classList.remove('active')
+            }
+          } else if(type === 'input') {
+            const valueFromRegex = regex.exec(value)?.[1] ?? regex.exec(value)?.[0] ?? defaultValue
+            if(valueFromRegex?.includes?.('rgb')) {
+              el.querySelector('input').value = tinycolor(valueFromRegex).toHexString()
+              el.querySelector('label').textContent = tinycolor(valueFromRegex).toHexString().toUpperCase()
+            } else if(prop === 'opacity') {
+              el.querySelector('input').value = (valueFromRegex * 100).toFixed(0)
+            } else {
+              el.querySelector('input').value = valueFromRegex
+            }
+          } else if(type === 'select') { 
+            el.querySelector('select').value = value ?? defaultValue
+          }
+        }
       })
     })
   }
@@ -152,13 +134,25 @@ export default class EditorDesignbar extends HTMLElement {
   }
 
   cleanup() {
+    if(!this.$shadow) return
     this.$shadow.innerHTML = ''
   }
 
-  onDesignButtonClick(e, fn) {
+  onDesignButtonClick(e, actions) {
+    if(!globalThis.$target.data.style) return
     e.stopPropagation()
     e.preventDefault()
-    this.processor[fn]()
+    this.sendActions(actions)
+  }
+
+  sendActions(actions, ...values) {
+    actions.forEach(fn => {
+      if(values) {
+        this.processor[fn](...values)
+      } else {
+        this.processor[fn]()
+      }
+    })
   }
 
   setupListeners() {
@@ -167,33 +161,64 @@ export default class EditorDesignbar extends HTMLElement {
       Object.keys(designActionsCategories[action]).forEach(key => {
         const type = designActionsCategories[action][key].type
         const actions = designActionsCategories[action][key].actions
+        const draggable = designActionsCategories[action][key].draggable
         const actionName = key
-        actions.forEach(fn => {
-          const el = this.$shadow.querySelector(`[data-name="${actionName}"]`)
+        const el = this.$shadow.querySelector(`[data-name="${actionName}"]`)
           if(el) {
             if(type === 'button') {
-              el.addEventListener('click', e => this.onDesignButtonClick(e, fn))
+              el.addEventListener('click', e => this.onDesignButtonClick(e, actions))
             } else if(type === 'input') {
               const input = el.querySelector('input')
-              if(input.type === "text") {
-                new Incrementable(el.querySelector('input'))
+              if(input.type === "text" && draggable) {
+                new Incrementable(input)
+                if(el.querySelector('label')) {
+                  el.querySelector('label')!.style.cursor = 'ew-resize'
+                  el.querySelector('label')!.addEventListener('mousedown', (e: any) => {
+                    if(!globalThis.$target.data.style) return
+                    e.stopPropagation()
+                    e.preventDefault()
+                    const value = input.value
+                    let startX = e.clientX
+                    const onUpdate = (e: any) => {
+                      const diff = e.clientX - startX
+                      const newValue = parseInt(value) + diff
+                      input.value = newValue.toString()
+                      // (value, updateUi, updateCode)
+                      if(globalThis.$target.data.style) this.sendActions(actions, newValue, true, false)
+                    }
+                    document.addEventListener('mousemove', onUpdate)
+                    document.addEventListener('mouseup', () => {
+                      if(!globalThis.$target.data.style) return
+                      document.removeEventListener('mousemove', onUpdate)
+                      if(globalThis.$target.data.style) this.sendActions(actions, input.value)
+                    })
+                  })
+                }
               }
               input.addEventListener('input', (e: any) => {
+                if(!globalThis.$target.data.style) return
                 e.stopPropagation()
                 e.preventDefault()
                 const value = e.target.value
-                this.processor[fn](value)
+                this.sendActions(actions, value)
+              })
+            } else if (type === 'select') {
+              const select = el.querySelector('select')
+              select.addEventListener('change', (e: any) => {
+                if(!globalThis.$target.data.style) return
+                e.stopPropagation()
+                e.preventDefault()
+                const value = e.target.value
+                this.sendActions(actions, value)
               })
             }
           }
-        })
       })
     })
   }
 
   render() {
     return `
-    
     <div>
         <div class="alignments bottom-border">
           <div class="header"><span> Align </span></div>
@@ -269,6 +294,22 @@ export default class EditorDesignbar extends HTMLElement {
                 <label>${Icons.tearDrop}</label>
                 <select size="1" style="margin-right: 12px;"> 
                   <option value="normal">Normal</option>
+                  <option value="multiply">Multiply</option>
+                  <option value="screen">Screen</option>
+                  <option value="overlay">Overlay</option>
+                  <option value="darken">Darken</option>
+                  <option value="lighten">Lighten</option>
+                  <option value="color-dodge">Color Dodge</option>
+                  <option value="color-burn">Color Burn</option>
+                  <option value="hard-light">Hard Light</option>
+                  <option value="soft-light">Soft Light</option>
+                  <option value="difference">Difference</option>
+                  <option value="exclusion">Exclusion</option>
+                  <option value="hue">Hue</option>
+                  <option value="saturation">Saturation</option>
+                  <option value="color">Color</option>
+                  <option value="luminosity">Luminosity</option>
+                  <option value="plus-lighter">Plus Lighter</option>
                 </select> 
               </div>
               <div class="boh" data-name="mixBlendModeAlpha"> <input type="text" value="100%"/> </div>

@@ -174,34 +174,34 @@ export const WebEditorModel = {
                     </div>
                   </div>`,
   },
-  h: {
-    tool:        'hueshift',
-    icon:        Icons.hueshift,
-    label:       '<span><u>H</u>ue Shift</span>',
-    description: `Change foreground/background hue, brightness, saturation & opacity`,
-    instruction: `<div table>
-                    <div>
-                      <b>Saturation:</b>
-                      <span>◀ ▶</span>
-                    </div>
-                    <div>
-                      <b>Brightness:</b>
-                      <span>▲ ▼</span>
-                    </div>
-                    <div>
-                      <b>Hue:</b>
-                      <span>${metaKey} +  ▲ ▼</span>
-                    </div>
-                    <div>
-                      <b>Opacity:</b>
-                      <span>${metaKey} +  ◀ ▶</span>
-                    </div>
-                    <div>
-                      <b>Trainer:</b>
-                      <span>shift + /</span>
-                    </div>
-                  </div>`,
-  },
+  // h: {
+  //   tool:        'hueshift',
+  //   icon:        Icons.hueshift,
+  //   label:       '<span><u>H</u>ue Shift</span>',
+  //   description: `Change foreground/background hue, brightness, saturation & opacity`,
+  //   instruction: `<div table>
+  //                   <div>
+  //                     <b>Saturation:</b>
+  //                     <span>◀ ▶</span>
+  //                   </div>
+  //                   <div>
+  //                     <b>Brightness:</b>
+  //                     <span>▲ ▼</span>
+  //                   </div>
+  //                   <div>
+  //                     <b>Hue:</b>
+  //                     <span>${metaKey} +  ▲ ▼</span>
+  //                   </div>
+  //                   <div>
+  //                     <b>Opacity:</b>
+  //                     <span>${metaKey} +  ◀ ▶</span>
+  //                   </div>
+  //                   <div>
+  //                     <b>Trainer:</b>
+  //                     <span>shift + /</span>
+  //                   </div>
+  //                 </div>`,
+  // },
   d: {
     tool:        'boxshadow',
     icon:        Icons.boxshadow,
@@ -293,11 +293,18 @@ export const WebEditorModel = {
   //   label:       'Screenshot',
   //   description: 'Screenshot selected elements or the entire page'
   // },
-  s: {
-    tool:        'search',
-    icon:        Icons.search,
-    label:       '<span><u>S</u>earch</span>',
-    description: 'Select elements programatically by searching for them or use built in plugins with special commands',
+  // s: {
+  //   tool:        'search',
+  //   icon:        Icons.search,
+  //   label:       '<span><u>S</u>earch</span>',
+  //   description: 'Select elements programatically by searching for them or use built in plugins with special commands',
+  //   instruction: '',
+  // },
+  z: {
+    tool:        'power',
+    icon:        Icons.power,
+    label:       'Switch ON/OFF',
+    description: 'Turn the editor ON or OFF to use the page normally. <b>Double click</b> to toggle.',
     instruction: '',
   },
   c: {
@@ -306,5 +313,5 @@ export const WebEditorModel = {
     label:       '<span><u>C</u>reate</span>',
     description: 'Create elements with AI magic ✨',
     instruction: '',
-  },
+  }
 }

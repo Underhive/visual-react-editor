@@ -33,6 +33,8 @@ import WebEditorSidebar from './sidebar.element'
 import WebEditorDesignbar from './designbar.element'
 
 export default class WebEditor extends HTMLElement {
+  connected
+  lastPowerPressed
   constructor() {
     super()
 
@@ -42,9 +44,7 @@ export default class WebEditor extends HTMLElement {
       this.$shadow,
       WebEditorStyles, WebEditorLightStyles, WebEditorDarkStyles
     )
-
-    this.designbar = new WebEditorDesignbar();
-    this.sidebar = new WebEditorSidebar();
+    this.lastPowerPressed = 0
   }
 
   static get observedAttributes() {
@@ -52,6 +52,10 @@ export default class WebEditor extends HTMLElement {
   }
 
   connectedCallback() {
+    hotkeys.unbind('z') // z is poweroff
+    this.connected = true
+    this.designbar = new WebEditorDesignbar();
+    this.sidebar = new WebEditorSidebar();
     this._tutsBaseURL = this.getAttribute('tutsBaseURL') || 'tuts'
 
     this.setup()
@@ -71,6 +75,27 @@ export default class WebEditor extends HTMLElement {
     this.selectorEngine.onSelectedUpdate(this.designbar.updateTarget)
   }
 
+  powerOff() {
+    this.deactivate_feature()
+    this.cleanup()
+    this.selectorEngine.disconnect()
+    hotkeys.unbind(
+      Object.keys(this.toolbar_model).reduce((events, key) => {
+        if(key != 'z') {
+          return events += ',' + key
+        }
+        return events
+      })) // z is poweroff
+    hotkeys.unbind(`${metaKey}+/,${metaKey}+.`)
+
+    if (this.getAttribute('viewmode') == 'artboard')
+      Zoom.stop()
+    this.designbar.remove()
+    this.sidebar.remove()
+    this.connected = false
+    this.$shadow.querySelector('ol').dataset.connected = false
+  }
+
   disconnectedCallback() {
     this.deactivate_feature()
     this.cleanup()
@@ -82,6 +107,8 @@ export default class WebEditor extends HTMLElement {
 
     if (this.getAttribute('viewmode') == 'artboard')
       Zoom.stop()
+    this.designbar.remove()
+    this.sidebar.remove()
   }
 
   static get observedAttributes() { return ['viewmode','color-scheme'] }
@@ -165,22 +192,31 @@ export default class WebEditor extends HTMLElement {
     if (typeof el === 'string')
       el = $(`[data-tool="${el}"]`, this.$shadow)[0]
 
-    if (this.active_tool && this.active_tool.dataset.tool === el.dataset.tool) return
+    if (this.active_tool && this.active_tool.dataset.tool === el.dataset.tool && this.active_tool && this.active_tool?.dataset?.tool != 'power') return
 
-    if (this.active_tool) {
+    if (this.active_tool && el.dataset.tool != 'power') {
       this.active_tool.attr('data-active', null)
       this.deactivate_feature()
     }
 
-    el.attr('data-active', true)
-    this.active_tool = el
-    this[el.dataset.tool]()
+    if(el.dataset.tool == 'power' && (Date.now() - this.lastPowerPressed < 500)) {
+      el.attr('data-active', true)
+      this.active_tool = el
+      this[el.dataset.tool]()
+      this.lastPowerPressed = 0
+    } else if(el.dataset.tool != 'power') {
+      el.attr('data-active', true)
+      this.active_tool = el
+      this[el.dataset.tool]()
+    } else {
+      this.lastPowerPressed = Date.now()
+    }
   }
 
   render() {
     return `
       <uh-web-editor-hotkeys></uh-web-editor-hotkeys>
-      <ol constructible-support="${constructibleStylesheetSupport ? 'false':'true'}">
+      <ol constructible-support="${constructibleStylesheetSupport ? 'false':'true'}" data-connected=${this.connected}>
         ${Object.entries(this.toolbar_model).reduce((list, [key, tool]) => `
           ${list}
           <li aria-label="${tool.label} Tool" aria-description="${tool.description}" aria-hotkey="${key}" data-tool="${tool.tool}" data-active="${key == 'g'}">
@@ -262,11 +298,18 @@ export default class WebEditor extends HTMLElement {
     this.deactivate_feature = BoxShadow(this.selectorEngine)
   }
 
-  hueshift() {
-    // this.deactivate_feature = HueShift({
-    //   // Color:  this.colorPicker,
-    //   WebEditor: this.selectorEngine,
-    // })
+  power() {
+    // this.deactivate_feature = undefined
+    if(Date.now() - this.lastPowerPressed < 500) {
+      if(this.connected) {
+        this.powerOff()
+      } else {
+        this.connectedCallback()
+      }
+      this.lastPowerPressed = 0
+    } else {
+      this.lastPowerPressed = Date.now()
+    }
   }
 
   inspector() {

@@ -88,14 +88,14 @@ export const alignLeft = () => {
         name: 'justify-self',
         value: 'flex-start',
       }
-      // target.style[data.name] = data.value
+      // updateTargetStyles(target, data)
       sendInlineStyle(data)
     } else if (isFlex && isFlexColumn) {
       const data = {
         name: 'align-self',
         value: 'flex-start',
       }
-      // target.style[data.name] = data.value
+      // updateTargetStyles(target, data)
       sendInlineStyle(data)
     } else {
       // make parent flex
@@ -111,7 +111,7 @@ export const alignLeft = () => {
         name: 'align-self',
         value: 'flex-start',
       }
-      // target.style[data.name] = data.value
+      // updateTargetStyles(target, data)
       sendInlineStyle(data)
     }
   }
@@ -135,14 +135,14 @@ export const alignHCenter = () => {
         name: 'justify-self',
         value: 'center',
       }
-      // target.style[data.name] = data.value
+      // updateTargetStyles(target, data)
       sendInlineStyle(data)
     } else if (isFlex && isFlexColumn) {
       const data = {
         name: 'align-self',
         value: 'center',
       }
-      // target.style[data.name] = data.value
+      // updateTargetStyles(target, data)
       sendInlineStyle(data)
     } else {
       // make parent flex
@@ -158,7 +158,7 @@ export const alignHCenter = () => {
         name: 'align-self',
         value: 'center',
       }
-      // target.style[data.name] = data.value
+      // updateTargetStyles(target, data)
       sendInlineStyle(data)
     }
   }
@@ -182,14 +182,14 @@ export const alignRight = () => {
         name: 'justify-self',
         value: 'flex-end',
       }
-      // target.style[data.name] = data.value
+      // updateTargetStyles(target, data)
       sendInlineStyle(data)
     } else if (isFlex && isFlexColumn) {
       const data = {
         name: 'align-self',
         value: 'flex-end',
       }
-      // target.style[data.name] = data.value
+      // updateTargetStyles(target, data)
       sendInlineStyle(data)
     } else {
       // make parent flex
@@ -204,7 +204,7 @@ export const alignRight = () => {
         name: 'align-self',
         value: 'flex-end',
       }
-      // target.style[data.name] = data.value
+      // updateTargetStyles(target, data)
       sendInlineStyle(data)
     }
   }
@@ -228,14 +228,14 @@ export const alignTop = () => {
         name: 'align-self',
         value: 'flex-start',
       }
-      // target.style[data.name] = data.value
+      // updateTargetStyles(target, data)
       sendInlineStyle(data)
     } else if (isFlex && isFlexColumn) {
       const data = {
         name: 'justify-self',
         value: 'flex-start',
       }
-      // target.style[data.name] = data.value
+      // updateTargetStyles(target, data)
       sendInlineStyle(data)
     } else {
       // make parent flex
@@ -250,7 +250,7 @@ export const alignTop = () => {
         name: 'justify-self',
         value: 'flex-start',
       }
-      // target.style[data.name] = data.value
+      // updateTargetStyles(target, data)
       sendInlineStyle(data)
     }
   }
@@ -274,14 +274,14 @@ export const alignVCenter = () => {
         name: 'align-self',
         value: 'center',
       }
-      // target.style[data.name] = data.value
+      // updateTargetStyles(target, data)
       sendInlineStyle(data)
     } else if (isFlex && isFlexColumn) {
       const data = {
         name: 'justify-self',
         value: 'center',
       }
-      // target.style[data.name] = data.value
+      // updateTargetStyles(target, data)
       sendInlineStyle(data)
     } else {
       // make parent flex
@@ -297,7 +297,7 @@ export const alignVCenter = () => {
         name: 'justify-self',
         value: 'center',
       }
-      // target.style[data.name] = data.value
+      // updateTargetStyles(target, data)
       sendInlineStyle(data)
     }
   }
@@ -321,14 +321,14 @@ export const alignBottom = () => {
         name: 'align-self',
         value: 'flex-end',
       }
-      // target.style[data.name] = data.value
+      // updateTargetStyles(target, data)
       sendInlineStyle(data)
     } else if (isFlex && isFlexColumn) {
       const data = {
         name: 'justify-self',
         value: 'flex-end',
       }
-      // target.style[data.name] = data.value
+      // updateTargetStyles(target, data)
       sendInlineStyle(data)
     } else {
       // make parent flex
@@ -344,7 +344,7 @@ export const alignBottom = () => {
         name: 'justify-self',
         value: 'flex-end',
       }
-      // target.style[data.name] = data.value
+      // updateTargetStyles(target, data)
       sendInlineStyle(data)
     }
   }
@@ -357,7 +357,7 @@ export const resizeFit = () => {
     name: 'width',
     value: 'fit-content',
   }
-  // target.style[data.name] = data.value
+  // updateTargetStyles(target, data)
 
   const data2 = {
     name: 'height',
@@ -366,24 +366,28 @@ export const resizeFit = () => {
   // target.style[data2.name] = data2.value
 }
 
-export const resizeWidth = (value) => {
+export const resizeWidth = (value, updateUI = false, updateCode = true) => {
   const target = globalThis.$target.data
   const data = {
     name: 'width',
     value: `${value}px`,
   }
-  // target.style[data.name] = data.value
-  sendInlineStyle(data)
+  if(updateUI) 
+    updateTargetStyles(target, data)
+  if(updateCode)
+    sendInlineStyle(data)
 }
 
-export const resizeHeight = (value) => {
+export const resizeHeight = (value, updateUI = false, updateCode = true) => {
   const target = globalThis.$target.data
   const data = {
     name: 'height',
     value: `${value}px`,
   }
-  // target.style[data.name] = data.value
-  sendInlineStyle(data)
+  if(updateUI)
+    updateTargetStyles(target, data)
+  if(updateCode)
+    sendInlineStyle(data)
 }
 
 export const resizeProportion = () => {
@@ -392,28 +396,32 @@ export const resizeProportion = () => {
     name: 'object-fit',
     value: 'cover',
   }
-  // target.style[data.name] = data.value
+  // updateTargetStyles(target, data)
   sendInlineStyle(data)
 }
 
-export const resizeRotation = (value) => {
+export const resizeRotation = (value, updateUI = false, updateCode = true) => {
   const target = globalThis.$target.data
   const data = {
     name: 'transform',
     value: `rotate(${value}deg)`,
   }
-  // target.style[data.name] = data.value
-  sendInlineStyle(data)
+  if(updateUI)
+    updateTargetStyles(target, data)
+  if(updateCode)
+    sendInlineStyle(data)
 }
 
-export const resizeBorderRadius = (value) => {
+export const resizeBorderRadius = (value, updateUI = false, updateCode = true) => {
   const target = globalThis.$target.data
   const data = {
     name: 'border-radius',
     value: `${value}px`,
   }
-  // target.style[data.name] = data.value
-  sendInlineStyle(data)
+  if(updateUI)
+    updateTargetStyles(target, data)
+  if(updateCode)
+    sendInlineStyle(data)
 }
 
 export const resizeAllBorders = () => {
@@ -422,7 +430,7 @@ export const resizeAllBorders = () => {
     name: 'border',
     value: '1px solid #000',
   }
-  // target.style[data.name] = data.value
+  // updateTargetStyles(target, data)
   sendInlineStyle(data)
 }
 
@@ -438,7 +446,7 @@ export const autoLayoutFlexRow = () => {
   }
   // target.style[data2.name] = data2.value
 
-  // target.style[data.name] = data.value
+  // updateTargetStyles(target, data)
   sendInlineStyle(data)
   sendInlineStyle(data2)
 }
@@ -449,7 +457,7 @@ export const autoLayoutFlexColumn = () => {
     name: 'display',
     value: 'flex',
   }
-  // target.style[data.name] = data.value
+  // updateTargetStyles(target, data)
 
   const data2 = {
     name: 'flex-direction',
@@ -467,7 +475,7 @@ export const autoLayoutFlexWrap = () => {
     name: 'display',
     value: 'flex',
   }
-  // target.style[data.name] = data.value
+  // updateTargetStyles(target, data)
 
   const data2 = {
     name: 'flex-wrap',
@@ -488,7 +496,7 @@ export const autoLayoutAlignGrid = (num: number) => {
       name: 'justify-content',
       value: 'flex-start',
     }
-    // target.style[data.name] = data.value
+    // updateTargetStyles(target, data)
 
     const data2 = {
       name: 'align-items',
@@ -502,7 +510,7 @@ export const autoLayoutAlignGrid = (num: number) => {
       name: 'justify-content',
       value: 'center',
     }
-    // target.style[data.name] = data.value
+    // updateTargetStyles(target, data)
 
     const data2 = {
       name: 'align-items',
@@ -516,7 +524,7 @@ export const autoLayoutAlignGrid = (num: number) => {
       name: 'justify-content',
       value: 'flex-end',
     }
-    // target.style[data.name] = data.value
+    // updateTargetStyles(target, data)
 
     const data2 = {
       name: 'align-items',
@@ -530,7 +538,7 @@ export const autoLayoutAlignGrid = (num: number) => {
       name: 'justify-content',
       value: 'flex-start',
     }
-    // target.style[data.name] = data.value
+    // updateTargetStyles(target, data)
 
     const data2 = {
       name: 'align-items',
@@ -544,7 +552,7 @@ export const autoLayoutAlignGrid = (num: number) => {
       name: 'justify-content',
       value: 'center',
     }
-    // target.style[data.name] = data.value
+    // updateTargetStyles(target, data)
 
     const data2 = {
       name: 'align-items',
@@ -558,7 +566,7 @@ export const autoLayoutAlignGrid = (num: number) => {
       name: 'justify-content',
       value: 'flex-end',
     }
-    // target.style[data.name] = data.value
+    // updateTargetStyles(target, data)
 
     const data2 = {
       name: 'align-items',
@@ -572,7 +580,7 @@ export const autoLayoutAlignGrid = (num: number) => {
       name: 'justify-content',
       value: 'flex-start',
     }
-    // target.style[data.name] = data.value
+    // updateTargetStyles(target, data)
 
     const data2 = {
       name: 'align-items',
@@ -586,7 +594,7 @@ export const autoLayoutAlignGrid = (num: number) => {
       name: 'justify-content',
       value: 'center',
     }
-    // target.style[data.name] = data.value
+    // updateTargetStyles(target, data)
 
     const data2 = {
       name: 'align-items',
@@ -600,7 +608,7 @@ export const autoLayoutAlignGrid = (num: number) => {
       name: 'justify-content',
       value: 'flex-end',
     }
-    // target.style[data.name] = data.value
+    // updateTargetStyles(target, data)
 
     const data2 = {
       name: 'align-items',
@@ -612,129 +620,154 @@ export const autoLayoutAlignGrid = (num: number) => {
 
 }
 
-export const autoLayoutHorizontalGap = (value) => {
+export const autoLayoutHorizontalGap = (value, updateUI = false, updateCode = true) => {
   const target = globalThis.$target.data
   const data = {
     name: 'gap',
     value: `0 ${value}px`,
   }
-  // target.style[data.name] = data.value
-  sendInlineStyle(data)
+  if(updateUI)
+    updateTargetStyles(target, data)
+  if(updateCode)
+    sendInlineStyle(data)
 }
 
-export const autoLayoutVerticalGap = (value) => {
+export const autoLayoutVerticalGap = (value, updateUI = false, updateCode = true) => {
   const target = globalThis.$target.data
   const data = {
     name: 'gap',
     value: `${value}px 0`,
   }
-  // target.style[data.name] = data.value
-  sendInlineStyle(data)
+  if(updateUI)
+    updateTargetStyles(target, data)
+  if(updateCode)
+    sendInlineStyle(data)
 }
 
-export const autoLayoutHorizontalPadding = (value) => {
+export const autoLayoutHorizontalPadding = (value, updateUI = false, updateCode = true) => {
   const target = globalThis.$target.data
   const data = {
     name: 'padding',
     value: `0 ${value}px`,
   }
-  // target.style[data.name] = data.value
-  sendInlineStyle(data)
+  if(updateUI)
+    updateTargetStyles(target, data)
+  if(updateCode)
+    sendInlineStyle(data)
 }
 
-export const autoLayoutVerticalPadding = (value) => {
+export const autoLayoutVerticalPadding = (value, updateUI = false, updateCode = true) => {
   const target = globalThis.$target.data
   const data = {
     name: 'padding',
     value: `${value}px 0`,
   }
-  // target.style[data.name] = data.value
-  sendInlineStyle(data)
+  if(updateUI)
+    updateTargetStyles(target, data)
+  if(updateCode)
+    sendInlineStyle(data)
 }
 
-export const layerMixBlendMode = (value) => {
+export const layerMixBlendMode = (value, updateUI = false, updateCode = true) => {
   const target = globalThis.$target.data
   const data = {
     name: 'mix-blend-mode',
     value: value,
   }
-  // target.style[data.name] = data.value
-  sendInlineStyle(data)
+  if(updateUI)
+    updateTargetStyles(target, data)
+  if(updateCode)
+    sendInlineStyle(data)
 }
 
-export const layerMixBlendModeAlpha = (value) => {
+export const layerMixBlendModeAlpha = (value, updateUI = false, updateCode = true) => {
   const target = globalThis.$target.data
   const data = {
     name: 'opacity',
     value: Number(value) / 100,
   }
-  // target.style[data.name] = data.value
-  sendInlineStyle(data)
+  if(updateUI)
+    updateTargetStyles(target, data)
+  if(updateCode)
+    sendInlineStyle(data)
 }
 
-export const fillBackgroundColor = (value) => {
+export const fillBackgroundColor = (value, updateUI = false, updateCode = true) => {
   const target = globalThis.$target.data
   const data = {
     name: 'background-color',
     value: value,
   }
-  // target.style[data.name] = data.value
-  sendInlineStyle(data)
+  if(updateUI)
+    updateTargetStyles(target, data)
+  if(updateCode)
+    sendInlineStyle(data)
 }
 
-export const fillBackgroundColorAlpha = (value) => {
+export const fillBackgroundColorAlpha = (value, updateUI = false, updateCode = true) => {
   const target = globalThis.$target.data
   const data = {
     name: 'opacity',
     value: Number(value) / 100,
   }
-  // target.style[data.name] = data.value
-  sendInlineStyle(data)
+  if(updateUI)
+    updateTargetStyles(target, data)
+  if(updateCode)
+    sendInlineStyle(data)
 }
 
-export const strokeColor = (value) => {
+export const strokeColor = (value, updateUI = false, updateCode = true) => {
   const target = globalThis.$target.data
   const data = {
     name: 'border-color',
     value: value,
   }
-  // target.style[data.name] = data.value
-  sendInlineStyle(data)
+  if(updateUI)
+    updateTargetStyles(target, data)
+  if(updateCode)
+    sendInlineStyle(data)
 }
 
-export const strokeColorAlpha = (value) => {
+export const strokeColorAlpha = (value, updateUI = false, updateCode = true) => {
   const target = globalThis.$target.data
   const data = {
     name: 'opacity',
     value: Number(value) / 100,
   }
-  // target.style[data.name] = data.value
-  sendInlineStyle(data)
+  if(updateUI)
+    updateTargetStyles(target, data)
+  if(updateCode)
+    sendInlineStyle(data)
 }
 
-export const strokeWidth = (value) => {
+export const strokeWidth = (value, updateUI = false, updateCode = true) => {
   const target = globalThis.$target.data
-  const data2 = {
+  const data = {
     name: 'border-style',
     value: 'solid',
   }
-  const data = {
+  const data2 = {
     name: 'border-width',
     value: `${value}px`,
   }
-  // target.style[data.name] = data.value
-  sendInlineStyle(data2)
-  sendInlineStyle(data)
+  if(updateUI)
+    updateTargetStyles(target, data)
+  if(updateCode) {
+    sendInlineStyle(data)
+    sendInlineStyle(data2)
+  }
 }
 
-export const strokeType = (value) => {
+export const strokeType = (value, updateUI = false, updateCode = true) => {
   const target = globalThis.$target.data
   const data = {
     name: 'border-style',
     value: value,
   }
-  // target.style[data.name] = data.value
-  sendInlineStyle(data)
+  if(updateUI)
+    updateTargetStyles(target, data)
+  if(updateCode)
+    sendInlineStyle(data)
 }
 
 export const strokeTop = () => {
@@ -743,7 +776,7 @@ export const strokeTop = () => {
     name: 'border-top',
     value: '1px solid #000',
   }
-  // target.style[data.name] = data.value
+  // updateTargetStyles(target, data)
   sendInlineStyle(data)
 }
 
@@ -753,7 +786,7 @@ export const strokeRight = () => {
     name: 'border-right',
     value: '1px solid #000',
   }
-  // target.style[data.name] = data.value
+  // updateTargetStyles(target, data)
   sendInlineStyle(data)
 }
 
@@ -763,7 +796,7 @@ export const strokeBottom = () => {
     name: 'border-bottom',
     value: '1px solid #000',
   }
-  // target.style[data.name] = data.value
+  // updateTargetStyles(target, data)
   sendInlineStyle(data)
 }
 
@@ -773,7 +806,7 @@ export const strokeLeft = () => {
     name: 'border-left',
     value: '1px solid #000',
   }
-  // target.style[data.name] = data.value
+  // updateTargetStyles(target, data)
   sendInlineStyle(data)
 }
 
@@ -838,6 +871,7 @@ export const actions = {
     },
     width: {
       type: 'input',
+      draggable: true,
       default: '0',
       prop: 'width',
       regex: /(.*?)px/,
@@ -845,6 +879,7 @@ export const actions = {
     },
     height: {
       type: 'input',
+      draggable: true,
       default: '0',
       prop: 'height',
       regex: /(.*?)px/,
@@ -858,6 +893,7 @@ export const actions = {
     },
     rotation: {
       type: 'input',
+      draggable: true,
       default: '0',
       prop: 'transform',
       regex: /rotate\((.*?)deg\)/,
@@ -865,6 +901,7 @@ export const actions = {
     },
     borderRadius: {
       type: 'input',
+      draggable: true,
       default: '0',
       prop: 'border-radius',
       regex: /(.*?)px/,
@@ -904,6 +941,7 @@ export const actions = {
     },
     horizontalGap: {
       type: 'input',
+      draggable: true,
       default: '0',
       prop: 'gap',
       regex: /0 (.*?)px/,
@@ -911,6 +949,7 @@ export const actions = {
     },
     verticalGap: {
       type: 'input',
+      draggable: true,
       default: '0',
       prop: 'gap',
       regex: /(.*?)px 0/,
@@ -918,6 +957,7 @@ export const actions = {
     },
     horizontalPadding: {
       type: 'input',
+      draggable: true,
       default: '0',
       prop: 'padding',
       regex: /0 (.*?)px/,
@@ -925,6 +965,7 @@ export const actions = {
     },
     verticalPadding: {
       type: 'input',
+      draggable: true,
       default: '0',
       prop: 'padding',
       regex: /(.*?)px 0/,
@@ -939,6 +980,7 @@ export const actions = {
     },
     mixBlendModeAlpha: {
       type: 'input',
+      draggable: true,
       default: '100',
       prop: 'opacity',
       regex: /.*/,
@@ -955,6 +997,7 @@ export const actions = {
     },
     backgroundColorAlpha: {
       type: 'input',
+      draggable: true,
       default: '100',
       prop: 'opacity',
       regex: /.*/,
@@ -971,6 +1014,7 @@ export const actions = {
     },
     strokeColorAlpha: {
       type: 'input',
+      draggable: true,
       default: '100',
       prop: 'opacity',
       regex: /.*/,
@@ -978,6 +1022,7 @@ export const actions = {
     },
     strokeWidth: {
       type: 'input',
+      draggable: true,
       default: '0',
       prop: 'border-width',
       regex: /(.*?)px/,
@@ -995,4 +1040,10 @@ export const actions = {
       actions: ['strokeTop', 'strokeRight', 'strokeBottom', 'strokeLeft']
     },
   },
+}
+
+const updateTargetStyles = (target, data) => {
+  if(target.style[data.name] != data.value) {
+    target.style[data.name] = data.value
+  }
 }

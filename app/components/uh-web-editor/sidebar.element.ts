@@ -1,18 +1,9 @@
-import $          from 'blingblingjs'
-import hotkeys    from 'hotkeys-js'
-
 import {
   SidebarStyles,
 } from '../styles.store'
 
-import * as Icons                 from './uh-web-editor.icons'
-import { provideSelectorEngine }  from '../../features/search'
 import {
-  metaKey,
-  isPolyfilledCE,
-  constructibleStylesheetSupport,
   schemeRule,
-  apiURL,
   updateAppliedStyles,
   cssPath,
   showOneOffHandle,
@@ -22,9 +13,7 @@ import {
 } from '../../utilities'
 import { EditText } from '../../features'
 
-import axios from 'axios'
 import Incrementable from '../../utilities/incrementable'
-import { createMarginVisual } from '../../features/margin'
 
 type ElementNode = {
   name: string
@@ -280,7 +269,7 @@ export default class EditorSidebar extends HTMLElement {
     this.$shadow.querySelector('.show-root').addEventListener('click', this.onShowRootTreeClicked)
   }
 
-  createElementTree(element: Element, ariaLevel = 0) {
+  createElementTree(element: Element, ariaLevel = 1) {
     const children = element.children.length > 0 ? Array.from(element.children).map(child => this.createElementTree(child, ariaLevel + 1)) : []
     const _debugSource = elementDebugSource(element)
     const fileName = _debugSource?.fileName ? `${_debugSource?.fileName.split('/').pop()}(${_debugSource?.lineNumber}:${_debugSource?.columnNumber})` : 'inline'
@@ -304,6 +293,8 @@ export default class EditorSidebar extends HTMLElement {
   }
   
   cleanup() {
+    if(!this.$shadow) return
+    
     this.$shadow.removeEventListener('click', this.doubleClickAttr)
     this.$shadow.querySelectorAll('.tabs .tab').forEach(e => e.removeEventListener('click', this.onTabClicked))
     const allOpenClose = this.$shadow.querySelectorAll(`.open-close`)
@@ -318,7 +309,7 @@ export default class EditorSidebar extends HTMLElement {
 
   renderTree(node: ElementNode) {
     if(!node) return ''
-    const rgbLevel = node.ariaLevel * 14
+    const rgbLevel = node.ariaLevel * 8
     return `
       <div class="node">
         <div class="header" 
@@ -327,18 +318,19 @@ export default class EditorSidebar extends HTMLElement {
             class="left"
             data-selector="${node.selector}"
           > 
+          
             <div class="name button" title="${node.fileName}"> ${node.name} </div>
             ${node.children.length > 0 ? 
-            `<div 
-              class="open-close button" 
-              data-state="${node.open}"
-              style="color: ${node.open ? '#bfb1b0' : '#ff8400'};"
-            > 
-              ${node.open ? '▲' : '▼'} 
-            </div>` : ''}
+              `<div 
+                class="open-close button" 
+                data-state="${node.open}"
+                style="color: ${node.open ? '#bfb1b0' : '#69a7ff'};"
+              > 
+                ${node.open ? '▲' : '▼'} 
+              </div>` : ''}
           </div>  
           <div class="actions">
-            <div class="button edit"> edit </div>
+          <!-- <div class="button edit"> edit </div> --->
             <div class="button add"> (+) </div>
           </div>
         </div>
@@ -396,16 +388,16 @@ export default class EditorSidebar extends HTMLElement {
         <div class="tree-content">
           <div class="modal hidden edit-element">
             <div class="content">
-              asodijasodijasoidj
+              coming soon
             </div>
           </div>
           <div class="modal hidden add-element">
             <div class="content">
-              asodijasodijasoidj
+              coming soon
             </div>
           </div>
           <div style="display: flex; justify-content: start;"> 
-            <div class="show-root">show root</div>
+            <div class="show-root">Show Root</div>
           </div>
             ${this.renderTree(this.elementTree)}
         </div>

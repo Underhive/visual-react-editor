@@ -179,3 +179,16 @@ export const dropdownArrow = `<svg class="svg" xmlns="http://www.w3.org/2000/svg
 export const allSidesBox=`<svg class="svg" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="#000" fill-opacity="1" fill-rule="evenodd" stroke="none" d="M9 6h6v1H9V6zm6 12H9v-1h6v1zm-9-3V9h1v6H6zm12-6v6h-1V9h1z"></path></svg>`
 
 export const strokeWidth = `<svg class="svg" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12"><path fill="#000" fill-opacity="1" fill-rule="nonzero" stroke="none" d="M0 0h12v1H0V0zm0 4h12v2H0V4zm12 5H0v3h12V9z"></path></svg>`
+
+export const ewResize = `<svg width="16px" height="12px" viewBox="0 0 16 12" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+    <g transform="translate(-140.000000, -152.000000)">
+        <g id="resizeeastwest" transform="translate(140.000000, 151.000000)">
+            <path d="M0,6.9907 L0,6.9957 L5.997,12.9917 L5.998,8.9927 L7.997,8.9927 L10.017,8.9927 L10.017,12.9927 L15.997,6.9917 L10.017,0.9927 L10.018,5.0117 L7.997,5.0137 L5.997,5.0137 L5.998,0.9917 L0,6.9907 Z M1.411,6.9937 L4.998,3.4057 L4.997,5.9927 L8.497,5.9927 L11.018,5.9927 L11.018,3.4077 L14.583,6.9937 L11.019,10.5787 L11.018,7.9937 L8.497,7.9937 L4.998,7.9927 L4.997,10.5787 L1.411,6.9937 Z" id="cursor" fill="#FFFFFF"></path>
+            <path d="M8.4971,7.9932 L11.0181,7.9932 L11.0181,10.5792 L14.5831,6.9932 L11.0181,3.4082 L11.0181,6.0132 L8.4971,6.0132 L4.9971,6.0132 L4.9971,3.4062 L1.4111,6.9932 L4.9971,10.5792 L4.9971,7.9922 L8.4971,7.9932 Z" id="cursor" fill="#000000"></path>
+        </g>
+    </g>
+</g>
+</svg>`
+
+export const power = `<svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24"><path d="M440-440v-400h80v400h-80Zm40 320q-74 0-139.5-28.5T226-226q-49-49-77.5-114.5T120-480q0-80 33-151t93-123l56 56q-48 40-75 97t-27 121q0 116 82 198t198 82q117 0 198.5-82T760-480q0-64-26.5-121T658-698l56-56q60 52 93 123t33 151q0 74-28.5 139.5t-77 114.5q-48.5 49-114 77.5T480-120Z"/></svg>`
