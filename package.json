@@ -8,15 +8,19 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "dev-server": "ts-node cli/index.ts server",
-    "build-server": "tsc cli/index.ts --outDir bin/cli --module commonjs --target es6 --lib es6,dom --sourceMap --esModuleInterop --resolveJsonModule --skipLibCheck",
+    "build-server": "tsc cli/index.ts --outDir bin/cli --module commonjs --target es6 --lib es6,dom --esModuleInterop --resolveJsonModule --skipLibCheck --removeComments true --removeAttributeQuotes true",
     "start-server": "node bin/cli/index.js server",
     "start": "webpack --mode development --watch",
     "build": "webpack --mode production && npm run build-server",
     "bump": "npm version patch -m 'Release %s'"
   },
   "bin": {
-    "ucli": "./bin/cli/index.js"
+    "ucli": "bin/cli/index.js"
   },
+  "files": [
+    "/dist",
+    "/bin"
+  ],
   "dependencies": {
     "@babel/generator": "^7.23.4",
     "@babel/parser": "^7.23.4",
