@@ -35,7 +35,7 @@ import WebEditorDesignbar from './designbar.element'
 export class WebEditor extends HTMLElement  {
   connected
   lastPowerPressed
-  $shadow
+  $shadow: ShadowRoot
   toolbar_model: {
     [key: string]: {
       tool: string,
@@ -109,7 +109,7 @@ export class WebEditor extends HTMLElement  {
     this.designbar.remove()
     this.sidebar.remove()
     this.connected = false
-    this.$shadow.querySelector('ol').dataset.connected = false
+    this.$shadow.querySelector('ol').dataset.connected = "false"
   }
 
   disconnectedCallback() {
@@ -192,8 +192,8 @@ export class WebEditor extends HTMLElement  {
     )
 
     hotkeys(`${metaKey}+/,${metaKey}+.`, e => {
-      this.$shadow.host.style.display =
-        this.$shadow.host.style.display === 'none'
+      (this.$shadow.host as any).style.display =
+      (this.$shadow.host as any).style.display === 'none'
           ? 'block'
           : 'none'
     })
@@ -375,6 +375,6 @@ export class WebEditor extends HTMLElement  {
   }
 }
 
-// customElements.define('uh-web-editor', WebEditor)
+customElements.define('uh-web-editor', WebEditor)
 
-// export const WebEditorElement = new (customElements.get('uh-web-editor'))();
+export const WebEditorElement = new (customElements.get('uh-web-editor'))();

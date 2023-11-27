@@ -4,7 +4,7 @@
   "description": "A tool for creating the web from the web.",
   "author": "Underhive Inc.",
   "license": "",
-  "main": "dist/main.js",
+  "main": "dist/index.js",
   "types": "dist/types/src/index.d.ts",
   "scripts": {
     "dev-server": "ts-node src/cli/index.ts server",
