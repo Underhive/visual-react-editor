@@ -1,7 +1,7 @@
 import $ from 'blingblingjs'
 import hotkeys from 'hotkeys-js'
 import { TinyColor } from '@ctrl/tinycolor'
-import { queryPage } from './search'
+import { queryPage } from './search.js'
 import { getStyles, camelToDash, isOffBounds,
          deepElementFromPoint, getShadowValues,
          getTextShadowValues, firstUsableFontFromFamily

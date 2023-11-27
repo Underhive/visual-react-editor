@@ -1,7 +1,10 @@
 module.exports = {
-  entry: "./src/index.ts",
+  entry: "./index.ts",
   output: {
     filename: 'index.js',
+    library: 'underhive',
+    libraryTarget: 'umd',
+    umdNamedDefine: true
   },
   // Enable sourcemaps for debugging webpack's output.
   // devtool: "source-map",

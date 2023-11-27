@@ -8,7 +8,6 @@
     "resolveJsonModule": true,
     "allowJs": true,
     "declaration": true,
-    "declarationDir": "dist/types",
     "lib": [
       "es2017",
       "dom",
@@ -17,7 +16,7 @@
   },
   "include": [
     "src/**/**/**/*",
-    "src/**/*",
+    "src/**/*", "plugins", "features", "components", "cli", "utilities", "index.ts",
   ],
   "exclude": [
     "node_modules"

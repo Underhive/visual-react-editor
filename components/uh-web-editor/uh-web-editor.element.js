@@ -35,25 +35,24 @@ import WebEditorDesignbar from './designbar.element'
 export class WebEditor extends HTMLElement  {
   connected
   lastPowerPressed
-  $shadow: ShadowRoot
-  toolbar_model: {
-    [key: string]: {
-      tool: string,
-      label: string,
-      description: string,
-      icon: string,
-      instruction: string
-    }
-  }
-  active_tool
-  applyScheme
-  designbar
-  sidebar
-  selectorEngine
-  colorPicker
-  deactivate_feature
-  _tutsBaseURL
-
+  // $shadow: ShadowRoot
+  // toolbar_model: {
+  //   [key: string]: {
+  //     tool: string,
+  //     label: string,
+  //     description: string,
+  //     icon: string,
+  //     instruction: string
+  //   }
+  // }
+  // active_tool
+  // applyScheme
+  // designbar
+  // sidebar
+  // selectorEngine
+  // colorPicker
+  // deactivate_feature
+  // _tutsBaseURL
 
   constructor() {
     super()
@@ -186,14 +185,14 @@ export class WebEditor extends HTMLElement  {
       hotkeys(key, e => {
         e.preventDefault()
         this.toolSelected(
-          $(`[data-tool="${(value as any).tool}"]`, this.$shadow)[0]
+          $(`[data-tool="${value.tool}"]`, this.$shadow)[0]
         )
       })
     )
 
     hotkeys(`${metaKey}+/,${metaKey}+.`, e => {
-      (this.$shadow.host as any).style.display =
-      (this.$shadow.host as any).style.display === 'none'
+      this.$shadow.host.style.display =
+      this.$shadow.host.style.display === 'none'
           ? 'block'
           : 'none'
     })
@@ -374,7 +373,3 @@ export class WebEditor extends HTMLElement  {
     return this.active_tool.dataset.tool
   }
 }
-
-customElements.define('uh-web-editor', WebEditor)
-
-export const WebEditorElement = new (customElements.get('uh-web-editor'))();

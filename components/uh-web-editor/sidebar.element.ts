@@ -86,12 +86,6 @@ export default class EditorSidebar extends HTMLElement {
         if(key === 'data') {
           target[key] = value
           this.appliedStyles = value
-          this.setNodeSelected(cssPath(globalThis.$target.data))
-          this.cleanup()
-          this.setup()
-
-          const selectedNode = this.$shadow.querySelector(`.node [data-selector="${cssPath(globalThis.$target.data)}"]`)
-          selectedNode?.parentElement?.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'center' });
         }
         return true
       }
@@ -101,6 +95,14 @@ export default class EditorSidebar extends HTMLElement {
       set: (target, key, value) => {
         if(key === 'data') {
           target[key] = value
+
+          this.setNodeSelected(cssPath(globalThis.$target.data))
+          this.cleanup()
+          this.setup()
+
+          const selectedNode = this.$shadow.querySelector(`.node [data-selector="${cssPath(globalThis.$target.data)}"]`)
+          selectedNode?.parentElement?.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'center' });
+          
           if(value.parentNode) {
             this.elementTree = this.createElementTree(value.parentNode)
           } else {
@@ -215,17 +217,7 @@ export default class EditorSidebar extends HTMLElement {
     const selector = e.target.parentNode.dataset.selector
     // find selector in tree
     const node = this.elementTree
-    const findNode = (node: ElementNode, selector: string) => {
-      if(node.selector === selector) return node
-      if(node.children.length > 0) {
-        for(let i = 0; i < node.children.length; i++) {
-          const foundNode = findNode(node.children[i], selector)
-          if(foundNode) return foundNode
-        }
-      }
-      return null
-    }
-    const foundNode = findNode(node, selector)
+    const foundNode = this.findNode(node, selector)
     if(!foundNode) return
     foundNode.open = !state
     this.cleanup()
