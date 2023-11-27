@@ -4,7 +4,8 @@
   "description": "A tool for creating the web from the web.",
   "author": "Underhive Inc.",
   "license": "",
-  "main": "dist/index.js",
+  "main": "dist/main.js",
+  "types": "dist/types/src/index.d.ts",
   "scripts": {
     "dev-server": "ts-node src/cli/index.ts server",
     "build-server": "tsc src/cli/index.ts --outDir bin/cli --module commonjs --target es6 --lib es6,dom --sourceMap --esModuleInterop --resolveJsonModule --skipLibCheck",

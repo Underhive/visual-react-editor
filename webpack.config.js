@@ -4,8 +4,10 @@ module.exports = {
   entry: "./src/index.ts",
   output: {
     // filename: 'index.js',
+    filename: (pathData) => {
+      return pathData.chunk.name === 'main' ? '[name].js' : '[name].[hash:8].js';
+    },
     path: path.resolve(__dirname, 'dist'),
-    filename: '[name].[hash:8].js',
     sourceMapFilename: '[name].[hash:8].map',
     chunkFilename: '[id].[hash:8].js'
   },

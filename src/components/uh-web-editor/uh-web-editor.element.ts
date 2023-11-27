@@ -10,7 +10,7 @@ import {
   Selectable, Moveable, Padding, Margin, EditText, Font,
   Flex, Search, ColorPicker, BoxShadow, HueShift, MetaTip,
   Guides, Screenshot, Position, Accessibility, draggable, Zoom
-} from '../../features/'
+} from '../../features'
 
 import {
   WebEditorStyles,
@@ -32,9 +32,29 @@ import { Creator } from '../../features/creator'
 import WebEditorSidebar from './sidebar.element'
 import WebEditorDesignbar from './designbar.element'
 
-export default class WebEditor extends HTMLElement {
+export class WebEditor extends HTMLElement  {
   connected
   lastPowerPressed
+  $shadow
+  toolbar_model: {
+    [key: string]: {
+      tool: string,
+      label: string,
+      description: string,
+      icon: string,
+      instruction: string
+    }
+  }
+  active_tool
+  applyScheme
+  designbar
+  sidebar
+  selectorEngine
+  colorPicker
+  deactivate_feature
+  _tutsBaseURL
+
+
   constructor() {
     super()
 
@@ -45,10 +65,6 @@ export default class WebEditor extends HTMLElement {
       WebEditorStyles, WebEditorLightStyles, WebEditorDarkStyles
     )
     this.lastPowerPressed = 0
-  }
-
-  static get observedAttributes() {
-    return ['color-scheme']
   }
 
   connectedCallback() {
@@ -143,7 +159,10 @@ export default class WebEditor extends HTMLElement {
     const clickEvent = (e) => {
       const target = e.currentTarget || e.target
       const toolButton = target.closest('[data-tool]')
-      if (toolButton) this.toolSelected(toolButton) && e.stopPropagation();
+      if (toolButton) {
+        this.toolSelected(toolButton);
+        e.stopPropagation()
+      };
     }
 
     Array.from(buttonPieces)
@@ -157,25 +176,27 @@ export default class WebEditor extends HTMLElement {
     })
 
     draggable({
-      el:this,
+      el: this,
       surface: main_ol,
       cursor: 'grab',
+      clickEvent: clickEvent
     })
 
     Object.entries(this.toolbar_model).forEach(([key, value]) =>
       hotkeys(key, e => {
         e.preventDefault()
         this.toolSelected(
-          $(`[data-tool="${value.tool}"]`, this.$shadow)[0]
+          $(`[data-tool="${(value as any).tool}"]`, this.$shadow)[0]
         )
       })
     )
 
-    hotkeys(`${metaKey}+/,${metaKey}+.`, e =>
+    hotkeys(`${metaKey}+/,${metaKey}+.`, e => {
       this.$shadow.host.style.display =
         this.$shadow.host.style.display === 'none'
           ? 'block'
-          : 'none')
+          : 'none'
+    })
   }
 
   cleanup() {
@@ -340,11 +361,11 @@ export default class WebEditor extends HTMLElement {
   execCommand(command) {
     const query = `/${command}`
 
-    if (PluginRegistry.has(query))
-      return PluginRegistry.get(query)({
-        selected: this.selectorEngine.selection(),
-        query
-      })
+    // if (PluginRegistry.has(query))
+    //   return PluginRegistry.get(query)({
+    //     selected: this.selectorEngine.selection(),
+    //     query
+    //   })
 
     return Promise.resolve(new Error("Query not found"))
   }
@@ -354,6 +375,6 @@ export default class WebEditor extends HTMLElement {
   }
 }
 
-customElements.define('uh-web-editor', WebEditor)
+// customElements.define('uh-web-editor', WebEditor)
 
-export const WebEditorElement = new (customElements.get('uh-web-editor'))();
+// export const WebEditorElement = new (customElements.get('uh-web-editor'))();
