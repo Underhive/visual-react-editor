@@ -39,8 +39,8 @@ const updateSource = (payload) => {
 const mutations = {
   DO (state, payload) {
     state.history.push(payload)
-    console.log('history', state.history.map(i => i.action))
-    console.log('redoStack', redoStack.map(i => i.action))
+    // console.log('history', state.history.map(i => i.action))
+    // console.log('redoStack', redoStack.map(i => i.action))
     updateSource(payload)
   },
   UNDO (state) {
@@ -60,8 +60,8 @@ const mutations = {
       el.outerHTML = element.outerHTML
     }
     redoStack.push(last)
-    console.log('history', state.history.map(i => i.action))
-    console.log('redoStack', redoStack.map(i => i.action))
+    // console.log('history', state.history.map(i => i.action))
+    // console.log('redoStack', redoStack.map(i => i.action))
     const payload = { ...last, action: action === 'add' ? 'delete' : 'add' }
     updateSource(payload)
   },
@@ -104,8 +104,8 @@ const mutations = {
       })
       el.outerHTML = element.finalOuterHTML
     }
-    console.log('history', state.history.map(i => i.action))
-    console.log('redoStack', redoStack.map(i => i.action))
+    // console.log('history', state.history.map(i => i.action))
+    // console.log('redoStack', redoStack.map(i => i.action))
   },
   saveSourceMap (map) {
     sourceMap = map

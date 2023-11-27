@@ -52,7 +52,6 @@ const commandRunners = {
       const config = {
         language,
         entrypoint,
-        port: Math.floor(Math.random() * 1000) + 38000,
       };
       fs.writeFileSync(`${projectPath}/underhive.json`, JSON.stringify(config, null, 2));
 

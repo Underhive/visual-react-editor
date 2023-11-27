@@ -81,19 +81,25 @@ const insideTags = (tagName: string) => new RegExp(`<${tagName}[^>]*>([\\s\\S]*?
 const attributeInTag = (attr: string) => new RegExp(`^<\\w+\\s+(?:[^>]*?${attr}=\\{([^}]+\\})[^>]*?)>`, 'g')
 
 const runServer = () => {
-  const underhiveJson: {
-    language: 'js' | 'ts';
-    entrypoint: string;
-    port: number;
-  } = JSON.parse(fs.readFileSync('./underhive.json', 'utf8'));
-  const port = underhiveJson.port || 38388;
-  const language = underhiveJson.language ?? 'ts'
+  let language: 'js' | 'ts' = 'ts';
+  const port = process.env.PORT || 38388;
+
+  try {
+    const underhiveJson: {
+      language: 'js' | 'ts';
+      entrypoint: string;
+      port: number;
+    } = JSON.parse(fs.readFileSync('./underhive.json', 'utf8'));
+    language = underhiveJson.language
+  } catch(e) {
+  }
 
   const app = express();
 
   app.use(json());
 
   const fileQueues = new Map<string, { queue: any[], isProcessing: boolean }>();
+
   function queueMiddleware(req, res, next) {
     if(!fileQueues.has(req.body.source.fileName)) {
       fileQueues.set(req.body.source.fileName, {
@@ -324,7 +330,6 @@ const runServer = () => {
   app.listen(port, () => {
     console.log(`Underhive Server running at http://localhost:${port}`);
   });
-
 }
 
 export default runServer;

@@ -281,6 +281,7 @@ export const hitEditSytlesheet = async (data, alternateSource) => {
   try {
     response = await axios.post(`${apiURL}/edit/stylesheet`, data)
   } catch (e) {
+    console.log(e)
     if(e.response.status === 500) axios.post(`${apiURL}/edit/stylesheet`, { ...data, source: {...alternateSource} })
   }
 }
