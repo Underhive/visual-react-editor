@@ -1,11 +1,11 @@
 @import "../_variables.css";
 
 :host .hidden {
-  display: none;
+  display: none !important;
 }
 
 :host .visible {
-  display: block
+  display: block;
 }
 
 :host {
@@ -26,6 +26,106 @@
 :host .styles-content {
   display: flex;
   flex-direction: column;
+}
+
+:host .class-list {
+  display: flex;
+  flex-direction: column;
+  padding: 8px 8px 8px 8px;
+  border-bottom: 1px solid #2c2c2c;
+
+  &:not([data-length="0"]) {
+    > .list > .empty-box {
+      display: none;
+    }
+
+    > .list > .class:last-child {
+      display: flex !important;
+    }
+  }
+
+  .header { 
+    display: flex;
+    justify-content: space-between;
+    font-weight: bold;
+    margin-bottom: 10px;
+    padding: 0px 0px 0px 8px;
+    align-self: end;
+  }
+
+  .list {
+    display: flex;
+    flex-direction: column;
+
+    > .class-new > .add-class {
+      align-self: end;
+      display: flex;
+      margin-left: 6px;
+      font-size: 14px;
+      color: #fff;
+      background-color: #1a1a1a;
+      padding: 0px 16px;
+      width: fit-content;
+      cursor: pointer;
+      margin-bottom: 8px;
+      margin-top: 6px;
+      border: 1px solid #2c2c2c;
+    }
+  }
+
+  .class {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    background-color: rgb(12, 12, 12);
+    padding: 6px 8px;
+    justify-content: space-between;
+    margin-bottom: 4px;
+
+    > input {
+      margin-right: 9px;
+      padding: 0px 8px;
+    }
+
+    > div {
+      padding: 4px 8px;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 12px;
+      opacity: 0.75;
+
+      &:hover {
+        opacity: 1;
+        outline: 1px solid #484444;
+      }
+    }
+  }
+}
+
+:host input {
+  box-sizing: border-box;
+  cursor: default;
+  height: 28px;
+  padding: 0 0 0 8px;
+  border: 1px solid transparent;
+  min-width: 0;
+  color: #ffffff;
+  background: none;
+  fill: #ffffff;
+  padding-block: 1px;
+  padding-inline: 2px;
+  flex: 1 1 auto;
+  font-size: 12px;
+  outline: none;
+
+  &:focus {
+    border: 1px solid var(--theme-blue);
+  }
+
+  &:hover {
+    outline: 1px solid #2c2c2c;
+  }
+
 }
 
 :host .tabs {

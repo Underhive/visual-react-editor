@@ -4,7 +4,7 @@ import express, { Request, Response, json } from 'express';
 import { splitLines, buildLineEndingPositions, convertCssToJsx, jsonToJsx, getFullSourcePathFromRef, jsxToCssName, diffJson } from './server-helpers';
 import * as fs from 'fs';
 import { platform } from 'os';
-import { modifyElementStyle } from './modifiers/styler';
+import { modifyElementClass, modifyElementStyle } from './modifiers/styler';
 import { insertChildrenIntoElement, insertElement } from './modifiers/inserter';
 import { removeElement } from './modifiers/remover';
 
@@ -74,6 +74,7 @@ type StyleSheetEditLog = {
   file: string,
   selector: string,
   source: StyleSheetSource
+  classNameChanges?: { edit?: { [oldName: string]: string }, add?: string[] },
 }
 
 const insideTags = (tagName: string) => new RegExp(`<${tagName}[^>]*>([\\s\\S]*?)<\\\/${tagName}>`, 'g')
@@ -220,10 +221,26 @@ const runServer = () => {
 
     if(body.log.source.type === 'inline') {
       try {
-        const finalFileData = await modifyElementStyle(body.source.fileName, body.source.lineNumber, body.source.columnNumber, {
-          [body.log.name]: body.log.value
-        }, language)
-        fs.writeFileSync(body.source.fileName, finalFileData);
+        if(!body.log.classNameChanges) {
+          const finalFileData = await modifyElementStyle(
+            body.source.fileName, 
+            body.source.lineNumber, 
+            body.source.columnNumber, {
+              [body.log.name]: body.log.value
+            }, 
+            language
+          )
+          fs.writeFileSync(body.source.fileName, finalFileData);
+        } else {
+          const finalFileData = await modifyElementClass(
+            body.source.fileName, 
+            body.source.lineNumber, 
+            body.source.columnNumber, 
+            body.log.classNameChanges, 
+            language
+          )
+          fs.writeFileSync(body.source.fileName, finalFileData);  
+        }
       } catch(e) {
         console.error(e);
         if(e.message === "Unable to modify style") {

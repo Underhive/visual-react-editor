@@ -36,6 +36,8 @@ export default class EditorSidebar extends HTMLElement {
   elementTree: ElementNode
   activeTab: any
   lastTarget: any
+  rootFiberNode: any
+  latestTarget: any
 
   constructor() {
     super()
@@ -64,17 +66,25 @@ export default class EditorSidebar extends HTMLElement {
 
     document.addEventListener('readystatechange', e => {
       if(document.readyState === "complete") {
-        const rootFiberNode = (document.querySelector('#root') as any)
+        this.rootFiberNode = (document.querySelector('#root') as any)
+        if(!this.rootFiberNode) {
+          this.rootFiberNode = (document.querySelector('body') as any) // Next JS with react doesn't have a root element
+        }
+
+        if(!this.rootFiberNode) return console.error('No root element found')
+
+        this.rootFiberNode.scrollIntoView({ behavior: 'smooth',  block: 'start', inline: 'center'})
+
         let blingHash
-        for(let key in rootFiberNode) {
-          if(key.startsWith('__reactContainer$')) {
+        for(let key in this.rootFiberNode) {
+          if(key.startsWith('__reactContainer$') || key.startsWith('__reactFiber$')) {
             blingHash = key.split('$')[1]
             break
           }
         }
         globalThis.$blingHash = blingHash
-        this.elementTree = this.createElementTree(rootFiberNode)
-        const latestStyles = updateAppliedStyles(rootFiberNode)
+        this.elementTree = this.createElementTree(this.rootFiberNode)
+        const latestStyles = updateAppliedStyles(this.rootFiberNode)
         this.appliedStyles = latestStyles
         this.cleanup()
         this.setup()
@@ -112,6 +122,8 @@ export default class EditorSidebar extends HTMLElement {
         return true
       }
     })
+
+    this.updateTarget = this.updateTarget.bind(this)
   }
 
   connectedCallback() {
@@ -127,6 +139,28 @@ export default class EditorSidebar extends HTMLElement {
   attributeChangedCallback(name, oldValue, newValue) {
     if (name === 'color-scheme')
       this.applyScheme(newValue)
+  }
+
+  updateTarget(target: any) {
+    if(!target[0]) return
+    this.latestTarget = target[0]
+
+  }
+
+  editClassName = (action: {
+    edit?: { [oldName: string]: string },
+    add?: string[]
+  }) => {
+    const data = {
+      log: {
+        classNameChanges: action,
+        source: {
+          type: 'inline'
+        }
+      },
+      source: globalThis.sharedStorage.get('currentElementReactFiberSource')
+    }
+    hitEditSytlesheet(data, elementAlternateDebugSource(globalThis.$target.data))
   }
 
   editAttribute = e => {
@@ -200,7 +234,9 @@ export default class EditorSidebar extends HTMLElement {
   }
 
   onShowRootTreeClicked = e => {
-    const rootFiberNode = (document.querySelector('#root') as any)
+    if(!this.rootFiberNode) return
+    const rootFiberNode = this.rootFiberNode
+    rootFiberNode.scrollIntoView({ behavior: 'smooth',  block: 'start', inline: 'center'})
     this.elementTree = this.createElementTree(rootFiberNode)
     this.cleanup()
     this.setup()
@@ -242,6 +278,7 @@ export default class EditorSidebar extends HTMLElement {
 
     const latestStyles = updateAppliedStyles(elementFromSelector)
     this.appliedStyles = latestStyles
+    console.log('latestStyles', latestStyles)
     this.cleanup()
     this.setup()
   }
@@ -258,6 +295,37 @@ export default class EditorSidebar extends HTMLElement {
       addModal.style.display = 'flex' 
       console.log('add clicked')
     }
+  }
+
+  onClassNameDeleteClicked = e => {
+      const className = e.target.parentNode.querySelector('input').value
+      this.editClassName({ edit: { [className]: '' } })
+  }
+
+  onClassNameEdited = e => {
+    const className = e.target.value
+    const oldClassName = e.target.dataset.old
+    this.editClassName({ edit: { [oldClassName]: className } })
+    e.target.dataset.old = className
+  }
+
+  onClassNameAddClicked = e => {
+    const classInput = this.$shadow.querySelector('.class-new-input') as HTMLInputElement
+    const newClass = classInput.value
+    globalThis.$target.data.classList.add(newClass)
+    this.cleanup()
+    this.setup()
+    this.editClassName({ add: [newClass] })
+  }
+
+  stopBubbling = e => e.key != 'Escape' && e.stopPropagation()
+
+  onInsertCssClassFocus = e => {
+    e.target.addEventListener('keydown', this.stopBubbling)
+  }
+
+  onInsertCssClassBlur = e => {
+    e.target.removeEventListener('keydown', this.stopBubbling)
   }
 
   setup() {
@@ -294,7 +362,16 @@ export default class EditorSidebar extends HTMLElement {
 
     const allTreeNodeActionButtons = this.$shadow.querySelectorAll(`.node .actions .button`)
     allTreeNodeActionButtons.forEach(e => e.addEventListener('click', this.onTreeNodeActionClicked))
-    this.$shadow.querySelector('.show-root').addEventListener('click', this.onShowRootTreeClicked)
+    this.$shadow.querySelector('.show-root')?.addEventListener('click', this.onShowRootTreeClicked)
+
+    this.$shadow.querySelectorAll('.class-list .class')?.forEach(e => {
+      e.querySelector('.delete')?.addEventListener('dblclick', this.onClassNameDeleteClicked)
+      e.querySelector('input')?.addEventListener('change', this.onClassNameEdited)
+      e.querySelector('input')?.addEventListener('focus', this.onInsertCssClassFocus)
+      e.querySelector('input')?.addEventListener('blur', this.onInsertCssClassBlur)
+    })
+
+    this.$shadow.querySelector('.add-class')?.addEventListener('click', this.onClassNameAddClicked)
   }
 
   createElementTree(element: Element, ariaLevel = 1) {
@@ -324,14 +401,21 @@ export default class EditorSidebar extends HTMLElement {
     if(!this.$shadow) return
     
     this.$shadow.removeEventListener('click', this.doubleClickAttr)
-    this.$shadow.querySelectorAll('.tabs .tab').forEach(e => e.removeEventListener('click', this.onTabClicked))
+    this.$shadow.querySelectorAll('.tabs .tab')?.forEach(e => e.removeEventListener('click', this.onTabClicked))
     const allOpenClose = this.$shadow.querySelectorAll(`.open-close`)
-    allOpenClose.forEach(e => e.removeEventListener('click', this.onTreeNodeOpenCloseClicked))
+    allOpenClose?.forEach(e => e.removeEventListener('click', this.onTreeNodeOpenCloseClicked))
     const allTreeNodeNames = this.$shadow.querySelectorAll(`.node .name`)
-    allTreeNodeNames.forEach(e => e.removeEventListener('click', this.onTreeNodeNameClicked))
+    allTreeNodeNames?.forEach(e => e.removeEventListener('click', this.onTreeNodeNameClicked))
     const allTreeNodeActionButtons = this.$shadow.querySelectorAll(`.node .actions .button`)
-    allTreeNodeActionButtons.forEach(e => e.addEventListener('click', this.onTreeNodeActionClicked))
-    this.$shadow.querySelector('.show-root').removeEventListener('click', this.onShowRootTreeClicked)
+    allTreeNodeActionButtons?.forEach(e => e.addEventListener('click', this.onTreeNodeActionClicked))
+    this.$shadow.querySelector('.show-root')?.removeEventListener('click', this.onShowRootTreeClicked)
+    this.$shadow.querySelectorAll('.class-list .class')?.forEach(e => {
+      e.querySelector('.delete')?.removeEventListener('dblclick', this.onClassNameDeleteClicked)
+      e.querySelector('input')?.removeEventListener('change', this.onClassNameEdited)
+      e.querySelector('input')?.removeEventListener('focus', this.onInsertCssClassFocus)
+      e.querySelector('input')?.removeEventListener('blur', this.onInsertCssClassBlur)
+    })
+    this.$shadow.querySelector('.add-class')?.removeEventListener('click', this.onClassNameAddClicked)
     this.$shadow.innerHTML = ''
   }
 
@@ -376,7 +460,8 @@ export default class EditorSidebar extends HTMLElement {
 
   render() {
     const stylesActive = this.activeTab.data === 'styles'
-    const treeActive = this.activeTab.data === 'tree'
+    const treeActive = this.activeTab.data === 'tree';
+    const classList = this.latestTarget?.classList?.value?.trim()?.split(' ').filter( name => name.length > 0 ) ?? []
 
     return `
       <div>
@@ -389,6 +474,25 @@ export default class EditorSidebar extends HTMLElement {
           </div>
         </div>
         <div class="styles-content">
+          <div class="class-list" data-length="${classList.length}">
+            <div class="header">Element Classes</div>
+              <div class="list">
+                <div class="empty-box">
+                  No classes found
+                </div>
+                ${classList.map(className => `
+                  <div class="class">
+                    <input value="${className}" data-old="${className}" title="edit it to a new class"></input>
+                    <div class="delete" title="Double click to delete"> delete </div>
+                  </div>`
+                ).join('\n')}
+                
+                <div class="class" style="display: none;">
+                  <input class="class-new-input" placeholder="new class"></input>
+                  <div class="add-class">insert</div>
+                </div>
+              </div>
+          </div>
           <div class="styles-list">
             ${this.appliedStyles ? this.appliedStyles.map(style => {
                 const fileName = this.extractFilename(style.sourceMapJSON?.sources?.[0])

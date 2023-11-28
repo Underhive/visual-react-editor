@@ -88,6 +88,7 @@ export class WebEditor extends HTMLElement  {
     document.firstElementChild.prepend(this.designbar)
     document.firstElementChild.prepend(this.sidebar)
     this.selectorEngine.onSelectedUpdate(this.designbar.updateTarget)
+    this.selectorEngine.onSelectedUpdate(this.sidebar.updateTarget)
   }
 
   powerOff() {

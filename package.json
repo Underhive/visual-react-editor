@@ -8,7 +8,7 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "dev-server": "ts-node cli/index.ts server",
-    "build-server": "tsc cli/index.ts --outDir bin/cli --module commonjs --target es6 --lib es6,dom --esModuleInterop --resolveJsonModule --skipLibCheck --removeComments true --removeAttributeQuotes true",
+    "build-server": "tsc cli/index.ts --outDir bin/cli --module commonjs --target es6 --lib es6,dom --esModuleInterop --resolveJsonModule --skipLibCheck --removeComments true",
     "start-server": "node bin/cli/index.js server",
     "start": "webpack --mode development --watch",
     "build": "webpack --mode production && npm run build-server",

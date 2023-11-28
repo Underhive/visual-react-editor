@@ -43,8 +43,6 @@ export class BoxModel extends HTMLElement {
       }
     }
 
-    console.log('boxmodel', this.drawable)
-
     if (color === 'pink') {
       this.drawable.bg = 'hsla(218, 103, 58, 15%)'
       this.drawable.stripe = 'hsla(218, 103, 58, 80%)'

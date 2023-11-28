@@ -67,7 +67,9 @@ const commandRunners = {
       modifyStartScript(projectPath);
       
       console.log('Underhive init complete.')
-      console.log('Now run your project as you would normally and you should running!')
+
+      console.log('\n import { attachEditor, detachEditor } from \'underhive\'; \n')
+      console.log('Now please import and call attachEditor in one of your pages to run underhive!')
       console.log('Notice: [If you\'re using Next.js you might need to change the "dev" script yourself.]')
       console.log('Please reach out to us at: support@underhive.ai for any queries.')
     },
