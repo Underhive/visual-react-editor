@@ -3,7 +3,7 @@
 import runServer from './server'
 import { execSync } from 'child_process'
 import { modifyStartScript } from './modifiers/modifyStartScript'
-import { addImportToEntrypoint } from './modifiers/addUnderhiveImport'
+import { getEntrypointAndLanguage } from './modifiers/addUnderhiveImport'
 import * as fs from 'fs'
 
 const args = process.argv.slice(2)
@@ -46,8 +46,7 @@ const commandRunners = {
         return;
       }
 
-      const importStatement = `import 'underhive'`;
-      const { language, entrypoint } = addImportToEntrypoint(projectPath, importStatement);
+      const { language, entrypoint } = getEntrypointAndLanguage(projectPath);
       console.log('Setting up underhive.json')
       const config = {
         language,
@@ -69,6 +68,7 @@ const commandRunners = {
       
       console.log('Underhive init complete.')
       console.log('Now run your project as you would normally and you should running!')
+      console.log('Notice: [If you\'re using Next.js you might need to change the "dev" script yourself.]')
       console.log('Please reach out to us at: support@underhive.ai for any queries.')
     },
     intro: 'Setting up Underhive...'

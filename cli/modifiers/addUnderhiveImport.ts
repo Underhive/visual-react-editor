@@ -46,7 +46,7 @@ function findEntrypoint(projectPath, mainLanguage) {
   }
 
   const entryPoints = {
-    js: ['src/index.js', 'src/index.jsx', 'src/main.js', 'src/main.jsx', 'app/index.js', 'app/index.jsx'],
+    js: ['src/index.js', 'src/index.jsx', 'src/main.js', 'src/main.jsx', 'app/index.js', 'app/index.jsx', 'app/src/'],
     ts: ['src/index.ts', 'src/index.tsx', 'src/main.js', 'src/main.jsx', 'app/index.ts', 'app/index.tsx']
   }
 
@@ -61,7 +61,7 @@ function findEntrypoint(projectPath, mainLanguage) {
   return entrypoint;
 }
 
-export function addImportToEntrypoint(projectPath, importStatement) {
+export function getEntrypointAndLanguage(projectPath) {
   const mainLanguage = detectMainLanguage(projectPath);
   console.log(`Detected main language: ${mainLanguage}`);
   const entrypoint = findEntrypoint(projectPath, mainLanguage);
@@ -69,26 +69,26 @@ export function addImportToEntrypoint(projectPath, importStatement) {
   const entrypointPath = `${projectPath}/${entrypoint}`;
 
   if (!fs.existsSync(entrypointPath)) {
-    throw new Error('Entrypoint file not found');
+    console.log(`Entrypoint file not found.`);
+    return { language: mainLanguage, entrypoint: "" };
   }
 
-  console.log(`Adding import: ${importStatement}`);
-  let code = fs.readFileSync(entrypointPath, 'utf8');
-  const ast = parse(code, {
-    sourceType: 'module',
-    plugins: mainLanguage === 'ts' ? ['typescript', 'jsx'] : ['jsx']
-  });
+  // let code = fs.readFileSync(entrypointPath, 'utf8');
+  // const ast = parse(code, {
+  //   sourceType: 'module',
+  //   plugins: mainLanguage === 'ts' ? ['typescript', 'jsx'] : ['jsx']
+  // });
 
-  let firstImportLastLine = 0;
-  traverse(ast, {
-    ImportDeclaration(path) {
-      firstImportLastLine = path.node.loc.end.line;
-    }
-  });
+  // let firstImportLastLine = 0;
+  // traverse(ast, {
+  //   ImportDeclaration(path) {
+  //     firstImportLastLine = path.node.loc.end.line;
+  //   }
+  // });
 
-  const lines = code.split('\n');
-  lines.splice(firstImportLastLine, 0, importStatement);
-  fs.writeFileSync(entrypointPath, lines.join('\n'));
+  // const lines = code.split('\n');
+  // lines.splice(firstImportLastLine, 0, importStatement);
+  // fs.writeFileSync(entrypointPath, lines.join('\n'));
 
   return {
     language: mainLanguage,
