@@ -7,10 +7,10 @@ import { platform } from 'os';
 import { modifyElementClass, modifyElementStyle } from './modifiers/styler';
 import { insertChildrenIntoElement, insertElement } from './modifiers/inserter';
 import { removeElement } from './modifiers/remover';
-import mixpanel from 'mixpanel-browser';
+var Mixpanel = require('mixpanel');
+const mixpanel = Mixpanel.init('1e96a8909b2f68bc0b56b93e15914b6e');
 
 const apiURL = process.env.API_URL || 'https://api.underhive.in';
-mixpanel.init('1e96a8909b2f68bc0b56b93e15914b6e');
 
 type ReactFiberSourceDeclaration = {
   columnNumber: number,

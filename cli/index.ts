@@ -25,8 +25,8 @@ Example:
 
 For more information, visit:  https://underhive.ai or mail us at: support@underhive.ai
 `
-const mixpanel = require('mixpanel-browser');
-mixpanel.init('1e96a8909b2f68bc0b56b93e15914b6e');
+var Mixpanel = require('mixpanel');
+const mixpanel = Mixpanel.init('1e96a8909b2f68bc0b56b93e15914b6e');
 
 const commandRunners = {
   server: {
