@@ -7,8 +7,26 @@ import { platform } from 'os';
 import { modifyElementClass, modifyElementStyle } from './modifiers/styler';
 import { insertChildrenIntoElement, insertElement } from './modifiers/inserter';
 import { removeElement } from './modifiers/remover';
+import { v4 as uuidv4 } from 'uuid';
+
 var Mixpanel = require('mixpanel');
 const mixpanel = Mixpanel.init('1e96a8909b2f68bc0b56b93e15914b6e');
+
+// save a user id in the os's config file 
+let user_id = '';
+const os = require('os');
+const path = require('path');
+const configPath = path.join(os.homedir(), '.underhive');
+if (fs.existsSync(configPath)) {
+  const profileJson = fs.readFileSync(configPath, 'utf8');
+  user_id = JSON.parse(profileJson).user_id;
+} else {
+  user_id = uuidv4()
+  const profile = {
+    user_id,
+  }
+  fs.writeFileSync(configPath, JSON.stringify(profile));
+}
 
 const apiURL = process.env.API_URL || 'https://api.underhive.in';
 
@@ -88,6 +106,7 @@ const runServer = () => {
   const port = process.env.PORT || 38388;
 
   mixpanel.track('Server Instance Started', {
+    distinct_id: user_id,
     language,
   });
 
@@ -98,7 +117,7 @@ const runServer = () => {
       port: number;
     } = JSON.parse(fs.readFileSync('./underhive.json', 'utf8'));
     language = underhiveJson.language
-    mixpanel.track('Server Instance Config Init', underhiveJson);
+    mixpanel.track('Server Instance Config Init', { distinct_id: user_id, ...underhiveJson});
   } catch(e) {}
 
   const app = express();
@@ -187,6 +206,7 @@ const runServer = () => {
     }
     if (!objectLevel) {
       mixpanel.track('error/edit/characterData', {
+        distinct_id: user_id,
         error: "Unable to find tag data"
       });
       res.json({
@@ -208,7 +228,7 @@ const runServer = () => {
 
     fs.writeFileSync(body.source.fileName, finalFileData);
 
-    mixpanel.track('/edit/characterData');
+    mixpanel.track('/edit/characterData', {distinct_id: user_id});
 
     res.json({
       data: "OK"
@@ -257,6 +277,7 @@ const runServer = () => {
         console.error(e);
         if(e.message === "Unable to modify style") {
           mixpanel.track('error/edit/stylesheet', {
+            distinct_id: user_id,
             error: "Unable to modify style",
           });
           res.status(500).json({
@@ -265,7 +286,7 @@ const runServer = () => {
           return;
         }
       }
-      mixpanel.track('/edit/stylesheet');
+      mixpanel.track('/edit/stylesheet', {distinct_id: user_id});
       res.json({
         data: "OK"
       })
@@ -286,7 +307,7 @@ const runServer = () => {
     const finalFileData = fileData.substring(0, rangeToEdit.startIndex) + updatedCssText + fileData.substring(rangeToEdit.endIndex)
 
     fs.writeFileSync(styleSheetSource, finalFileData);
-    mixpanel.track('/edit/stylesheet');
+    mixpanel.track('/edit/stylesheet', {distinct_id: user_id});
     res.json({
       data: "OK"
     })
@@ -320,6 +341,7 @@ const runServer = () => {
       console.error(e);
       if(e.message === "Unable to modify style") {
         mixpanel.track('/edit/attributes', {
+          distinct_id: user_id,
           error: "Unable to modify style",
         });
         res.status(500).json({
@@ -328,7 +350,7 @@ const runServer = () => {
         return;
       }
     }
-    mixpanel.track('/edit/attributes');
+    mixpanel.track('/edit/attributes', {distinct_id: user_id});
     res.json({
       data: "OK"
     })
@@ -357,7 +379,7 @@ const runServer = () => {
       finalFileData = await removeElement(body.source.fileName, body.source.lineNumber, body.source.columnNumber, language)
     }
     fs.writeFileSync(body.source.fileName, finalFileData);
-    mixpanel.track('/edit/childList');
+    mixpanel.track('/edit/childList', {distinct_id: user_id});
     res.json({
       data: "OK"
     })

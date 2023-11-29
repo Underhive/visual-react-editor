@@ -37,7 +37,8 @@
     "ignore": "^5.3.0",
     "mixpanel": "^0.18.0",
     "prettier": "^3.1.0",
-    "query-selector-shadow-dom": "^0.4.6"
+    "query-selector-shadow-dom": "^0.4.6",
+    "uuid": "^9.0.1"
   },
   "devDependencies": {
     "@types/express": "^4.17.21",

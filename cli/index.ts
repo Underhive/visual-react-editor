@@ -5,6 +5,7 @@ import { execSync } from 'child_process'
 import { modifyStartScript } from './modifiers/modifyStartScript'
 import { getEntrypointAndLanguage } from './modifiers/addUnderhiveImport'
 import * as fs from 'fs'
+import { v4 as uuidv4 } from 'uuid';
 
 const args = process.argv.slice(2)
 
@@ -27,6 +28,22 @@ For more information, visit:  https://underhive.ai or mail us at: support@underh
 `
 var Mixpanel = require('mixpanel');
 const mixpanel = Mixpanel.init('1e96a8909b2f68bc0b56b93e15914b6e');
+
+// save a user id in the os's config file 
+let user_id = '';
+const os = require('os');
+const path = require('path');
+const configPath = path.join(os.homedir(), '.underhive');
+if (fs.existsSync(configPath)) {
+  const profileJson = fs.readFileSync(configPath, 'utf8');
+  user_id = JSON.parse(profileJson).user_id;
+} else {
+  user_id = uuidv4();
+  const profile = {
+    user_id,
+  }
+  fs.writeFileSync(configPath, JSON.stringify(profile));
+}
 
 const commandRunners = {
   server: {
@@ -51,6 +68,7 @@ const commandRunners = {
       const { language, entrypoint } = getEntrypointAndLanguage(projectPath);
       console.log('Setting up underhive.json')
       mixpanel.track('Project Init', {
+        distinct_id: user_id,
         language,
         entrypoint,
       });
