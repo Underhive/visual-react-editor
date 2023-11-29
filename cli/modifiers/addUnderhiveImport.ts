@@ -46,8 +46,8 @@ function findEntrypoint(projectPath, mainLanguage) {
   }
 
   const entryPoints = {
-    js: ['src/index.js', 'src/index.jsx', 'src/main.js', 'src/main.jsx', 'app/index.js', 'app/index.jsx', 'app/src/'],
-    ts: ['src/index.ts', 'src/index.tsx', 'src/main.js', 'src/main.jsx', 'app/index.ts', 'app/index.tsx']
+    js: ['src/index.js', 'src/index.jsx', 'src/main.js', 'src/main.jsx', 'app/index.js', 'app/index.jsx', 'src/app/layout.jsx'],
+    ts: ['src/index.ts', 'src/index.tsx', 'src/main.js', 'src/main.jsx', 'app/index.ts', 'app/index.tsx', 'src/app/layout.tsx']
   }
 
   let entrypoint

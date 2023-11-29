@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import express, { Request, Response, json } from 'express';
-import { splitLines, buildLineEndingPositions, convertCssToJsx, jsonToJsx, getFullSourcePathFromRef, jsxToCssName, diffJson } from './server-helpers';
+import { splitLines, buildLineEndingPositions, convertCssToJsx, jsonToJsx, getFullSourcePathFromRef, jsxToCssName, diffJson, mixpanel } from './server-helpers';
 import * as fs from 'fs';
 import { platform } from 'os';
 import { modifyElementClass, modifyElementStyle } from './modifiers/styler';
@@ -85,6 +85,10 @@ const runServer = () => {
   let language: 'js' | 'ts' = 'ts';
   const port = process.env.PORT || 38388;
 
+  mixpanel.track('Server Instance Started', {
+    language,
+  });
+
   try {
     const underhiveJson: {
       language: 'js' | 'ts';
@@ -92,8 +96,8 @@ const runServer = () => {
       port: number;
     } = JSON.parse(fs.readFileSync('./underhive.json', 'utf8'));
     language = underhiveJson.language
-  } catch(e) {
-  }
+    mixpanel.track('Server Instance Config Init', underhiveJson);
+  } catch(e) {}
 
   const app = express();
 
@@ -120,6 +124,7 @@ const runServer = () => {
   function processQueue(jobQueue: { queue: any[], isProcessing: boolean }) {
     let requestQueue = jobQueue.queue;
     let isProcessing = jobQueue.isProcessing;
+
     if(requestQueue.length > 0) {
       isProcessing = true;
       const { req, res, next } = requestQueue.shift();
@@ -179,6 +184,9 @@ const runServer = () => {
       objectLevel = insideTags(body.log.target.tagName).exec(afterCursor);
     }
     if (!objectLevel) {
+      mixpanel.track('error/edit/characterData', {
+        error: "Unable to find tag data"
+      });
       res.json({
         data: "ERROR"
       })
@@ -197,6 +205,8 @@ const runServer = () => {
     const finalFileData = fileData.substring(0, tagStart) + newData + fileData.substring(tagEnd)
 
     fs.writeFileSync(body.source.fileName, finalFileData);
+
+    mixpanel.track('/edit/characterData');
 
     res.json({
       data: "OK"
@@ -244,12 +254,16 @@ const runServer = () => {
       } catch(e) {
         console.error(e);
         if(e.message === "Unable to modify style") {
+          mixpanel.track('error/edit/stylesheet', {
+            error: "Unable to modify style",
+          });
           res.status(500).json({
             data: "Unable to modify style"
           })
           return;
         }
       }
+      mixpanel.track('/edit/stylesheet');
       res.json({
         data: "OK"
       })
@@ -270,7 +284,7 @@ const runServer = () => {
     const finalFileData = fileData.substring(0, rangeToEdit.startIndex) + updatedCssText + fileData.substring(rangeToEdit.endIndex)
 
     fs.writeFileSync(styleSheetSource, finalFileData);
-
+    mixpanel.track('/edit/stylesheet');
     res.json({
       data: "OK"
     })
@@ -303,16 +317,19 @@ const runServer = () => {
     } catch(e) {
       console.error(e);
       if(e.message === "Unable to modify style") {
+        mixpanel.track('/edit/attributes', {
+          error: "Unable to modify style",
+        });
         res.status(500).json({
           data: "Unable to modify style"
         })
         return;
       }
     }
+    mixpanel.track('/edit/attributes');
     res.json({
       data: "OK"
     })
-
   })
 
   app.post('/edit/childList', async (req: Request, res: Response) => {
@@ -338,7 +355,7 @@ const runServer = () => {
       finalFileData = await removeElement(body.source.fileName, body.source.lineNumber, body.source.columnNumber, language)
     }
     fs.writeFileSync(body.source.fileName, finalFileData);
-
+    mixpanel.track('/edit/childList');
     res.json({
       data: "OK"
     })

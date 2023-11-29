@@ -5,6 +5,7 @@ import { execSync } from 'child_process'
 import { modifyStartScript } from './modifiers/modifyStartScript'
 import { getEntrypointAndLanguage } from './modifiers/addUnderhiveImport'
 import * as fs from 'fs'
+import { mixpanel } from './server-helpers'
 
 const args = process.argv.slice(2)
 
@@ -48,6 +49,10 @@ const commandRunners = {
 
       const { language, entrypoint } = getEntrypointAndLanguage(projectPath);
       console.log('Setting up underhive.json')
+      mixpanel.track('Project Init', {
+        language,
+        entrypoint,
+      });
       const config = {
         language,
         entrypoint,

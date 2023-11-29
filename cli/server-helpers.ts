@@ -1,3 +1,5 @@
+import Mixpanel from 'mixpanel-browser'
+
 /**
  * Returns an array with the cumulative character count from the beginning, 
  *     based on the line number
@@ -172,6 +174,7 @@ export function diffJson(json1: {}, json2: {}) {
       }
     })
     return diff
-  }
+}
 
+export const mixpanel = Mixpanel.init('1e96a8909b2f68bc0b56b93e15914b6e');
   
