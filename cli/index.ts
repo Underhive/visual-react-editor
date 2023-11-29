@@ -5,7 +5,6 @@ import { execSync } from 'child_process'
 import { modifyStartScript } from './modifiers/modifyStartScript'
 import { getEntrypointAndLanguage } from './modifiers/addUnderhiveImport'
 import * as fs from 'fs'
-import { mixpanel } from './server-helpers'
 
 const args = process.argv.slice(2)
 
@@ -26,6 +25,8 @@ Example:
 
 For more information, visit:  https://underhive.ai or mail us at: support@underhive.ai
 `
+const mixpanel = require('mixpanel-browser');
+mixpanel.init('1e96a8909b2f68bc0b56b93e15914b6e');
 
 const commandRunners = {
   server: {

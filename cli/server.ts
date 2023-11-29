@@ -1,14 +1,16 @@
 #!/usr/bin/env node
 
 import express, { Request, Response, json } from 'express';
-import { splitLines, buildLineEndingPositions, convertCssToJsx, jsonToJsx, getFullSourcePathFromRef, jsxToCssName, diffJson, mixpanel } from './server-helpers';
+import { splitLines, buildLineEndingPositions, convertCssToJsx, jsonToJsx, getFullSourcePathFromRef, jsxToCssName, diffJson } from './server-helpers';
 import * as fs from 'fs';
 import { platform } from 'os';
 import { modifyElementClass, modifyElementStyle } from './modifiers/styler';
 import { insertChildrenIntoElement, insertElement } from './modifiers/inserter';
 import { removeElement } from './modifiers/remover';
+import mixpanel from 'mixpanel-browser';
 
 const apiURL = process.env.API_URL || 'https://api.underhive.in';
+mixpanel.init('1e96a8909b2f68bc0b56b93e15914b6e');
 
 type ReactFiberSourceDeclaration = {
   columnNumber: number,
