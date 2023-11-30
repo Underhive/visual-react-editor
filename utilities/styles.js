@@ -62,7 +62,7 @@ export const getComputedCanvasBackgroundColor = () => {
 
   const foo = document.createElement('span')
   foo.style.backgroundColor = 'Canvas'
-  document.body.appendChild(foo)
+  document.body.insertAdjacentElement('afterend', foo)
   canvas_color = getComputedStyle(foo).backgroundColor
   document.body.removeChild(foo)
 

@@ -224,7 +224,7 @@ const createDropzoneUI = el => {
   const zone = document.createElement('uh-web-editor-corners')
 
   zone.position = {el}
-  document.body.appendChild(zone)
+  document.body.insertAdjacentElement('afterend', zone)
 
   const observer = new MutationObserver(list =>
     zone.position = {el})
@@ -243,7 +243,7 @@ const createGripUI = el => {
   const grip = document.createElement('uh-web-editor-grip')
 
   grip.position = {el}
-  document.body.appendChild(grip)
+  document.body.insertAdjacentElement('afterend', grip)
 
   const observer = new MutationObserver(list =>
     grip.position = {el})
@@ -269,8 +269,8 @@ const createParentUI = parent => {
   label.position = {boundingRect: parent.getBoundingClientRect()}
   label.style.setProperty('--label-bg', 'var(--theme-purple)')
 
-  document.body.appendChild(hover)
-  document.body.appendChild(label)
+  document.body.insertAdjacentElement('afterend', hover)
+  document.body.insertAdjacentElement('afterend', label)
 
   const observer = new MutationObserver(list => {
     hover.position = {el:parent}

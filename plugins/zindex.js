@@ -34,7 +34,7 @@ export default function () {
             overlay.style.setProperty(`--hover-stroke`, color)
             overlay.style.setProperty(`--position`, isFixed(el) ? 'fixed' : 'absolute')
 
-            document.body.appendChild(label)
-            document.body.appendChild(overlay)
+            document.body.insertAdjacentElement('afterend', label)
+            document.body.insertAdjacentElement('afterend', overlay)
         })
 }

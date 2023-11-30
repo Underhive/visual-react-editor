@@ -18,7 +18,7 @@ export class Grip extends Handles {
   render({ width, height, top, left }) {
     this.style.setProperty('--position', isFixed(this.$shadow.host) ? 'fixed' : 'absolute')
     this.style.setProperty('--top', `${top + window.scrollY}px`)
-    this.style.setProperty('--left', `${left}px`)
+    this.style.setProperty('--left', `${left + window.scrollX}px`)
 
     return `
       <svg width="${width}" height="${height}">

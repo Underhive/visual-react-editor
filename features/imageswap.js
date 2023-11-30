@@ -187,7 +187,7 @@ const showOverlay = (node, i) => {
   else {
     overlays[i] = document.createElement('uh-web-editor-overlay')
     overlays[i].position = rect
-    document.body.appendChild(overlays[i])
+    document.body.insertAdjacentElement('afterend', overlays[i])
   }
 }
 
