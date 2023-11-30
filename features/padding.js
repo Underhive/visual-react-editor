@@ -65,7 +65,7 @@ export function padAllElementSides(els, keycommand) {
     .forEach(side => padElement(els, spoof + side))
 }
 
-function paintBackgrounds(els) {
+export function paintBackgrounds(els) {
   els.forEach(el => {
     const label_id = el.getAttribute('data-label-id')
 
@@ -78,7 +78,7 @@ function paintBackgrounds(els) {
   })
 }
 
-function removeBackgrounds(els) {
+export function removeBackgrounds(els) {
   els.forEach(el => {
     const label_id = el.getAttribute('data-label-id')
     const boxmodel = document.querySelector(`uh-web-editor-handles[data-label-id="${label_id}"]`)
@@ -110,7 +110,7 @@ export function createPaddingVisual(el, hover = false) {
 
     boxdisplay.position = { 
       mode: 'padding',
-      color: hover ? 'purple' : 'pink',
+      color: hover ? 'var(--theme-purple)' : 'var(--theme-color)',
       bounds, 
       sides,
     }

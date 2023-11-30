@@ -67,6 +67,7 @@ export class WebEditor extends HTMLElement  {
   }
 
   connectedCallback() {
+    document.addEventListener('contextmenu', this.preventContextMenu.bind(this));
     hotkeys.unbind('z') // z is poweroff
     this.connected = true
     this.designbar = new WebEditorDesignbar();
@@ -91,6 +92,10 @@ export class WebEditor extends HTMLElement  {
     this.selectorEngine.onSelectedUpdate(this.sidebar.updateTarget)
   }
 
+  preventContextMenu(e) {
+    e.preventDefault()
+  }
+
   powerOff() {
     this.deactivate_feature()
     this.cleanup()
@@ -110,6 +115,7 @@ export class WebEditor extends HTMLElement  {
     this.sidebar.remove()
     this.connected = false
     this.$shadow.querySelector('ol').dataset.connected = "false"
+    document.removeEventListener('contextmenu', this.preventContextMenu.bind(this));
   }
 
   disconnectedCallback() {
