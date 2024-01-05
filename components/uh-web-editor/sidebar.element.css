@@ -1,0 +1,421 @@
+@import "../_variables.css";
+
+:host .hidden {
+  display: none !important;
+}
+
+:host .visible {
+  display: block;
+}
+
+:host {
+  position: fixed;
+  width: 303px;
+  height: 100%;
+  top: 0;
+  left: 0;
+  background-color: #1a1a1a;
+  z-index: var(--layer-top);
+  border-right: 1px solid #2c2c2c;
+  font-family: monospace;
+  color: rgb(226, 226, 226);
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+:host .styles-content {
+  display: flex;
+  flex-direction: column;
+}
+
+:host .class-list {
+  display: flex;
+  flex-direction: column;
+  padding: 8px 8px 8px 8px;
+  border-bottom: 1px solid #2c2c2c;
+
+  &:not([data-length="0"]) {
+    > .list > .empty-box {
+      display: none;
+    }
+
+    > .list > .class:last-child {
+      display: flex !important;
+    }
+  }
+
+  .header { 
+    display: flex;
+    justify-content: space-between;
+    font-weight: bold;
+    margin-bottom: 10px;
+    padding: 0px 0px 0px 8px;
+    align-self: end;
+  }
+
+  .list {
+    display: flex;
+    flex-direction: column;
+
+    > .class-new > .add-class {
+      align-self: end;
+      display: flex;
+      margin-left: 6px;
+      font-size: 14px;
+      color: #fff;
+      background-color: #1a1a1a;
+      padding: 0px 16px;
+      width: fit-content;
+      cursor: pointer;
+      margin-bottom: 8px;
+      margin-top: 6px;
+      border: 1px solid #2c2c2c;
+    }
+  }
+
+  .class {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    background-color: rgb(12, 12, 12);
+    padding: 6px 8px;
+    justify-content: space-between;
+    margin-bottom: 4px;
+
+    > input {
+      margin-right: 9px;
+      padding: 0px 8px;
+    }
+
+    > div {
+      padding: 4px 8px;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 12px;
+      opacity: 0.75;
+
+      &:hover {
+        opacity: 1;
+        outline: 1px solid #484444;
+      }
+    }
+  }
+}
+
+:host input {
+  box-sizing: border-box;
+  cursor: default;
+  height: 28px;
+  padding: 0 0 0 8px;
+  border: 1px solid transparent;
+  min-width: 0;
+  color: #ffffff;
+  background: none;
+  fill: #ffffff;
+  padding-block: 1px;
+  padding-inline: 2px;
+  flex: 1 1 auto;
+  font-size: 12px;
+  outline: none;
+
+  &:focus {
+    border: 1px solid var(--theme-blue);
+  }
+
+  &:hover {
+    outline: 1px solid #2c2c2c;
+  }
+
+}
+
+:host .tabs {
+  display: flex;
+  position: sticky;
+  top: 0;
+  flex-direction: row;
+  justify-content: space-around;
+  align-items: center;
+  background-color: #3b3b3b;
+
+  .tab[data-active="true"] {
+    background-color: #0f0f0f;
+    color: var(--theme-blue);
+    border: 1px solid var(--theme-blue);
+  }
+  
+
+  .tab {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    color: #b2b2b2;
+    font-size: 14px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    transition: color 0.2s ease;
+    border: 0px solid transparent;
+    background-color: #2c2c2c; 
+    padding: 4px 16px 4px 16px;
+    width: 100%;
+    user-select: none;
+    border-bottom: 1px solid var(--theme-blue);
+
+
+    &:hover:not([data-active="true"]) {
+      color: rgb(226, 226, 226);
+      background-color: #313131; 
+    }
+
+    &.active {
+      color: rgb(12, 12, 12);
+      background-color: rgb(224, 224, 224); 
+    }
+  }
+}
+
+:host .style-info {
+  display: flex;
+  flex-direction: column;
+  background-color: rgb(12, 12, 12);
+  padding: 0px 4px;
+  border-top: 2px solid rgb(70, 70, 70);
+  border-bottom: 1px solid rgb(70, 70, 70);
+  margin-top: 16px;
+
+  .attr-new {
+    display: flex;
+    margin-left: 6px;
+    font-size: 16px;
+    font-weight: 800;
+    color: #fff;
+    background-color: #1a1a1a;
+    padding: 0px 16px;
+    border-radius: 4px;
+    width: fit-content;
+    cursor: pointer;
+    margin-bottom: 8px;
+    margin-top: 6px;
+  }
+
+  .attr {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    background-color: rgb(12, 12, 12);
+    padding: 4px 8px;
+
+    .name {
+      font-size: 14px;
+      font-weight: 800;
+      color: rgb(226, 226, 226);
+      border-radius: 4px;
+      max-lines: 1;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      width: 100%;
+
+    }
+
+    .value {
+      font-size: 12px;
+      font-weight: 500;
+      color: rgb(226, 226, 226);
+      background-color: #242424;
+      /* padding: 2px 16px; */
+      border-radius: 4px;
+      max-lines: 1;
+      line-clamp: 1;
+      text-overflow: ellipsis;
+      width: 100%;
+      height: min-content;
+    }
+
+    .delete {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 24px;
+      height: 24px;
+      margin-left: 8px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+
+      &:hover {
+        background-color: #313131;
+      }
+
+      svg {
+        width: 16px;
+        height: 16px;
+        fill: rgb(226, 226, 226);
+      }
+    }
+  }
+}
+
+:host .selector-header {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  background-color: rgb(12, 12, 12);
+  padding: 8px 6px;
+  border-bottom: 2px solid rgb(70, 70, 70);
+  margin-bottom: 4px;
+
+  .selector-name {
+    font-size: 12px;
+    font-weight: 500;
+    color: rgb(226, 226, 226);
+    background-color: #242424;
+    padding: 2px 16px;
+    border-radius: 4px;
+  }
+
+  .file-name {
+    font-size: 10px;
+    color: rgb(204, 204, 204);
+    cursor: pointer;
+    transition: color 0.2s ease;
+    text-decoration: underline;
+
+    &:hover {
+      color: rgb(224, 224, 224);
+    }
+  }
+}
+
+:host .tree-content {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 100%;
+
+  .header[data-parent-selected="true"] {
+    border-right: 1px solid rgba(105, 167, 255, 0.5); 
+    border-left: 1px solid rgba(105, 167, 255, 0.5); 
+    background-color: rgba(105, 167, 255, 0.25); 
+    border-bottom: 1px solid rgba(105, 167, 255, 0.5);
+
+    &:hover {
+      border-right: 1px solid rgba(105, 167, 255, 0.5); 
+      border-left: 1px solid rgba(105, 167, 255, 0.5); 
+      background-color: rgba(105, 167, 255, 0.25); 
+      border-bottom: 1px solid rgba(105, 167, 255, 0.5);
+    }
+  }
+
+  .show-root {
+    display: flex;
+    padding: 4px 8px;
+    font-size: 14px;
+    font-weight: 600;
+    margin: 8px;
+    border-radius: 2px;
+    cursor: pointer;
+    justify-self: end;
+    border: 1px solid #2c2c2c;
+    width: 100%;
+    align-items: center;
+    justify-content: center;
+
+    &:hover {
+      background-color: #2c2c2c;
+    }
+  }
+}
+
+:host .node {
+  color: rgb(226, 226, 226);
+  border: 0px solid rgb(70, 70, 70);
+
+  .header {
+    display: flex;
+    flex-direction: row;
+    font-size: 10px;
+    align-items: center;
+    justify-content: space-between;
+    background-color: rgb(12, 12, 12);
+
+    border-top: 2px solid #2c2c2c;
+
+    &:hover {
+      border: 1px solid rgb(70, 70, 70);
+    }
+  }
+
+  .open-close {
+    font-size: 12px;
+    margin-right: 2px;
+  }
+
+  .button {
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .header .name {
+    font-size: 12px;
+    font-weight: 800;
+    /* color: #242424;
+    background-color: rgb(224, 224, 224); */
+    padding: 4px 12px;
+    border-radius: 2px;
+    margin-bottom: 4px;
+    margin-top: 4px;
+    margin-right: 8px;
+  }
+
+  .header .actions {
+    display: flex;
+    flex-direction: row;
+    font-size: 10px;
+    align-items: center;
+    justify-content: space-around;
+    /* background-color: rgb(12, 12, 12); */
+    width: 15%;
+  }
+
+  .header .left {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-around;
+  }
+}
+
+:host .modal {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: fixed; 
+  z-index: var(--layer-top); 
+  top: 0;
+  left: 0;
+  width: 100%; /* Full width */
+  height: 100%; /* Full height */
+  overflow: auto; /* Enable scroll if needed */
+  background-color: rgb(0,0,0); /* Fallback color */
+  background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+}
+
+:host .edit-element .content {
+  display: flex;
+  flex-direction: column;
+  width: 600px;
+  height: 600px;
+  background-color: white;
+  color: #000;
+}
+
+:host .add-element .content {
+  display: flex;
+  flex-direction: column;
+  width: 600px;
+  height: 600px;
+  background-color: white;
+  color: #000;
+}

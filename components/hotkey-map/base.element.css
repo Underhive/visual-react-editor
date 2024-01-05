@@ -1,0 +1,168 @@
+@import "../_variables.css";
+
+:host {
+  display: none;
+  position: fixed;
+  top: 0;
+  right: 0;
+  z-index: var(--layer-top);
+  align-items: center;
+  justify-content: center;
+  width: 100vw;
+  height: 100vh;
+  background: var(--theme-bd-2);
+  backdrop-filter: blur(5px);
+  font-size: 16px;
+  font-family: system-ui;
+  cursor: initial;
+
+  --light-grey: hsl(0 0% 90%);
+  --grey: hsl(0 0% 60%);
+  --dark-grey: hsl(0 0% 40%);
+
+  @media (prefers-color-scheme: dark) {
+    --light-grey: hsl(0 0% 20%);
+    --grey: hsl(0 0% 60%);
+    --dark-grey: hsl(0 0% 80%);
+  }
+}
+
+:host [command] {
+  padding: 1em;
+  text-align: center;
+  font-size: 3vw;
+  font-weight: lighter;
+  letter-spacing: 0.1em;
+  color: var(--dark-grey);
+
+  & > [light] {
+    color: var(--grey);
+  }
+
+  & > [tool] {
+    text-decoration: underline;
+    text-decoration-color: var(--theme-color);
+  }
+
+  & > :matches([negative],[side],[amount]) {
+    font-weight: normal;
+  }
+}
+
+:host [card] {
+  padding: 1em;
+  background: var(--theme-bg);
+  border-radius: 0.5em;
+  color: var(--dark-grey);
+  display: flex;
+  justify-content: space-evenly;
+
+  & > div:not([keyboard]) {
+    display: flex;
+    align-items: flex-end;
+    margin-left: 1em;
+  }
+}
+
+:host [tool-icon] {
+  position: absolute;
+  top: 1em;
+  left: 0;
+  width: 100%;
+  padding: 0 1rem;
+  display: flex;
+  justify-content: center;
+
+  & > span {
+    color: var(--dark-grey);
+    display: grid;
+    grid-template-columns: 5vmax auto;
+    grid-gap: 0.5em;
+    align-items: center;
+    text-transform: capitalize;
+    font-size: 4vmax;
+    font-weight: lighter;
+  }
+
+  & svg {
+    width: 100%;
+    fill: var(--theme-color);
+  }
+}
+
+:host section {
+  display: flex;
+  justify-content: center;
+}
+
+:host section > span, 
+:host [arrows] > span {
+  border: 1px solid transparent;
+  border-radius: 0.5em;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin: 2px;
+  padding: 1.5vw;
+  font-size: 0.75em;
+  white-space: nowrap;
+}
+
+:host section > span:not([pressed="true"]), 
+:host [arrows] > span:not([pressed="true"]) {
+  border: 1px solid var(--light-grey);
+
+  &:hover {
+    border-color: var(--grey);
+  }
+}
+
+:host span[pressed="true"] {
+  background: var(--theme-color);
+  color: var(--theme-bg);
+}
+
+:host span:not([pressed="true"]):matches([used]) {
+  background: var(--light-grey);
+  cursor: pointer;
+}
+
+:host span[hotkey] {
+  color: var(--theme-color);
+  font-weight: bold;
+  cursor: pointer;
+}
+
+:host section > span[hotkey]:not([pressed="true"]) {
+  border-color: var(--theme-color);
+}
+
+:host [arrows] {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+
+  & > span:nth-child(1) {
+    grid-row: 1;
+    grid-column: 2;
+  }
+
+  & > span:nth-child(2) {
+    grid-row: 2;
+    grid-column: 2;
+  }
+
+  & > span:nth-child(3) {
+    grid-row: 2;
+    grid-column: 1;
+  }
+
+  & > span:nth-child(4) {
+    grid-row: 2;
+    grid-column: 3;
+  }
+}
+
+:host [caps] > span:nth-child(1),
+:host [shift] > span:nth-child(1)  { justify-content: flex-start; }
+:host [shift] > span:nth-child(12) { justify-content: flex-end; }

@@ -1,0 +1,24 @@
+{
+  "compilerOptions": {
+    "target": "es6",
+    "module": "commonjs",
+    "sourceMap": true,
+    "outDir": "dist",
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "allowJs": true,
+    "declaration": true,
+    "lib": [
+      "es2017",
+      "dom",
+      "dom.iterable"
+    ],
+  },
+  "include": [
+    "src/**/**/**/*",
+    "src/**/*", "plugins", "features", "components", "cli", "utilities", "index.ts",
+  ],
+  "exclude": [
+    "node_modules"
+  ],
+}
