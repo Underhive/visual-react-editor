@@ -211,7 +211,47 @@
   }
 }
 
-:host .alignments, 
+:host .connection > .content > .row {
+  margin: 8px;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+
+  .row {
+    align-items: center;
+    justify-content: space-between;
+  }
+
+
+  .status {
+    width: 8px;
+    height: 8px;
+    /* padding: 8px; */
+    border-radius: 100px;
+    /* background: greenyellow; */
+    background: orangered;
+    margin-right: 8px;
+  }
+
+  .info {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: center;
+    font-size: 10px;
+    align-self: center;
+
+    height: 14px;
+    width: 14px;
+    border: 1px solid rgb(80, 80, 80);
+    border-radius: 100px;
+    cursor: pointer;
+  }
+}
+
+:host 
+.alignments, 
+.connection,
 .auto-layout, 
 .layer, 
 .sizes-and-borders, 

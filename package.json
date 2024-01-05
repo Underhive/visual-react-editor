@@ -3,9 +3,13 @@
   "version": "0.4.23",
   "description": "A tool for creating the web from the web.",
   "author": "Underhive Inc.",
-  "license": "",
+  "license": "Apache-2.0",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Underhive/web-editor.git"
+  },
   "scripts": {
     "dev-server": "ts-node cli/index.ts server",
     "build-server": "tsc cli/index.ts --outDir bin/cli --module commonjs --target es6 --lib es6,dom --esModuleInterop --resolveJsonModule --skipLibCheck --removeComments true",

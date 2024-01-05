@@ -58,6 +58,6 @@ To start your project with Underhive, use:
 npm start
 ```
 
-## Support
-
-For more information and assistance, visit our website [Underhive](https://underhive.ai) or contact us via email at support@underhive.ai.
+## Tribute
+This project wouldn't be possible without the original efforts of the creators of [ProjectVisBug](https://github.com/GoogleChromeLabs/ProjectVisBug).
+ 

@@ -220,6 +220,17 @@ export default class EditorDesignbar extends HTMLElement {
   render() {
     return `
     <div>
+        <div class="connection bottom-border">
+          <div class="content">
+            <div class="row">
+              <div class="row">
+                <div class="status"></div>
+                <span>Not connected</span>
+              </div>
+              <div class="info" title="If this is a demo, ignore this. If you're running it and this is red then contact support"> i </div>
+            </div>
+          </div>
+        </div>
         <div class="alignments bottom-border">
           <div class="header"><span> Align </span></div>
           <div class="content">

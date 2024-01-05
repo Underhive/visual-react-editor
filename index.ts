@@ -7,9 +7,6 @@ export function attachEditor() {
     value: new SharedStorage(),
   });
   
-  if ('ontouchstart' in document.documentElement)
-    document.getElementById('mobile-info')!.style.display = ''
-  
   if (metaKey === 'ctrl')
     [...document.querySelectorAll('kbd')]
       .forEach(node => {

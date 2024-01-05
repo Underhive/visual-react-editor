@@ -4,6 +4,7 @@ module.exports = {
     filename: 'index.js',
     library: 'underhive',
     libraryTarget: 'umd',
+    globalObject: 'this',
     umdNamedDefine: true
   },
   // Enable sourcemaps for debugging webpack's output.
