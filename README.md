@@ -1,5 +1,7 @@
 # Underhive
 
+![underhive-web-editor](https://i.imgur.com/HlmOoK4.png)
+
 ## Introduction
 
 Underhive ushers in a new way of web development, where React applications can be edited visually, akin to working within Figma or similar design tools. Our tool allows designers and developers to directly manipulate their application's UI elements in a visual editor, merging the convenience of design software with the robust framework of React.
