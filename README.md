@@ -62,4 +62,8 @@ npm start
 
 ## Tribute
 This project wouldn't be possible without the original efforts of the creators of [ProjectVisBug](https://github.com/GoogleChromeLabs/ProjectVisBug).
+
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=Underhive/visual-react-editor&type=Date)](https://star-history.com/#Underhive/visual-react-editor&Date)
  
