@@ -14,19 +14,20 @@
   left: var(--left);
   max-width: var(--max-width);
   z-index: var(--layer-4);
-  transform: translateY(-100%);
-  background: var(--label-bg, var(--theme-purple, hsl(221, 69%, 47%)));
-  border-radius: 0.2em 0.2em 0 0;
+  transform: translateY(calc(-100% - 4px));
+  background: var(--label-bg, var(--theme-color, #0C8CE9));
+  border-radius: var(--radius-sm, 4px);
   text-shadow: var(--text-shadow);
   color: white;
   display: inline-flex;
   justify-content: center;
-  font-size: 0.8em;
-  font-weight: normal;
+  font-size: 0.7em;
+  font-weight: 500;
   font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, sans-serif;
   white-space: nowrap;
-  padding: 0.25em 0.4em 0.15em;
-  line-height: 1.1;
+  padding: 0.2em 0.5em;
+  line-height: 1.2;
+  letter-spacing: 0.01em;
 }
 
 :host a {

@@ -44,68 +44,74 @@ const mutations = {
     updateSource(payload)
   },
   UNDO (state) {
-    const last = state.history.length > 0 && state.history.pop() 
-    if(!last) return console.error('Nothing to undo')
+    const last = state.history.length > 0 && state.history.pop()
+    if(!last) return
     const { parentLocation, location, element, action } = last
     if(action === 'add') {
       const el = document.querySelector(location)
-      // el.remove()
+      if (el) el.remove()
     } else if(action === 'delete') {
-      const el = document.createElement(element.tagName)
       const parent = document.querySelector(parentLocation)
-      // parent.appendChild(el)
-      // el.outerHTML = element.outerHTML
+      if (parent && element.outerHTML) {
+        const temp = document.createElement('div')
+        temp.innerHTML = element.outerHTML
+        const restored = temp.firstElementChild
+        if (restored) parent.appendChild(restored)
+      }
     } else if (action === 'edit') {
       const el = document.querySelector(location)
-      el.outerHTML = element.outerHTML
+      if (el) el.outerHTML = element.outerHTML
     }
     redoStack.push(last)
-    // console.log('history', state.history.map(i => i.action))
-    // console.log('redoStack', redoStack.map(i => i.action))
     const payload = { ...last, action: action === 'add' ? 'delete' : 'add' }
     updateSource(payload)
   },
   REDO () {
     const redoingAnUndo = redoStack.length > 0
-    if(!redoingAnUndo) return console.error('Nothing to redo')
+    if(!redoingAnUndo) return
     const last = redoStack.pop()
     const { parentLocation, location, element, action } = last
-    
+
     if(action === 'add') {
-      const el = document.createElement(element.tagName)
       const parent = document.querySelector(parentLocation)
-      // parent.appendChild(el)
-      // el.outerHTML = element.outerHTML
+      if (parent && element.outerHTML) {
+        const temp = document.createElement('div')
+        temp.innerHTML = element.outerHTML
+        const restored = temp.firstElementChild
+        if (restored) parent.appendChild(restored)
+      }
       actions.do(last)
     } else if (action === 'delete') {
       const el = document.querySelector(location)
-      actions.do({
-        parentLocation: parentLocation,
-        location: location,
-        element: {
-          tagName: el?.tagName?.toLowerCase(),
-          outerHTML: el.outerHTML,
-          debugSource: {...elementDebugSource(el)}
-        },
-        action: 'delete',
-      })
-      // el.remove() // REACT DOES THIS
+      if (el) {
+        actions.do({
+          parentLocation: parentLocation,
+          location: location,
+          element: {
+            tagName: el.tagName.toLowerCase(),
+            outerHTML: el.outerHTML,
+            debugSource: {...elementDebugSource(el)}
+          },
+          action: 'delete',
+        })
+        el.remove()
+      }
     } else if(action === 'edit') {
       const el = document.querySelector(location)
-      actions.do({
-        parentLocation: parentLocation,
-        location: location,
-        element: {
-          tagName: el?.tagName?.toLowerCase(),
-          outerHTML: el.outerHTML,
-          finalOuterHTML: element.finalOuterHTML,
-        },
-        action: 'edit',
-      })
-      el.outerHTML = element.finalOuterHTML
+      if (el) {
+        actions.do({
+          parentLocation: parentLocation,
+          location: location,
+          element: {
+            tagName: el.tagName.toLowerCase(),
+            outerHTML: el.outerHTML,
+            finalOuterHTML: element.finalOuterHTML,
+          },
+          action: 'edit',
+        })
+        el.outerHTML = element.finalOuterHTML
+      }
     }
-    // console.log('history', state.history.map(i => i.action))
-    // console.log('redoStack', redoStack.map(i => i.action))
   },
   saveSourceMap (map) {
     sourceMap = map

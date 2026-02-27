@@ -26,32 +26,37 @@
   all: initial;
   cursor: inherit;
   font-size: 16px;
-  font-family: system-ui;
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   display: flex;
   flex-direction: row;
-  margin: 1em 0 0.5em 1em;
-  padding: 0;
+  margin: 0.75em 0 0.5em 0.75em;
+  padding: 4px;
   list-style-type: none;
-  backdrop-filter: blur(5px);
-  -webkit-backdrop-filter: blur(5px);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  gap: 1px;
 
   &:first-of-type {
-    box-shadow: 0 0.25em 0.5em hsla(0,0%,0%,10%);
-    backdrop-filter: blur(5px);
-    -webkit-backdrop-filter: blur(5px);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.06);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
     background-color: var(--theme-bd-2);
+    border-radius: 8px;
+    border: 1px solid rgba(0,0,0,0.06);
 
     &:active {
       cursor: grabbing !important;
     }
 
     @media (prefers-color-scheme: dark) {
-      box-shadow: 0 0.25em 0.5em hsla(0,0%,0%,50%);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+      border-color: rgba(255,255,255,0.06);
     }
   }
 
   &[data-connected=false] {
     background-color: rgba(0, 0, 0, 0.5);
+    border-radius: 8px;
 
     & > li:not([data-tool="power"]) {
       opacity: 0.25;
@@ -62,15 +67,15 @@
 }
 
 :host li {
-  height: 2.25em;
-  width: 2.25em;
-  margin: 0.05em 0.25em;
+  height: 2em;
+  width: 2em;
+  margin: 0;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   position: relative;
-  border-radius: 50%;
-
+  border-radius: 6px;
+  transition: all 150ms ease;
 
   &[data-tool] {
     &:hover {
@@ -79,6 +84,7 @@
     }
     &:active {
       background-color: var(--theme-icon_active-bg);
+      transform: scale(0.95);
     }
   }
 
@@ -124,8 +130,9 @@
     pointer-events: none;
     background: var(--theme-bg);
     color: var(--theme-text_color);
-    box-shadow: 0 0.1em 4.5em hsla(0,0%,0%,15%);
-    border-radius: 1em;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08), 0 8px 24px rgba(0,0,0,0.06);
+    border-radius: 8px;
+    border: 1px solid rgba(0,0,0,0.06);
 
     opacity: 0;
     transform: translateX(-1em);
@@ -197,15 +204,21 @@
     }
   }
 
-  &:hover:not([data-tool="search"]) > aside,
+  &:hover:not([data-tool="search"]):not([data-tool="insert"]) > aside,
   &[data-tool="search"] > svg:hover + aside {
     opacity: 1;
     transform: translateX(0);
     transition-delay: 1s;
   }
 
-  &:hover:not([data-tool="create"]) > aside,
+  &:hover:not([data-tool="create"]):not([data-tool="insert"]) > aside,
   &[data-tool="create"] > svg:hover + aside {
+    opacity: 1;
+    transform: translateX(0);
+    transition-delay: 1s;
+  }
+
+  &[data-tool="insert"] > svg:hover + aside {
     opacity: 1;
     transform: translateX(0);
     transition-delay: 1s;
@@ -250,7 +263,8 @@
 }
 
 :host li[data-tool="search"],
-:host li[data-tool="create"] {
+:host li[data-tool="create"],
+:host li[data-tool="insert"] {
   &:before {
     transform: translateX(-1em);
     opacity: 0;
@@ -258,22 +272,24 @@
 }
 
 :host li[data-tool="search"] > .search,
-:host li[data-tool="create"] > .create {
+:host li[data-tool="create"] > .create,
+:host li[data-tool="insert"] > .insert {
   position: absolute;
   right: 0;
   top: 3em;
   height: 100%;
   z-index: -1;
-  box-shadow: 0 0.25em 0.5em hsla(0,0%,0%,10%);
-  border-radius: 2em;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08), 0 8px 24px rgba(0,0,0,0.06);
+  border-radius: 8px;
   overflow: hidden;
+  border: 1px solid rgba(0,0,0,0.06);
 }
 
 :host li[data-tool="search"] > .search > input {
   direction: ltr;
   border: none;
-  font-size: 1em;
-  padding: 0.4em 0.4em 0.4em 3em;
+  font-size: 0.85em;
+  padding: 0.5em 0.5em 0.5em 3em;
   outline: none;
   height: 100%;
   width: 250px;
@@ -283,10 +299,11 @@
   color: var(--theme-text_color);
   cursor: initial;
   -webkit-appearance: none;
+  font-family: system-ui, -apple-system, sans-serif;
 
   &::placeholder {
-    font-weight: lighter;
-    font-size: 0.8em;
+    font-weight: 400;
+    font-size: 0.9em;
     color: var(--theme-icon_color);
   }
 }
@@ -294,21 +311,22 @@
 :host li[data-tool="create"] > .create > input {
   direction: ltr;
   border: none;
-  font-size: 1em;
-  padding: 0.4em 0.4em 0.4em 3em;
+  font-size: 0.85em;
+  padding: 0.5em 0.5em 0.5em 3em;
   outline: none;
   height: 100%;
   width: 400px;
   box-sizing: border-box;
-  caret-color: rgb(120, 105, 255);
+  caret-color: var(--theme-color, #0C8CE9);
   background-color: var(--theme-bg);
   color: var(--theme-text_color);
   cursor: initial;
   -webkit-appearance: none;
+  font-family: system-ui, -apple-system, sans-serif;
 
   &::placeholder {
-    font-weight: lighter;
-    font-size: 0.8em;
+    font-weight: 400;
+    font-size: 0.9em;
     color: var(--theme-icon_color);
   }
 }
@@ -370,6 +388,64 @@
 :host input[type='color'][value='']::-webkit-color-swatch {
   background-color: transparent !important;
   background-image: linear-gradient(155deg, #ffffff 0%,#ffffff 46%,#ff0000 46%,#ff0000 54%,#ffffff 55%,#ffffff 100%);
+}
+
+:host li[data-tool="insert"] > .insert {
+  width: 280px;
+  height: auto;
+  overflow: visible;
+  background-color: var(--theme-bg);
+  padding: 8px;
+
+  .insert-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 4px;
+  }
+
+  .insert-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    padding: 8px 4px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 150ms ease;
+    color: var(--theme-icon_color);
+
+    &:hover {
+      background-color: var(--theme-icon_hover-bg);
+      color: var(--theme-text_color);
+    }
+
+    &:active {
+      background-color: var(--theme-icon_active-bg);
+      transform: scale(0.95);
+    }
+  }
+
+  .insert-card-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+
+    & svg {
+      width: 20px;
+      height: 20px;
+    }
+  }
+
+  .insert-card-label {
+    font-size: 10px;
+    font-family: system-ui, -apple-system, sans-serif;
+    text-align: center;
+    line-height: 1.2;
+    white-space: nowrap;
+  }
 }
 
 @keyframes present-yourself {

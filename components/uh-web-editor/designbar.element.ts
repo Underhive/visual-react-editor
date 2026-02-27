@@ -139,7 +139,7 @@ export default class EditorDesignbar extends HTMLElement {
   }
 
   onDesignButtonClick(e, actions) {
-    if(!globalThis.$target.data.style) return
+    if(!globalThis.$target?.data?.style) return
     e.stopPropagation()
     e.preventDefault()
     this.sendActions(actions)
@@ -174,7 +174,7 @@ export default class EditorDesignbar extends HTMLElement {
                 if(el.querySelector('label')) {
                   el.querySelector('label')!.style.cursor = 'ew-resize'
                   el.querySelector('label')!.addEventListener('mousedown', (e: any) => {
-                    if(!globalThis.$target.data.style) return
+                    if(!globalThis.$target?.data?.style) return
                     e.stopPropagation()
                     e.preventDefault()
                     const value = input.value
@@ -184,19 +184,19 @@ export default class EditorDesignbar extends HTMLElement {
                       const newValue = parseInt(value) + diff
                       input.value = newValue.toString()
                       // (value, updateUi, updateCode)
-                      if(globalThis.$target.data.style) this.sendActions(actions, newValue, true, false)
+                      if(globalThis.$target?.data?.style) this.sendActions(actions, newValue, true, false)
                     }
                     document.addEventListener('mousemove', onUpdate)
                     document.addEventListener('mouseup', () => {
-                      if(!globalThis.$target.data.style) return
+                      if(!globalThis.$target?.data?.style) return
                       document.removeEventListener('mousemove', onUpdate)
-                      if(globalThis.$target.data.style) this.sendActions(actions, input.value)
+                      if(globalThis.$target?.data?.style) this.sendActions(actions, input.value)
                     })
                   })
                 }
               }
               input.addEventListener('input', (e: any) => {
-                if(!globalThis.$target.data.style) return
+                if(!globalThis.$target?.data?.style) return
                 e.stopPropagation()
                 e.preventDefault()
                 const value = e.target.value
@@ -205,7 +205,7 @@ export default class EditorDesignbar extends HTMLElement {
             } else if (type === 'select') {
               const select = el.querySelector('select')
               select.addEventListener('change', (e: any) => {
-                if(!globalThis.$target.data.style) return
+                if(!globalThis.$target?.data?.style) return
                 e.stopPropagation()
                 e.preventDefault()
                 const value = e.target.value

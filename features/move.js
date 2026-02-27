@@ -1,6 +1,6 @@
 import $ from 'blingblingjs'
 import hotkeys from 'hotkeys-js'
-import { getNodeIndex, showEdge, swapElements, notList } from '../utilities/'
+import { getNodeIndex, showEdge, notList } from '../utilities/'
 import { toggleWatching } from './imageswap'
 
 const key_events = 'up,down,left,right'
@@ -10,7 +10,7 @@ const state = {
     parent:     null,
     parent_ui:  [],
     siblings:   new Map(),
-    swapping:   new Map(),
+    ghost:      null,
   },
   hover: {
     dropzones: [],
@@ -90,6 +90,32 @@ export const popOut = ({el, under = false}) =>
         ? getNodeIndex(el) + 1
         : getNodeIndex(el)])
 
+const getLayoutDirection = (parent) => {
+  const style = getComputedStyle(parent)
+  if (style.display.includes('flex') && style.flexDirection.startsWith('row')) return 'horizontal'
+  if (style.display.includes('grid')) {
+    const cols = style.gridTemplateColumns
+    if (cols && cols.split(' ').filter(v => v !== '').length > 1) return 'horizontal'
+  }
+  return 'vertical'
+}
+
+const createGhost = (src) => {
+  const ghost = src.cloneNode(true)
+  ghost.setAttribute('uh-web-editor-drop-ghost', '')
+  ghost.removeAttribute('draggable')
+  ghost.removeAttribute('uh-web-editor-selected')
+  ghost.removeAttribute('uh-web-editor-drag-src')
+  Object.assign(ghost.style, {
+    opacity: '0.4',
+    pointerEvents: 'none',
+    outline: '2px dashed var(--theme-color, #0C8CE9)',
+    outlineOffset: '-2px',
+    transition: 'none',
+  })
+  return ghost
+}
+
 export function dragNDrop(selection) {
   if (!selection.length)
     return
@@ -105,8 +131,8 @@ export function dragNDrop(selection) {
   const hasNoSiblingsToDrag   = validMoveableChildren.length <= 1
   const isAnSVG               = src instanceof SVGElement
 
-  if (tooManySelected || hasNoSiblingsToDrag || isAnSVG) 
-    return 
+  if (tooManySelected || hasNoSiblingsToDrag || isAnSVG)
+    return
 
   validMoveableChildren.forEach(sibling =>
     state.drag.siblings.set(sibling, createGripUI(sibling)))
@@ -120,13 +146,10 @@ export function dragNDrop(selection) {
 const moveWatch = node => {
   const $node = $(node)
 
-  $node.on('mouseleave', dragDrop)
   $node.on('dragstart', dragStart)
-  $node.on('drop', dragDrop)
 
   state.drag.siblings.forEach((grip, sibling) => {
     sibling.setAttribute('draggable', true)
-    $(sibling).on('dragover', dragOver)
     $(sibling).on('mouseenter', siblingHoverIn)
     $(sibling).on('mouseleave', siblingHoverOut)
   })
@@ -135,63 +158,154 @@ const moveWatch = node => {
 const moveUnwatch = node => {
   const $node = $(node)
 
-  $node.off('mouseleave', dragDrop)
   $node.off('dragstart', dragStart)
-  $node.off('drop', dragDrop)
 
   state.drag.siblings.forEach((grip, sibling) => {
     sibling.removeAttribute('draggable')
-    $(sibling).off('dragover', dragOver)
     $(sibling).off('mouseenter', siblingHoverIn)
     $(sibling).off('mouseleave', siblingHoverOut)
   })
 }
 
-const dragStart = ({target}) => {
+const dragStart = (e) => {
+  const target = e.target
   if (!state.drag.siblings.has(target))
     return
 
   state.drag.src = target
+  state.drag.ghost = createGhost(target)
   state.hover.dropzones.push(createDropzoneUI(target))
   state.drag.siblings.get(target).style.opacity = 0.01
 
   target.setAttribute('uh-web-editor-drag-src', true)
   ghostNode(target)
 
+  // Hide browser's default drag image
+  const img = new Image()
+  img.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'
+  e.dataTransfer.setDragImage(img, 0, 0)
+  e.dataTransfer.effectAllowed = 'move'
+
+  document.addEventListener('dragover', documentDragOver)
+  document.addEventListener('drop', documentDrop)
+  target.addEventListener('dragend', dragEnd)
+
   $('uh-web-editor-hover').forEach(el =>
     !el.hasAttribute('uh-web-editor-drag-container') && el.remove())
 }
 
-const dragOver = e => {
-  if (
-    !state.drag.src || 
-    state.drag.swapping.get(e.target) || 
-    e.target.hasAttribute('uh-web-editor-drag-src') || 
-    !state.drag.siblings.has(e.currentTarget) ||
-    e.currentTarget !== e.target
-  ) return
+const documentDragOver = e => {
+  e.preventDefault()
+  e.dataTransfer.dropEffect = 'move'
 
-  state.drag.swapping.set(e.target, true)
-  swapElements(state.drag.src, e.target)
-
-  setTimeout(() => 
-    state.drag.swapping.delete(e.target)
-  , 250)
-}
-
-const dragDrop = e => {
   if (!state.drag.src) return
 
-  state.drag.src.removeAttribute('uh-web-editor-drag-src')
-  ghostBuster(state.drag.src)
+  const ghost = state.drag.ghost
+  const src = state.drag.src
 
-  if (state.drag.siblings.has(state.drag.src))
-    state.drag.siblings.get(state.drag.src).style.opacity = null
+  // Temporarily hide ghost to find element underneath
+  if (ghost.parentNode) ghost.style.display = 'none'
+  let target = document.elementFromPoint(e.clientX, e.clientY)
+  if (ghost.parentNode) ghost.style.display = ''
+
+  if (!target) return
+
+  // Walk up past editor UI and ghost elements
+  while (target && target !== document.body && target !== document.documentElement) {
+    const tag = (target.tagName || '').toLowerCase()
+    if (tag.startsWith('uh-web-editor') || target.hasAttribute('uh-web-editor-drop-ghost')) {
+      target = target.parentElement
+      continue
+    }
+    break
+  }
+
+  if (!target || target === document.body || target === document.documentElement) return
+
+  // Don't drop inside the source element
+  if (src.contains(target) || target === src) return
+
+  const container = target.parentElement
+  if (!container || container === document.documentElement) return
+
+  // Don't insert into the source element
+  if (src.contains(container)) return
+
+  const rect = target.getBoundingClientRect()
+  const direction = getLayoutDirection(container)
+  const isHorizontal = direction === 'horizontal'
+
+  const ratio = isHorizontal
+    ? (e.clientX - rect.left) / rect.width
+    : (e.clientY - rect.top) / rect.height
+  const before = ratio < 0.5
+
+  let refChild = before ? target : target.nextElementSibling
+  // Skip ghost and src in ref chain
+  while (refChild && (refChild === ghost || refChild === src)) {
+    refChild = refChild.nextElementSibling
+  }
+
+  // Avoid unnecessary DOM thrashing - check if ghost is already at the right spot
+  if (ghost.parentNode === container) {
+    let ghostNext = ghost.nextElementSibling
+    while (ghostNext && ghostNext === src) ghostNext = ghostNext.nextElementSibling
+    if (refChild === ghostNext) return
+  }
+
+  // Move ghost to position
+  if (ghost.parentNode) ghost.remove()
+  if (refChild && refChild.parentNode === container) {
+    container.insertBefore(ghost, refChild)
+  } else {
+    container.appendChild(ghost)
+  }
+}
+
+const documentDrop = e => {
+  e.preventDefault()
+  if (!state.drag.src || !state.drag.ghost) return
+
+  const src = state.drag.src
+  const ghost = state.drag.ghost
+
+  // Insert src at ghost's position
+  if (ghost.parentNode) {
+    ghost.parentNode.insertBefore(src, ghost)
+    ghost.remove()
+  }
+
+  cleanupDrag()
+}
+
+const dragEnd = () => {
+  // Fires after drop or on cancel (Esc)
+  // If ghost still exists in DOM, drag was cancelled
+  if (state.drag.ghost && state.drag.ghost.parentNode)
+    state.drag.ghost.remove()
+
+  cleanupDrag()
+}
+
+const cleanupDrag = () => {
+  const src = state.drag.src
+  if (!src) return
+
+  src.removeAttribute('uh-web-editor-drag-src')
+  ghostBuster(src)
+  src.removeEventListener('dragend', dragEnd)
+
+  if (state.drag.siblings.has(src))
+    state.drag.siblings.get(src).style.opacity = null
 
   state.hover.dropzones.forEach(zone =>
     zone.remove())
 
+  document.removeEventListener('dragover', documentDragOver)
+  document.removeEventListener('drop', documentDrop)
+
   state.drag.src = null
+  state.drag.ghost = null
 }
 
 const siblingHoverIn = ({target}) => {
@@ -212,7 +326,7 @@ const siblingHoverOut = ({target}) => {
 
 const ghostNode = ({style}) => {
   style.transition  = 'opacity .25s ease-out'
-  style.opacity     = 0.01
+  style.opacity     = 0.3
 }
 
 const ghostBuster = ({style}) => {
@@ -229,9 +343,9 @@ const createDropzoneUI = el => {
   const observer = new MutationObserver(list =>
     zone.position = {el})
 
-  observer.observe(el.parentNode, { 
-    childList: true, 
-    subtree: true, 
+  observer.observe(el.parentNode, {
+    childList: true,
+    subtree: true,
   })
 
   state.hover.observers.push(observer)
@@ -248,9 +362,9 @@ const createGripUI = el => {
   const observer = new MutationObserver(list =>
     grip.position = {el})
 
-  observer.observe(el.parentNode, { 
-    childList: true, 
-    subtree: true, 
+  observer.observe(el.parentNode, {
+    childList: true,
+    subtree: true,
   })
 
   state.hover.observers.push(observer)
@@ -277,9 +391,9 @@ const createParentUI = parent => {
     label.position = {boundingRect: parent.getBoundingClientRect()}
   })
 
-  observer.observe(parent, { 
-    childList: true, 
-    subtree: true, 
+  observer.observe(parent, {
+    childList: true,
+    subtree: true,
   })
 
   state.hover.observers.push(observer)
@@ -290,17 +404,29 @@ const createParentUI = parent => {
 export function clearListeners() {
   moveUnwatch(state.drag.parent)
 
-  state.hover.observers.forEach(observer => 
+  state.hover.observers.forEach(observer =>
     observer.disconnect())
 
-  state.hover.dropzones.forEach(zone => 
+  state.hover.dropzones.forEach(zone =>
     zone.remove())
 
-  state.drag.siblings.forEach((grip, sibling) => 
+  state.drag.siblings.forEach((grip, sibling) =>
     grip.remove())
 
-  state.drag.parent_ui.forEach(ui => 
+  state.drag.parent_ui.forEach(ui =>
     ui.remove())
+
+  if (state.drag.ghost) {
+    if (state.drag.ghost.parentNode) state.drag.ghost.remove()
+    state.drag.ghost = null
+  }
+
+  document.removeEventListener('dragover', documentDragOver)
+  document.removeEventListener('drop', documentDrop)
+
+  if (state.drag.src) {
+    state.drag.src.removeEventListener('dragend', dragEnd)
+  }
 
   state.hover.observers = []
   state.hover.dropzones = []

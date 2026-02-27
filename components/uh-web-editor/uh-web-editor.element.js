@@ -9,7 +9,8 @@ import {
 import {
   Selectable, Moveable, Padding, Margin, EditText, Font,
   Flex, Search, ColorPicker, BoxShadow, HueShift, MetaTip,
-  Guides, Screenshot, Position, Accessibility, draggable, Zoom
+  Guides, Screenshot, Position, Accessibility, draggable, Zoom,
+  Inserter
 } from '../../features'
 
 import {
@@ -21,6 +22,7 @@ import {
 import { WebEditorModel }            from './model'
 import * as Icons                 from './uh-web-editor.icons'
 import { provideSelectorEngine }  from '../../features/search'
+import { provideSelectorEngine as provideInserterSelectorEngine } from '../../features/inserter'
 // import { PluginRegistry }         from '../../plugins/_registry'
 import {
   metaKey,
@@ -80,6 +82,7 @@ export class WebEditor extends HTMLElement  {
     // this.colorPicker    = ColorPicker(this.$shadow, this.selectorEngine)
 
     provideSelectorEngine(this.selectorEngine)
+    provideInserterSelectorEngine(this.selectorEngine)
 
     if (this.getAttribute('viewmode') == 'artboard')
       Zoom.start(this.selectorEngine)
@@ -319,6 +322,10 @@ export class WebEditor extends HTMLElement  {
 
   create() {
     this.deactivate_feature = Creator($('[data-tool="create"]', this.$shadow))
+  }
+
+  insert() {
+    this.deactivate_feature = Inserter($('[data-tool="insert"]', this.$shadow))
   }
 
   boxshadow() {

@@ -4,6 +4,7 @@ import { convertCssToJsx } from '../cli/server-helpers';
 import axios from 'axios';
 
 export const updateAppliedStyles = (el, dontUpdate) => {
+  if (!el || !el.style) return []
   const elStyleObject = el.style
   const sheets = document.styleSheets;
   var influencingStyles = [];
@@ -48,21 +49,32 @@ export const updateAppliedStyles = (el, dontUpdate) => {
   let appliedStyles = []
 
   for(const style of influencingStyles) {
-    const sourceMap = style.parentRule.parentStyleSheet.ownerNode.textContent.match(/\/\*\#\s*sourceMappingURL\s*=\s*([^\s*]+)\s*\*\//gm)[0]
-    const sourceMapJSON = JSON.parse(decodeBase64(extractSourceMappingURL(sourceMap)))
-    const parentRuleCssText = style.parentRule.cssText
-    const parentRuleSelector = style.parentRule.selectorText
-    const range = findCssBlockRange(sourceMapJSON.sourcesContent[0], parentRuleSelector);
-    
-    const styles = JSON.parse(cssToJson(parentRuleCssText))
-    appliedStyles.push({
-      sourceMapJSON,
-      parentRuleCssText,
-      parentRuleSelector,
-      range,
-      styles: styles[parentRuleSelector.trim()],
-      type: 'stylesheet'
-    })
+    try {
+      const sourceMapMatch = style.parentRule?.parentStyleSheet?.ownerNode?.textContent?.match(/\/\*\#\s*sourceMappingURL\s*=\s*([^\s*]+)\s*\*\//gm)
+      const parentRuleCssText = style.parentRule.cssText
+      const parentRuleSelector = style.parentRule.selectorText
+      const styles = JSON.parse(cssToJson(parentRuleCssText))
+
+      if (sourceMapMatch) {
+        const sourceMapJSON = JSON.parse(decodeBase64(extractSourceMappingURL(sourceMapMatch[0])))
+        const range = findCssBlockRange(sourceMapJSON.sourcesContent[0], parentRuleSelector);
+        appliedStyles.push({
+          sourceMapJSON,
+          parentRuleCssText,
+          parentRuleSelector,
+          range,
+          styles: styles[parentRuleSelector.trim()],
+          type: 'stylesheet'
+        })
+      } else {
+        appliedStyles.push({
+          parentRuleCssText,
+          parentRuleSelector,
+          styles: styles[parentRuleSelector.trim()],
+          type: 'stylesheet'
+        })
+      }
+    } catch(e) {}
   }
 
   elStyleObject.cssText.length > 0 && appliedStyles.push(inlineStyles)
@@ -75,9 +87,12 @@ export const updateAppliedStyles = (el, dontUpdate) => {
 
   if(dontUpdate) return appliedStyles.reverse()
 
-  const currentStyles = globalThis.sharedStorage.get('currentStyles')
-  currentStyles.data = appliedStyles.reverse()
-  return currentStyles.data
+  const currentStyles = globalThis.sharedStorage?.get('currentStyles')
+  if (currentStyles) {
+    currentStyles.data = appliedStyles.reverse()
+    return currentStyles.data
+  }
+  return appliedStyles.reverse()
 }
 
 export const deepElementFromPoint = (x, y) => {

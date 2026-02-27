@@ -11,10 +11,6 @@ export class InspectorHotkeys extends HotkeyMap {
     this.tool       = 'inspector'
   }
 
-  show() {
-    this.$shadow.host.style.display = 'flex'
-  }
-
   render() {
     return `
       <article>
@@ -25,7 +21,12 @@ export class InspectorHotkeys extends HotkeyMap {
           </span>
         </div>
         <div command>
-          coming soon
+          <div style="display:flex;flex-direction:column;gap:0.5em;padding:0.5em;">
+            <span><b>Inspect:</b> hover over any element</span>
+            <span><b>Pin Tooltip:</b> click to pin the info panel</span>
+            <span><b>Move Tooltip:</b> drag a pinned tooltip</span>
+            <span><b>Remove All:</b> press Escape</span>
+          </div>
         </div>
       </article>
     `

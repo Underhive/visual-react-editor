@@ -10,10 +10,6 @@ export class SearchHotkeys extends HotkeyMap {
     this.tool       = 'search'
   }
 
-  show() {
-    this.$shadow.host.style.display = 'flex'
-  }
-
   render() {
     return `
       <article>
@@ -24,7 +20,11 @@ export class SearchHotkeys extends HotkeyMap {
           </span>
         </div>
         <div command>
-          coming soon
+          <div style="display:flex;flex-direction:column;gap:0.5em;padding:0.5em;">
+            <span><b>CSS Selector:</b> type any valid selector (e.g. .btn, #hero)</span>
+            <span><b>Aliases:</b> "images", "buttons", "links", "text"</span>
+            <span><b>Multi-select:</b> use comma-separated selectors</span>
+          </div>
         </div>
       </article>
     `

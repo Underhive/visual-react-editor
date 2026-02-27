@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Underhive Editor — Test Page</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+      background: #f5f5f5;
+      color: #1a1a1a;
+      line-height: 1.6;
+      padding: 40px;
+    }
+
+    /* -- Hero -- */
+    .hero {
+      text-align: center;
+      padding: 80px 40px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 16px;
+      color: white;
+      margin-bottom: 40px;
+    }
+    .hero h1 {
+      font-size: 3rem;
+      font-weight: 800;
+      margin-bottom: 16px;
+      letter-spacing: -0.02em;
+    }
+    .hero p {
+      font-size: 1.2rem;
+      opacity: 0.9;
+      max-width: 600px;
+      margin: 0 auto 32px;
+    }
+    .hero .cta {
+      display: inline-flex;
+      gap: 12px;
+    }
+    .hero .cta a {
+      display: inline-block;
+      padding: 12px 28px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 1rem;
+      text-decoration: none;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+    .hero .cta a:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+    }
+    .hero .cta .primary {
+      background: white;
+      color: #764ba2;
+    }
+    .hero .cta .secondary {
+      background: rgba(255,255,255,0.15);
+      color: white;
+      border: 1px solid rgba(255,255,255,0.3);
+    }
+
+    /* -- Nav -- */
+    nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 24px;
+      background: white;
+      border-radius: 12px;
+      margin-bottom: 40px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    }
+    nav .logo {
+      font-weight: 700;
+      font-size: 1.2rem;
+      color: #333;
+    }
+    nav .nav-links {
+      display: flex;
+      gap: 24px;
+      list-style: none;
+    }
+    nav .nav-links a {
+      text-decoration: none;
+      color: #555;
+      font-weight: 500;
+      font-size: 0.95rem;
+      transition: color 0.15s;
+    }
+    nav .nav-links a:hover { color: #764ba2; }
+    nav button {
+      padding: 8px 20px;
+      background: #764ba2;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    nav button:hover { background: #5a3580; }
+
+    /* -- Section -- */
+    .section {
+      margin-bottom: 48px;
+    }
+    .section h2 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 20px;
+      color: #333;
+    }
+
+    /* -- Card Grid -- */
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 24px;
+    }
+    .card {
+      background: white;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 32px rgba(0,0,0,0.1);
+    }
+    .card .card-img {
+      height: 180px;
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    }
+    .card:nth-child(2) .card-img {
+      background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    }
+    .card:nth-child(3) .card-img {
+      background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+    }
+    .card .card-body {
+      padding: 20px;
+    }
+    .card h3 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+    .card p {
+      font-size: 0.9rem;
+      color: #666;
+      line-height: 1.5;
+    }
+    .card .tag {
+      display: inline-block;
+      margin-top: 12px;
+      padding: 4px 10px;
+      background: #f0e6ff;
+      color: #764ba2;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    /* -- Stats -- */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+      margin-bottom: 48px;
+    }
+    .stat {
+      background: white;
+      padding: 24px;
+      border-radius: 12px;
+      text-align: center;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    }
+    .stat .number {
+      font-size: 2rem;
+      font-weight: 800;
+      color: #764ba2;
+      display: block;
+    }
+    .stat .label {
+      font-size: 0.85rem;
+      color: #888;
+      margin-top: 4px;
+    }
+
+    /* -- Form -- */
+    .form-demo {
+      background: white;
+      border-radius: 12px;
+      padding: 32px;
+      max-width: 480px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    }
+    .form-demo h3 {
+      font-size: 1.2rem;
+      margin-bottom: 20px;
+    }
+    .form-group {
+      margin-bottom: 16px;
+    }
+    .form-group label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #555;
+      margin-bottom: 6px;
+    }
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-family: inherit;
+      transition: border-color 0.15s;
+      outline: none;
+    }
+    .form-group input:focus,
+    .form-group textarea:focus,
+    .form-group select:focus {
+      border-color: #764ba2;
+      box-shadow: 0 0 0 3px rgba(118, 75, 162, 0.1);
+    }
+    .form-group textarea { min-height: 80px; resize: vertical; }
+    .form-actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 20px;
+    }
+    .btn {
+      padding: 10px 24px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      cursor: pointer;
+      border: none;
+      transition: all 0.15s;
+    }
+    .btn-primary {
+      background: #764ba2;
+      color: white;
+    }
+    .btn-primary:hover { background: #5a3580; }
+    .btn-outline {
+      background: transparent;
+      color: #764ba2;
+      border: 1px solid #764ba2;
+    }
+    .btn-outline:hover {
+      background: #f0e6ff;
+    }
+
+    /* -- List -- */
+    .item-list {
+      list-style: none;
+      background: white;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    }
+    .item-list li {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 20px;
+      border-bottom: 1px solid #f0f0f0;
+      transition: background 0.1s;
+    }
+    .item-list li:last-child { border-bottom: none; }
+    .item-list li:hover { background: #fafafa; }
+    .item-list .item-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .item-list .avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.85rem;
+      color: white;
+    }
+    .item-list .item-name { font-weight: 600; font-size: 0.95rem; }
+    .item-list .item-role { font-size: 0.8rem; color: #888; }
+    .item-list .status {
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+    .status-active { background: #e6f9ed; color: #1a8a4a; }
+    .status-pending { background: #fff3e0; color: #e67e22; }
+    .status-inactive { background: #fce4ec; color: #c0392b; }
+
+    /* -- Footer -- */
+    footer {
+      text-align: center;
+      padding: 40px;
+      color: #999;
+      font-size: 0.85rem;
+      margin-top: 60px;
+      border-top: 1px solid #e5e5e5;
+    }
+    footer a {
+      color: #764ba2;
+      text-decoration: none;
+    }
+
+    /* -- Two Column Layout -- */
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 40px;
+      align-items: start;
+    }
+
+    @media (max-width: 768px) {
+      .two-col { grid-template-columns: 1fr; }
+      .stats { grid-template-columns: repeat(2, 1fr); }
+      .hero h1 { font-size: 2rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <div class="logo">Acme Inc.</div>
+    <ul class="nav-links">
+      <li><a href="#">Products</a></li>
+      <li><a href="#">Features</a></li>
+      <li><a href="#">Pricing</a></li>
+      <li><a href="#">About</a></li>
+    </ul>
+    <button>Get Started</button>
+  </nav>
+
+  <section class="hero">
+    <h1>Build something amazing</h1>
+    <p>A modern platform for teams who want to ship fast and iterate with confidence.</p>
+    <div class="cta">
+      <a href="#" class="primary">Start free trial</a>
+      <a href="#" class="secondary">View demo</a>
+    </div>
+  </section>
+
+  <section class="stats">
+    <div class="stat">
+      <span class="number">12K+</span>
+      <span class="label">Active Users</span>
+    </div>
+    <div class="stat">
+      <span class="number">98%</span>
+      <span class="label">Uptime</span>
+    </div>
+    <div class="stat">
+      <span class="number">150+</span>
+      <span class="label">Integrations</span>
+    </div>
+    <div class="stat">
+      <span class="number">4.9</span>
+      <span class="label">Rating</span>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2>Featured Products</h2>
+    <div class="card-grid">
+      <div class="card">
+        <div class="card-img"></div>
+        <div class="card-body">
+          <h3>Analytics Dashboard</h3>
+          <p>Real-time insights into your application performance and user behavior.</p>
+          <span class="tag">Popular</span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-img"></div>
+        <div class="card-body">
+          <h3>Team Collaboration</h3>
+          <p>Work together seamlessly with real-time editing and commenting tools.</p>
+          <span class="tag">New</span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-img"></div>
+        <div class="card-body">
+          <h3>Automation Workflows</h3>
+          <p>Automate repetitive tasks and focus on what matters most to your team.</p>
+          <span class="tag">Beta</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section two-col">
+    <div>
+      <h2>Team Members</h2>
+      <ul class="item-list">
+        <li>
+          <div class="item-info">
+            <div class="avatar" style="background:#764ba2;">AK</div>
+            <div>
+              <div class="item-name">Alex Kim</div>
+              <div class="item-role">Lead Designer</div>
+            </div>
+          </div>
+          <span class="status status-active">Active</span>
+        </li>
+        <li>
+          <div class="item-info">
+            <div class="avatar" style="background:#4facfe;">SR</div>
+            <div>
+              <div class="item-name">Sam Rivera</div>
+              <div class="item-role">Full-Stack Developer</div>
+            </div>
+          </div>
+          <span class="status status-active">Active</span>
+        </li>
+        <li>
+          <div class="item-info">
+            <div class="avatar" style="background:#43e97b;">JP</div>
+            <div>
+              <div class="item-name">Jamie Park</div>
+              <div class="item-role">Product Manager</div>
+            </div>
+          </div>
+          <span class="status status-pending">Away</span>
+        </li>
+        <li>
+          <div class="item-info">
+            <div class="avatar" style="background:#f5576c;">TL</div>
+            <div>
+              <div class="item-name">Taylor Lee</div>
+              <div class="item-role">QA Engineer</div>
+            </div>
+          </div>
+          <span class="status status-inactive">Offline</span>
+        </li>
+      </ul>
+    </div>
+
+    <div>
+      <h2>Contact Us</h2>
+      <div class="form-demo">
+        <h3>Send a message</h3>
+        <div class="form-group">
+          <label for="name">Full Name</label>
+          <input type="text" id="name" placeholder="John Doe">
+        </div>
+        <div class="form-group">
+          <label for="email">Email Address</label>
+          <input type="email" id="email" placeholder="john@example.com">
+        </div>
+        <div class="form-group">
+          <label for="subject">Subject</label>
+          <select id="subject">
+            <option>General Inquiry</option>
+            <option>Technical Support</option>
+            <option>Sales</option>
+            <option>Partnership</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="message">Message</label>
+          <textarea id="message" placeholder="How can we help you?"></textarea>
+        </div>
+        <div class="form-actions">
+          <button class="btn btn-primary">Send Message</button>
+          <button class="btn btn-outline">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <p>&copy; 2025 Acme Inc. All rights reserved. <a href="#">Privacy Policy</a> &middot; <a href="#">Terms of Service</a></p>
+  </footer>
+
+  <!-- Load the Underhive editor -->
+  <script src="./dist/index.js"></script>
+  <script>
+    // Attach the visual editor
+    if (window.underhive) {
+      window.underhive.attachEditor();
+    }
+  </script>
+</body>
+</html>

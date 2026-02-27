@@ -1,6 +1,6 @@
 import { HotkeyMap } from './base.element'
 import { position as icon } from '../uh-web-editor/uh-web-editor.icons'
-import { altKey } from '../../utilities';
+import { metaKey, altKey } from '../../utilities';
 
 export class PositionHotkeys extends HotkeyMap {
   constructor() {
@@ -11,23 +11,45 @@ export class PositionHotkeys extends HotkeyMap {
     this.tool       = 'position'
   }
 
-  show() {
-    this.$shadow.host.style.display = 'flex'
+  createCommand({e:{code}, hotkeys}) {
+    let amount              = hotkeys.shift ? 10 : 1
+    let negative            = '[increase/decrease]'
+    let negative_modifier   = 'by'
+    let side                = '[arrow key]'
+
+    if (code === 'ArrowUp') {
+      side     = 'top'
+      negative = 'decrease'
+    }
+    if (code === 'ArrowDown') {
+      side     = 'top'
+      negative = 'increase'
+    }
+    if (code === 'ArrowLeft') {
+      side     = 'left'
+      negative = 'decrease'
+    }
+    if (code === 'ArrowRight') {
+      side     = 'left'
+      negative = 'increase'
+    }
+
+    return {
+      negative, negative_modifier, amount, side,
+    }
   }
 
-  render() {
+  displayCommand({negative, negative_modifier, side, amount}) {
+    if (negative === `±[${altKey}] `)
+      negative = '[increase/decrease]'
+    if (negative_modifier === ' to ')
+      negative_modifier = ' by '
+
     return `
-      <article>
-        <div tool-icon>
-          <span>
-            ${icon}
-            ${this._tool} Tool
-          </span>
-        </div>
-        <div command>
-          coming soon
-        </div>
-      </article>
+      <span negative>${negative}</span>
+      <span side tool>${side}</span>
+      <span light>${negative_modifier}</span>
+      <span amount>${amount}px</span>
     `
   }
 }

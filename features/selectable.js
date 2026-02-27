@@ -166,10 +166,10 @@ export function Selectable(uhWebEditor) {
       parentLocation: cssPath(deep_clone.parentNode),
       location: cssPath(deep_clone),
       element: {
-        tagName: deep_clone.tagName,
+        tagName: deep_clone.tagName.toLowerCase(),
         outerHTML: deep_clone.outerHTML,
-        debugSource: {...elementDebugSource(el)},
-        parentDebugSource: {...elementDebugSource(el.parentNode)}
+        debugSource: {...elementDebugSource(deep_clone)},
+        parentDebugSource: {...elementDebugSource(deep_clone.parentNode)}
       },
       action: 'add',
     })
@@ -184,7 +184,6 @@ export function Selectable(uhWebEditor) {
     selected.forEach(el => {
       const beforeEdit = el.outerHTML
       el.attr('style', null)
-      console.log('on_clearstyles')
       history.actions.do({
         parentLocation: cssPath(el.parentNode),
         location: cssPath(el),
@@ -201,7 +200,6 @@ export function Selectable(uhWebEditor) {
   }
 
   const on_copy = async e => {
-    console.log('copy')
     // if user has selected text, dont try to copy an element
     if (window.getSelection().toString().length)
       return
@@ -229,7 +227,6 @@ export function Selectable(uhWebEditor) {
       e.clipboardData?.setData?.('text/html', globalThis.copy_backup)
       const el = selected[0]
       if(el?.tagName?.toLowerCase() != 'uh-web-editor-handles' && el?.tagName?.toLowerCase() != 'uh-web-editor-label' && el?.tagName?.toLowerCase() != 'uh-web-editor-hover' && el?.tagName?.toLowerCase() != 'uh-web-editor-distance') {
-        console.log('on_cut')
         history.actions.do({
           parentLocation: cssPath(el.parentNode),
           location: cssPath(el),
@@ -241,9 +238,9 @@ export function Selectable(uhWebEditor) {
           },
           action: 'delete',
         })
-        // log the deleted element for undo
       }
-      // selected[0].remove() // REACT REMOVES THIS
+      unselect_all()
+      el.remove()
     }
   }
 
@@ -260,7 +257,6 @@ export function Selectable(uhWebEditor) {
         if(!(el instanceof Element)) return
         parent.appendChild(el)
         if(el?.tagName?.toLowerCase() != 'uh-web-editor-handles' && el?.tagName?.toLowerCase() != 'uh-web-editor-label' && el?.tagName?.toLowerCase() != 'uh-web-editor-hover' && el?.tagName?.toLowerCase() != 'uh-web-editor-distance') {
-          console.log('on_paste')
           history.actions.do({
             parentLocation: cssPath(parent),
             location: cssPath(el),
@@ -321,9 +317,18 @@ export function Selectable(uhWebEditor) {
   const on_paste_styles = async (e, index = 0) => {
     if (window.copied_styles) {
       selected.forEach(el => {
+        const beforeHTML = el.outerHTML
+
         window.copied_styles[index]
           .map(({prop, value}) =>
             el.style[prop] = value)
+
+        history.actions.do({
+          parentLocation: cssPath(el.parentNode),
+          location: cssPath(el),
+          element: { tagName: el.tagName.toLowerCase(), outerHTML: beforeHTML, finalOuterHTML: el.outerHTML },
+          action: 'edit',
+        })
 
         index >= window.copied_styles.length - 1
           ? index = 0
@@ -334,8 +339,17 @@ export function Selectable(uhWebEditor) {
       const potentialStyles = await navigator.clipboard.readText()
 
       if (selected.length && potentialStyles)
-        selected.forEach(el =>
-          el.style = potentialStyles)
+        selected.forEach(el => {
+          const beforeHTML = el.outerHTML
+          el.style = potentialStyles
+
+          history.actions.do({
+            parentLocation: cssPath(el.parentNode),
+            location: cssPath(el),
+            element: { tagName: el.tagName.toLowerCase(), outerHTML: beforeHTML, finalOuterHTML: el.outerHTML },
+            action: 'edit',
+          })
+        })
     }
   }
 
@@ -361,6 +375,9 @@ export function Selectable(uhWebEditor) {
       let $selected = [...selected]
       unselect_all()
       $selected.reverse().forEach(el => {
+        const parentLocation = cssPath(el.parentNode)
+        const location = cssPath(el)
+
         let l = el.children.length
         while (el.children.length > 0) {
           var node = el.childNodes[el.children.length - 1]
@@ -369,6 +386,13 @@ export function Selectable(uhWebEditor) {
           el.parentNode.prepend(node)
         }
         el.parentNode.removeChild(el)
+
+        history.actions.do({
+          parentLocation,
+          location,
+          element: { tagName: el.tagName.toLowerCase(), outerHTML: el.outerHTML, debugSource: elementDebugSource(el) },
+          action: 'delete',
+        })
       })
     }
     else {
@@ -381,6 +405,13 @@ export function Selectable(uhWebEditor) {
       )
       unselect_all()
       select(div)
+
+      history.actions.do({
+        parentLocation: cssPath(div.parentNode),
+        location: cssPath(div),
+        element: { tagName: 'div', outerHTML: div.outerHTML, debugSource: elementDebugSource(div) },
+        action: 'add',
+      })
     }
   }
 
@@ -576,22 +607,21 @@ export function Selectable(uhWebEditor) {
     })
 
     Array.from([...selected, ...labels, ...handles]).forEach(el => {
-      if(el?.tagName?.toLowerCase() != 'uh-web-editor-handles' && el?.tagName?.toLowerCase() != 'uh-web-editor-label' && el?.tagName?.toLowerCase() != 'uh-web-editor-hover' && el?.tagName?.toLowerCase() != 'uh-web-editor-distance') {
-        console.log('delete_all')
+      const tagLower = el?.tagName?.toLowerCase()
+      if(tagLower != 'uh-web-editor-handles' && tagLower != 'uh-web-editor-label' && tagLower != 'uh-web-editor-hover' && tagLower != 'uh-web-editor-distance') {
         history.actions.do({
           parentLocation: cssPath(el.parentNode),
           location: cssPath(el),
           element: {
-            tagName: el?.tagName?.toLowerCase(),
+            tagName: tagLower,
             outerHTML: el.outerHTML,
             debugSource: {...elementDebugSource(el)},
             parentDebugSource: {...elementDebugSource(el.parentNode)}
           },
           action: 'delete',
         })
-        // log the deleted element for undo
       }
-      // el.remove() // REACT REMOVES THIS
+      el.remove()
     })
 
     labels    = []

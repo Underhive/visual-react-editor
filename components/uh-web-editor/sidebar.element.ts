@@ -12,6 +12,7 @@ import {
   elementAlternateDebugSource
 } from '../../utilities'
 import { EditText } from '../../features'
+import history from '../../utilities/history'
 
 import Incrementable from '../../utilities/incrementable'
 
@@ -261,8 +262,10 @@ export default class EditorSidebar extends HTMLElement {
   }
 
   onTreeNodeNameClicked = e => {
-    const selector = e.target.parentNode.dataset.selector
+    const selector = e.target.parentNode?.dataset?.selector
+    if (!selector) return
     const elementFromSelector = document.querySelector(selector)
+    if (!elementFromSelector) return
 
     elementFromSelector.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' })
 
@@ -278,22 +281,141 @@ export default class EditorSidebar extends HTMLElement {
 
     const latestStyles = updateAppliedStyles(elementFromSelector)
     this.appliedStyles = latestStyles
-    console.log('latestStyles', latestStyles)
     this.cleanup()
     this.setup()
   }
 
   onTreeNodeActionClicked = e => {
+    const selector = e.target.closest('.header')?.querySelector('.left')?.dataset?.selector
+
     if(e.target.classList.contains('edit')) {
       const editModal: HTMLElement = this.$shadow.querySelector('.modal.edit-element')
       editModal.classList.remove('hidden')
       editModal.style.display = 'flex'
-      console.log('edit clicked')
+
+      if (selector) {
+        const el = document.querySelector(selector)
+        if (el) {
+          const idInput = editModal.querySelector('.edit-id') as HTMLInputElement
+          const classInput = editModal.querySelector('.edit-class') as HTMLInputElement
+          const styleInput = editModal.querySelector('.edit-style') as HTMLTextAreaElement
+          const tagDisplay = editModal.querySelector('.edit-tag') as HTMLElement
+          if (idInput) idInput.value = el.id || ''
+          if (classInput) classInput.value = el.className || ''
+          if (styleInput) styleInput.value = el.getAttribute('style') || ''
+          if (tagDisplay) tagDisplay.textContent = el.tagName.toLowerCase()
+          editModal.dataset.selector = selector
+        }
+      }
     } else if(e.target.classList.contains('add')) {
       const addModal: HTMLElement = this.$shadow.querySelector('.modal.add-element')
       addModal.classList.remove('hidden')
-      addModal.style.display = 'flex' 
-      console.log('add clicked')
+      addModal.style.display = 'flex'
+      addModal.dataset.parentSelector = selector || ''
+    }
+  }
+
+  onEditElementSave = e => {
+    const editModal: HTMLElement = this.$shadow.querySelector('.modal.edit-element')
+    const selector = editModal?.dataset?.selector
+    if (!selector) return
+
+    const el = document.querySelector(selector)
+    if (!el) return
+
+    const beforeHTML = el.outerHTML
+
+    const idInput = editModal.querySelector('.edit-id') as HTMLInputElement
+    const classInput = editModal.querySelector('.edit-class') as HTMLInputElement
+    const styleInput = editModal.querySelector('.edit-style') as HTMLTextAreaElement
+
+    if (idInput) el.id = idInput.value
+    if (classInput) el.className = classInput.value
+    if (styleInput) el.setAttribute('style', styleInput.value)
+
+    history.actions.do({
+      parentLocation: cssPath(el.parentNode),
+      location: cssPath(el),
+      element: {
+        tagName: el.tagName.toLowerCase(),
+        outerHTML: beforeHTML,
+        finalOuterHTML: el.outerHTML,
+      },
+      action: 'edit',
+    })
+
+    editModal.classList.add('hidden')
+    editModal.style.display = 'none'
+    this.cleanup()
+    this.setup()
+  }
+
+  onAddElementSubmit = e => {
+    const addModal: HTMLElement = this.$shadow.querySelector('.modal.add-element')
+    const parentSelector = addModal?.dataset?.parentSelector
+
+    const typeSelect = addModal.querySelector('.add-type') as HTMLSelectElement
+    const contentInput = addModal.querySelector('.add-content') as HTMLInputElement
+    const idInput = addModal.querySelector('.add-id') as HTMLInputElement
+    const classInput = addModal.querySelector('.add-class') as HTMLInputElement
+    const styleInput = addModal.querySelector('.add-style') as HTMLInputElement
+    const positionSelect = addModal.querySelector('.add-position') as HTMLSelectElement
+
+    const tagName = typeSelect?.value || 'div'
+    const content = contentInput?.value || ''
+    const position = positionSelect?.value || 'append'
+
+    const newEl = document.createElement(tagName)
+    if (content) newEl.textContent = content
+    if (idInput?.value) newEl.id = idInput.value
+    if (classInput?.value) newEl.className = classInput.value
+    if (styleInput?.value) newEl.setAttribute('style', styleInput.value)
+
+    const parent = parentSelector ? document.querySelector(parentSelector) : (globalThis.$target?.data || document.body)
+    if (parent) {
+      if (position === 'before' && parent.parentNode) {
+        parent.parentNode.insertBefore(newEl, parent)
+      } else if (position === 'after' && parent.parentNode) {
+        parent.parentNode.insertBefore(newEl, parent.nextSibling)
+      } else if (position === 'prepend' && parent.firstChild) {
+        parent.insertBefore(newEl, parent.firstChild)
+      } else {
+        parent.appendChild(newEl)
+      }
+
+      const insertParent = (position === 'before' || position === 'after') ? parent.parentNode : parent
+      history.actions.do({
+        parentLocation: cssPath(insertParent),
+        location: cssPath(newEl),
+        element: {
+          tagName: newEl.tagName.toLowerCase(),
+          outerHTML: newEl.outerHTML,
+          parentDebugSource: elementDebugSource(insertParent),
+        },
+        action: 'add',
+      })
+
+      const treeRoot = insertParent?.parentNode || insertParent || parent
+      if (treeRoot !== document.body) {
+        this.elementTree = this.createElementTree(treeRoot)
+      }
+    }
+
+    addModal.classList.add('hidden')
+    addModal.style.display = 'none'
+    if (contentInput) contentInput.value = ''
+    if (idInput) idInput.value = ''
+    if (classInput) classInput.value = ''
+    if (styleInput) styleInput.value = ''
+    this.cleanup()
+    this.setup()
+  }
+
+  onModalClose = e => {
+    const modal = e.target.closest('.modal') as HTMLElement
+    if (modal) {
+      modal.classList.add('hidden')
+      modal.style.display = 'none'
     }
   }
 
@@ -372,10 +494,26 @@ export default class EditorSidebar extends HTMLElement {
     })
 
     this.$shadow.querySelector('.add-class')?.addEventListener('click', this.onClassNameAddClicked)
+
+    // Modal event listeners
+    this.$shadow.querySelector('.edit-save')?.addEventListener('click', this.onEditElementSave)
+    this.$shadow.querySelector('.add-submit')?.addEventListener('click', this.onAddElementSubmit)
+    this.$shadow.querySelectorAll('.modal-close')?.forEach(e => e.addEventListener('click', this.onModalClose))
+
+    // Stop bubbling for modal inputs
+    this.$shadow.querySelectorAll('.modal input, .modal textarea, .modal select')?.forEach(e => {
+      e.addEventListener('keydown', this.stopBubbling)
+    })
   }
 
   createElementTree(element: Element, ariaLevel = 1) {
-    const children = element.children.length > 0 ? Array.from(element.children).map(child => this.createElementTree(child, ariaLevel + 1)) : []
+    if (!element || !element.tagName) return null
+    const children = element.children?.length > 0
+      ? Array.from(element.children)
+          .filter(child => !child.tagName?.toLowerCase()?.startsWith('uh-web-editor'))
+          .map(child => this.createElementTree(child, ariaLevel + 1))
+          .filter(Boolean)
+      : []
     const _debugSource = elementDebugSource(element)
     const fileName = _debugSource?.fileName ? `${_debugSource?.fileName.split('/').pop()}(${_debugSource?.lineNumber}:${_debugSource?.columnNumber})` : 'inline'
     const selector = cssPath(element)
@@ -385,7 +523,7 @@ export default class EditorSidebar extends HTMLElement {
       open: children.length > 0 && ariaLevel < 4,
       children: children,
       fileName: ariaLevel < 6 ? fileName : '',
-      isSelected: cssPath(globalThis.$target.data) === selector,
+      isSelected: cssPath(globalThis.$target?.data) === selector,
       ariaLevel
     }
   }
@@ -407,7 +545,7 @@ export default class EditorSidebar extends HTMLElement {
     const allTreeNodeNames = this.$shadow.querySelectorAll(`.node .name`)
     allTreeNodeNames?.forEach(e => e.removeEventListener('click', this.onTreeNodeNameClicked))
     const allTreeNodeActionButtons = this.$shadow.querySelectorAll(`.node .actions .button`)
-    allTreeNodeActionButtons?.forEach(e => e.addEventListener('click', this.onTreeNodeActionClicked))
+    allTreeNodeActionButtons?.forEach(e => e.removeEventListener('click', this.onTreeNodeActionClicked))
     this.$shadow.querySelector('.show-root')?.removeEventListener('click', this.onShowRootTreeClicked)
     this.$shadow.querySelectorAll('.class-list .class')?.forEach(e => {
       e.querySelector('.delete')?.removeEventListener('dblclick', this.onClassNameDeleteClicked)
@@ -416,6 +554,14 @@ export default class EditorSidebar extends HTMLElement {
       e.querySelector('input')?.removeEventListener('blur', this.onInsertCssClassBlur)
     })
     this.$shadow.querySelector('.add-class')?.removeEventListener('click', this.onClassNameAddClicked)
+
+    // Modal cleanup
+    this.$shadow.querySelector('.edit-save')?.removeEventListener('click', this.onEditElementSave)
+    this.$shadow.querySelector('.add-submit')?.removeEventListener('click', this.onAddElementSubmit)
+    this.$shadow.querySelectorAll('.modal-close')?.forEach(e => e.removeEventListener('click', this.onModalClose))
+    this.$shadow.querySelectorAll('.modal input, .modal textarea, .modal select')?.forEach(e => {
+      e.removeEventListener('keydown', this.stopBubbling)
+    })
     this.$shadow.innerHTML = ''
   }
 
@@ -447,7 +593,7 @@ export default class EditorSidebar extends HTMLElement {
               </div>` : ''}
           </div>  
           <div class="actions">
-          <!-- <div class="button edit"> edit </div> --->
+            <div class="button edit"> edit </div>
             <div class="button add"> (+) </div>
           </div>
         </div>
@@ -525,12 +671,70 @@ export default class EditorSidebar extends HTMLElement {
         <div class="tree-content">
           <div class="modal hidden edit-element">
             <div class="content">
-              coming soon
+              <div class="modal-header">
+                <span>Edit Element</span>
+                <div class="modal-close">&times;</div>
+              </div>
+              <div class="modal-body">
+                <label>Tag<div class="edit-tag" style="font-weight:bold;padding:4px 0;"></div></label>
+                <label>ID<input class="edit-id" type="text" placeholder="element id" /></label>
+                <label>Classes<input class="edit-class" type="text" placeholder="class names" /></label>
+                <label>Inline Styles<textarea class="edit-style" placeholder="e.g. color: red; padding: 8px;" rows="3"></textarea></label>
+              </div>
+              <div class="modal-actions">
+                <div class="modal-btn modal-cancel modal-close">Cancel</div>
+                <div class="modal-btn modal-save edit-save">Save</div>
+              </div>
             </div>
           </div>
           <div class="modal hidden add-element">
             <div class="content">
-              coming soon
+              <div class="modal-header">
+                <span>Add Element</span>
+                <div class="modal-close">&times;</div>
+              </div>
+              <div class="modal-body">
+                <label>Element Type
+                  <select class="add-type">
+                    <option value="div">div</option>
+                    <option value="span">span</option>
+                    <option value="p">p</option>
+                    <option value="button">button</option>
+                    <option value="a">a (link)</option>
+                    <option value="img">img</option>
+                    <option value="h1">h1</option>
+                    <option value="h2">h2</option>
+                    <option value="h3">h3</option>
+                    <option value="h4">h4</option>
+                    <option value="ul">ul</option>
+                    <option value="li">li</option>
+                    <option value="section">section</option>
+                    <option value="article">article</option>
+                    <option value="header">header</option>
+                    <option value="footer">footer</option>
+                    <option value="nav">nav</option>
+                    <option value="input">input</option>
+                    <option value="textarea">textarea</option>
+                    <option value="form">form</option>
+                  </select>
+                </label>
+                <label>Position
+                  <select class="add-position">
+                    <option value="append">Append (last child)</option>
+                    <option value="prepend">Prepend (first child)</option>
+                    <option value="before">Insert before</option>
+                    <option value="after">Insert after</option>
+                  </select>
+                </label>
+                <label>Text Content<input class="add-content" type="text" placeholder="optional text content" /></label>
+                <label>ID<input class="add-id" type="text" placeholder="optional id" /></label>
+                <label>Classes<input class="add-class" type="text" placeholder="optional class names" /></label>
+                <label>Inline Styles<input class="add-style" type="text" placeholder="e.g. color: red; padding: 8px;" /></label>
+              </div>
+              <div class="modal-actions">
+                <div class="modal-btn modal-cancel modal-close">Cancel</div>
+                <div class="modal-btn modal-save add-submit">Add</div>
+              </div>
             </div>
           </div>
           <div style="display: flex; justify-content: start;"> 

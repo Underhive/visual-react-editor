@@ -6,12 +6,8 @@ export class GuidesHotkeys extends HotkeyMap {
     super()
 
     this._hotkey    = 'g'
-    this._usedkeys  = []
+    this._usedkeys  = ['shift']
     this.tool       = 'guides'
-  }
-
-  show() {
-    this.$shadow.host.style.display = 'flex'
   }
 
   render() {
@@ -24,7 +20,11 @@ export class GuidesHotkeys extends HotkeyMap {
           </span>
         </div>
         <div command>
-          coming soon
+          <div style="display:flex;flex-direction:column;gap:0.5em;padding:0.5em;">
+            <span><b>Element Guides:</b> hover over elements</span>
+            <span><b>Measure Distance:</b> click element, then hover another</span>
+            <span><b>Sticky Measurement:</b> shift + click</span>
+          </div>
         </div>
       </article>
     `

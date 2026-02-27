@@ -14,13 +14,19 @@
 :host > button {
   pointer-events: auto;
   background-color: white;
-  border: 1px solid black;
+  border: 1px solid var(--theme-color, #0C8CE9);
   padding: 0;
   width: 0.5rem;
   height: 0.5rem;
-  /* border-radius: 50%; */
+  border-radius: 1px;
   position: relative;
   cursor: var(--cursor);
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.1);
+  transition: transform var(--transition-fast, 120ms ease);
+
+  &:hover {
+    transform: scale(1.2);
+  }
 
   /* increase tap target size */
   &::before {

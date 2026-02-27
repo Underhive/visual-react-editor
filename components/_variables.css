@@ -1,18 +1,18 @@
 :host {
-  --theme-bg: hsl(0 0% 100%);
+  --theme-bg: #FFFFFF;
   --theme-bd: hsl(0 0% 100% / var(--theme-bd-opacity));
-  --theme-bd-2: hsl(0 0% 100% / var(--theme-bd-2-opacity));
+  --theme-bd-2: hsl(0 0% 98% / var(--theme-bd-2-opacity));
   --theme-bd-opacity: 1;
   --theme-bd-2-opacity: 1;
-  --theme-color: rgb(58, 167, 218);
-  --theme-blue:   ;
-  --theme-purple: hsl(263, 69%, 47%);
-  --theme-dark-blue: hsl(221, 69%, 47%);
+  --theme-color: #0C8CE9;
+  --theme-blue: #0C8CE9;
+  --theme-purple: #7B61FF;
+  --theme-dark-blue: #1B3A8C;
 
-  --theme-text_color: hsl(0 0% 10%);
-  --theme-icon_color: hsl(0 0% 20%);
-  --theme-icon_hover-bg: hsl(0 0% 95%);
-  --theme-icon_active-bg: hsl(0 0% 90%);
+  --theme-text_color: #1E1E1E;
+  --theme-icon_color: #333333;
+  --theme-icon_hover-bg: rgba(0,0,0,0.06);
+  --theme-icon_active-bg: rgba(0,0,0,0.1);
 
   --layer-top: 2147483647;
   --layer-1: 2147483646;
@@ -23,28 +23,36 @@
 
   --text-shadow: 0 1px hsl(0 0% 0% / 40%);
 
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
+
+  --transition-fast: 120ms ease;
+  --transition-normal: 200ms ease;
+
   @media (-webkit-min-device-pixel-ratio: 2) {
     --text-shadow: 0 .5px hsl(0 0% 0% / 50%);
   }
 
   @media (prefers-color-scheme: dark) {
-    --theme-bg: hsl(0 0% 10%);
-    --theme-bd: hsl(0 0% 10% / var(--theme-bd-opacity));
-    --theme-bd-2: hsl(0 0% 10% / var(--theme-bd-2-opacity));
-    --theme-color: rgb(58, 167, 218);
-    --theme-text_color: hsl(0 0% 90%);
-    --theme-icon_color: hsl(0 0% 80%);
-    --theme-icon_hover-bg: hsl(0 0% 15%);
-    --theme-icon_active-bg: hsl(0 0% 20%);
+    --theme-bg: #2C2C2C;
+    --theme-bd: hsl(0 0% 17% / var(--theme-bd-opacity));
+    --theme-bd-2: hsl(0 0% 17% / var(--theme-bd-2-opacity));
+    --theme-color: #0C8CE9;
+    --theme-text_color: #E5E5E5;
+    --theme-icon_color: #B3B3B3;
+    --theme-icon_hover-bg: rgba(255,255,255,0.08);
+    --theme-icon_active-bg: rgba(255,255,255,0.12);
   }
 
   @supports (backdrop-filter: blur(5px)) {
-    --theme-bd-opacity: .8;
-    --theme-bd-2-opacity: .9;
+    --theme-bd-opacity: .85;
+    --theme-bd-2-opacity: .92;
   }
 
   @supports (-webkit-backdrop-filter: blur(5px)) {
-    --theme-bd-opacity: .8;
-    --theme-bd-2-opacity: .9;
+    --theme-bd-opacity: .85;
+    --theme-bd-2-opacity: .92;
   }
 }

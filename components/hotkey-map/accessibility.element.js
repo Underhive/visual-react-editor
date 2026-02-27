@@ -11,10 +11,6 @@ export class AccessibilityHotkeys extends HotkeyMap {
     this.tool       = 'accessibility'
   }
 
-  show() {
-    this.$shadow.host.style.display = 'flex'
-  }
-
   render() {
     return `
       <article>
@@ -25,7 +21,12 @@ export class AccessibilityHotkeys extends HotkeyMap {
           </span>
         </div>
         <div command>
-          coming soon
+          <div style="display:flex;flex-direction:column;gap:0.5em;padding:0.5em;">
+            <span><b>Inspect A11y:</b> hover over any element</span>
+            <span><b>Pin Tooltip:</b> click to pin accessibility info</span>
+            <span><b>Shows:</b> ARIA roles, labels, contrast ratios</span>
+            <span><b>Remove All:</b> press Escape</span>
+          </div>
         </div>
       </article>
     `

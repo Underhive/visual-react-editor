@@ -307,6 +307,13 @@ export const WebEditorModel = {
     description: 'Turn the editor ON or OFF to use the page normally. <b>Double click</b> to toggle.',
     instruction: '',
   },
+  n: {
+    tool:        'insert',
+    icon:        Icons.inserter,
+    label:       '<span>I<u>n</u>sert</span>',
+    description: 'Insert new elements into the page visually',
+    instruction: '',
+  },
   c: {
     tool:        'create',
     icon:        Icons.creator,

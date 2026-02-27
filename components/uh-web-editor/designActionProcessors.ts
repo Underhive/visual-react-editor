@@ -811,8 +811,9 @@ export const strokeLeft = () => {
 }
 
 const sendInlineStyle = (data) => {
+  if (!globalThis.$target?.data?.style) return
   updateAppliedStyles(globalThis.$target.data, true)
-  const source = globalThis.sharedStorage.get('currentElementReactFiberSource')
+  const source = globalThis.sharedStorage?.get('currentElementReactFiberSource')
   data.name = data.name.replace(/-./g, match => match.charAt(1).toUpperCase())
   const event = {
     log: {...data, source: { type: 'inline' }},

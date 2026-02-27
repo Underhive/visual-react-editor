@@ -10,10 +10,6 @@ export class TextHotkeys extends HotkeyMap {
     this.tool       = 'text'
   }
 
-  show() {
-    this.$shadow.host.style.display = 'flex'
-  }
-
   render() {
     return `
       <article>
@@ -24,7 +20,11 @@ export class TextHotkeys extends HotkeyMap {
           </span>
         </div>
         <div command>
-          coming soon
+          <div style="display:flex;flex-direction:column;gap:0.5em;padding:0.5em;">
+            <span><b>Edit Text:</b> double-click any text element</span>
+            <span><b>Finish Editing:</b> click outside or press Escape</span>
+            <span><b>Note:</b> changes are saved to source automatically</span>
+          </div>
         </div>
       </article>
     `
